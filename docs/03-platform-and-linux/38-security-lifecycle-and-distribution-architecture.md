@@ -1,6 +1,6 @@
 # NamiShelf — Security, Lifecycle and Distribution Architecture
 
-**Status:** Proposed security and release architecture; owner decisions and platform validation remain open.
+**Status:** Owner-approved release policy baseline under ADR-027; exact distribution/runtime versions and platform evidence remain subject to M0 and release gates.
 
 ## 1. Trust zones
 
@@ -34,7 +34,7 @@ Separate:
 - E2EE key material;
 - optional backup password/key derivation input.
 
-Never reuse one class of secret as another. Persistent secrets belong in the OS credential service. The current recommendation is fail-closed when Secret Service is unavailable; no plaintext file, command-line, environment-variable or extension-process fallback. This specific availability policy still requires owner confirmation.
+Never reuse one class of secret as another. Persistent secrets belong in the OS credential service. Secret Service is the only persistent credential backend and fails closed with no fallback, as required by ADR-023. No plaintext file, command-line, environment-variable, database, backup or extension-process fallback is permitted.
 
 Extensions do not receive global credentials. Source authentication is scoped to the relevant source and origin. Logs, diagnostics, backups and crash reports redact secrets.
 
@@ -65,16 +65,25 @@ Packaging formats are independent release gates. A successful build of one forma
 
 ## 7. Runtime and compatibility policy
 
-Still open:
-- bundled versus system JVM;
-- minimum supported Debian/Ubuntu/Arch release window;
-- Wayland release criteria and X11 baseline;
-- Flatpak runtime/application ID;
-- AppImage update and signature mechanism;
-- Secret Service failure behavior;
-- OS-level sandbox mechanism for extensions.
+Owner-approved baseline under ADR-027:
+- Linux-first; release 1 targets x86_64 only. Future platform support remains an architectural goal, not a release commitment.
+- Linux Mint 22.3 x86_64 is the primary end-to-end reference environment. Debian/Ubuntu-family and Arch-based distributions are compatibility targets only when exact releases and package behavior have been tested and documented.
+- Ship and control a dedicated application JVM/runtime; do not require or silently fall back to an arbitrary system Java installation.
+- X11 is the mandatory first-release baseline. Wayland is a compatibility target advertised only for compositor/session combinations that pass the release matrix.
+- DEB uses APT/configured repositories, Flatpak uses Flatpak remotes, and AppImage uses the dedicated per-user NamiShelf updater, as specified by ADR-022.
+- Stable is the only initial public release channel. Preview/testing channels require a separate decision.
+- Each package format is an independent release gate. A successful build alone is insufficient; require reproducible install/upgrade/uninstall, rollback where applicable, user-data preservation and end-to-end evidence.
+- Minimum Debian/Ubuntu/Arch release versions remain open until M0 inspects actual native dependencies and runtime requirements; submit an evidence-backed matrix before packaging freeze.
 
-The candidate's actual native dependencies and current runtime packaging must be inspected before selecting these.
+Deferred M0/release engineering:
+- Exact JVM distribution/version and runtime packaging mechanism.
+- Minimum supported distro releases and exact tested derivative matrix.
+- Flatpak runtime/application ID and portal permissions.
+- AppImage updater technology, metadata/signature format and key lifecycle.
+- Wayland compositor/session test matrix.
+- OS-level sandbox mechanism for extension processes.
+
+These details must preserve ADR-027 and other approved security decisions.
 
 ## 8. Security verification gates
 
