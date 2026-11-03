@@ -12,7 +12,7 @@ Define a transport-independent sync domain. GitHub may be an adapter, but Git re
 1. **Domain model:** canonical entities and operations; no provider SDK or transport dependencies.
 2. **Local journal:** durable operation IDs, entity keys, versions, pending/acknowledged state.
 3. **Sync engine:** batching, retry, idempotency, reconciliation, and conflict handling.
-4. **Envelope:** schema version, payload type, integrity metadata, optional encryption.
+4. **Envelope:** schema version, payload type, integrity metadata, mandatory end-to-end encryption (E2EE).
 5. **Provider adapter:** remote read/write/list and declared consistency/capability limits.
 6. **Credential service:** OS secure storage; inaccessible to extensions.
 7. **UI control plane:** sync status, pause, disconnect, device management, conflict resolution.
@@ -25,11 +25,11 @@ Define a transport-independent sync domain. GitHub may be an adapter, but Git re
 | Chapter state | Read/unread, bookmark, progress | Downloaded image bytes |
 | Categories | Names, ordering, membership | Device-specific presentation |
 | Followed authors | Add/remove and normalized identity | Source credentials |
-| History | Compact reading events/state | Unbounded event archive |
-| Tracking links | Tracker association and metadata | Tracker tokens/passwords |
-| Preferences | Explicit allowlist only | Window geometry, cache, local paths |
+| History | Excluded from release-1 core scope | All history events |
+| Tracking links | Excluded from release-1 core scope | Tracker associations and credentials |
+| Preferences | Excluded from release-1 core scope | General preferences, window geometry, cache, local paths |
 
-Extensions, downloaded content, caches, cookies, passwords, and global credentials are excluded by default.
+Release-1 core scope is limited to library entries, chapter read/progress state, categories, and followed authors. History, tracking associations, general preferences, extensions, downloaded content, caches, cookies, passwords, and global credentials are excluded.
 
 ## Operation envelope
 
@@ -50,7 +50,7 @@ Adapters declare support for durable object storage, atomic replacement, conditi
 - Keep extension processes away from sync journal, credentials, account tokens, and raw remote payloads.
 - Preserve TLS validation.
 - Treat transport encryption and end-to-end payload encryption as separate decisions.
-- If E2EE is selected, specify key generation, device enrollment, recovery, rotation, revocation, and lost-device behavior first.
+- E2EE is mandatory. Specify key generation, device enrollment, recovery, rotation, revocation, and lost-device behavior before implementation. Providers must receive encrypted payloads only.
 - Minimize synchronized personal metadata and expose the data scope to users.
 
 ## Failure and conformance requirements
@@ -59,4 +59,4 @@ Handle offline devices, partial batches, duplicate delivery, rate limits, revoke
 
 ## Release scope and remaining decisions
 
-Synchronization is required in the first public release (owner-approved 2026-11-03). The initial provider remains undecided. Also open: E2EE requirement, exact entity scope, account/device enrollment, recovery model, and final conflict rules. The entity list and conflict semantics above are proposals, not yet a finalized product contract.
+Synchronization is required in the first public release. Owner decisions (2026-11-03): GitHub is the first provider adapter; no mandatory NamiShelf-hosted service; self-hosting is required in release 1; E2EE is mandatory; core scope is library entries, chapter read/progress state, categories, and followed authors. A GitHub adapter alone cannot satisfy self-hosting, so a second self-hosted adapter is required unless the owner revises that constraint. Device enrollment, recovery, cryptographic profile, and final conflict rules remain open.
