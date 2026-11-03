@@ -1,6 +1,6 @@
 # Linux Platform Support and Packaging Matrix
 
-**Status:** Linux-first, x86_64 release-1 scope approved under ADR-021. Minimum distribution/runtime versions and exact desktop-session matrix remain open pending M0.
+**Status:** Linux-first x86_64 scope and release/runtime policy approved under ADR-021 and ADR-027. Minimum distribution versions and exact tested desktop-session matrix remain engineering work.
 
 ## 1. Release-1 support commitment
 
@@ -51,13 +51,15 @@ Before release:
 
 M0 must establish:
 - candidate project's current Linux/JVM desktop portability and native dependencies;
-- minimum viable JDK/JVM runtime and packaging strategy;
+- feasibility of the owner-approved dedicated application JVM/runtime policy; exact distribution/version and packaging strategy are selected from evidence, not assumed;
 - glibc and system-library baseline for AppImage/DEB;
 - Flatpak runtime/SDK and portal requirements;
-- X11 and Wayland support expectations;
+- X11 mandatory-baseline feasibility and Wayland observations; Wayland support may be claimed only for tested compositor/session combinations;
 - GPU acceleration and software-rendering fallback behavior;
 - x86_64 native artifacts and transitive dependency architecture;
 - feasibility and cost of future ARM64, Windows and macOS ports.
+
+Under ADR-027, X11 is the mandatory release-1 baseline, Wayland is conditional on test evidence, and Stable is the only initial public release channel. Linux Mint 22.3 x86_64 is the primary reference environment. The application must ship a dedicated runtime and must not silently fall back to arbitrary system Java.
 
 Do not select minimum versions based solely on the current development machine.
 
