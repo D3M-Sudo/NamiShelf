@@ -61,7 +61,10 @@ Encrypted backup:
 - Bound KDF parameters before running the KDF.
 - Fresh random salt and nonce according to the selected primitive.
 - Fail closed on authentication failure; never fall back to plaintext parsing.
-- No password escrow or silent recovery.
+- Support both the backup password and a separate locally generated recovery key as alternative recovery methods; either method independently recovers the same backup encryption key.
+- Generate the recovery key locally, display it once at backup creation or explicit regeneration, and instruct the user to store it separately. Never transmit it to providers, log it, or include it in plaintext metadata or payloads.
+- Losing both password and recovery key makes the encrypted backup unrecoverable. No vendor/server escrow and no plaintext fallback.
+- Represent the two recovery methods through independently authenticated, versioned key-wrapping slots or an equivalent independently reviewed envelope construction. Do not design custom cryptography; primitive, KDF and wrapping selection require independent review.
 - Cryptographic primitive/library/KDF selection requires independent review of JVM support, Linux packaging, known-answer vectors, and resource-exhaustion limits before implementation freeze.
 
 ## 6. ZIP parser profile and safety
@@ -79,7 +82,7 @@ Encrypted backup:
 
 1. Detect NamiShelf magic and format version.
 2. Bound input size and parse container metadata without extraction.
-3. If encrypted, validate KDF parameters against hard bounds, derive key, authenticate, then decrypt to bounded temporary storage.
+3. If encrypted, validate KDF parameters and the selected recovery slot against hard bounds, derive/unwrap the backup key using either the password or recovery key, authenticate, then decrypt to bounded temporary storage.
 4. Validate ZIP structure, canonical paths, entry allowlist, sizes and compression limits.
 5. Parse manifest and validate every schema and digest.
 6. Build a read-only restore preview: new/updated/conflicting/skipped records, source mapping, settings categories, unsupported fields.
@@ -106,6 +109,6 @@ No persistent profile mutation is allowed before the user confirms the preview.
 
 ## 10. Required conformance fixtures
 
-Malformed ZIP headers; duplicate names and normalized paths; traversal; symlinks; ZIP64; unsupported compression; compression bombs; truncated streams; CRC/digest mismatch; malformed/duplicate-key JSON; unknown required schema version; wrong password; tampered ciphertext/metadata; KDF parameter abuse; cancellation during each restore stage; disk-full; interrupted checkpoint/apply; partial restore; old/new schema migration; legacy .tachibk import/export and loss report.
+Malformed ZIP headers; duplicate names and normalized paths; traversal; symlinks; ZIP64; unsupported compression; compression bombs; truncated streams; CRC/digest mismatch; malformed/duplicate-key JSON; unknown required schema version; wrong password; valid recovery-key restore; invalid recovery key; recovery metadata tampering; both recovery methods lost; tampered ciphertext/metadata; KDF parameter abuse; cancellation during each restore stage; disk-full; interrupted checkpoint/apply; partial restore; old/new schema migration; legacy .tachibk import/export and loss report.
 
 No backup implementation, build, restore, or fixture execution has been performed.
