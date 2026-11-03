@@ -46,8 +46,10 @@ This documentation records the conditional downstream-base assessment, approved 
 | Sync release scope | Required in release 1; core entities only |
 | Sync hosting | No mandatory NamiShelf-hosted service |
 | First sync provider | GitHub adapter |
-| Self-hosted sync | Required in release 1; second adapter needed |
+| Self-hosted sync | WebDAV adapter required in release 1 |
 | Sync encryption | Mandatory E2EE |
+| E2EE recovery | Recovery key plus authorized-device transfer |
+| Device revocation | Rotate keys for future synchronized data |
 | Sync entity scope | Library, chapter read/progress, categories, followed authors |
 | Linux profile | Clean XDG profile; explicit opt-in migration |
 | CPU architecture | x86_64 first; aarch64 after validation |
