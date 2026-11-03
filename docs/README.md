@@ -17,7 +17,7 @@ It is not a security certification, a complete source-code audit, or a guarantee
 - `04-linux-platform-design.md` — Linux/Mint porting workstreams and validation matrix.
 - `05-extension-security-model.md` — approved per-extension process model, brokered data access, conditional OS isolation, and required Android APK/DEX-to-JVM compatibility.
 - `06-license-and-dependency-review.md` — preliminary licensing and dependency inventory findings.
-- `07-agent-handoff.md` — constraints and workflow for the next authorized phase.
+- `07-agent-handoff.md` — constraints and workflow for the next authorized phase.\n- `08-backup-interoperability.md` — Mihon-compatible backup format, coverage, exclusions, and restore acceptance.\n- `09-sync-architecture-assessment.md` — candidate GitHub-backed sync design, credential boundaries, and unresolved product choices.\n- `10-reader-and-image-pipeline-assessment.md` — Skia reader architecture, native runtime risks, and memory validation.\n- `11-linux-runtime-and-dependency-risk.md` — desktop-only build feasibility, native dependencies, and Linux packaging gates.
 
 ## Current decisions
 
