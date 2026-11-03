@@ -25,7 +25,7 @@ This documentation records the conditional downstream-base assessment, approved 
 - `14-backup-format-and-restore-safety.md` — format evolution, resource limits, and partial restore semantics.
 - `19-mihon-backup-compatibility-architecture.md` — pinned Android v0.21.3 backup implementation, legacy wire contract, and approved NamiShelf adapter strategy.
 - `20-backup-workflow-and-conformance-plan.md` — backup UX, download export separation, loss reporting, and format conformance plan.
-- `21-native-backup-container-options.md` — comparison of ZIP64, TAR/Zstandard, and custom container options with security requirements.
+- `21-native-backup-container-options.md` — approved ZIP/JSON/encryption choices and remaining schema/security details.
 - `15-architecture-decisions-required.md` — remaining owner decisions.
 - `16-provider-neutral-sync-protocol.md` — sync domain/protocol, provider adapters, conflicts, and security.
 - `17-xdg-filesystem-and-migration-design.md` — Linux directory layout and safe migration.
@@ -44,6 +44,10 @@ This documentation records the conditional downstream-base assessment, approved 
 | CPU architecture | x86_64 first; aarch64 after validation |
 | Reader priority | Stability and bounded memory over aggressive prefetch |
 | Backup architecture | NamiShelf-native versioned format; Mihon formats are adapters |
+| Native backup container | ZIP (ZIP64 when required) |
+| Native backup payload | Canonical JSON |
+| Native backup encryption | Optional per backup |
+| Library selection | Full library selected by default; settings selectable by category |
 | Legacy Mihon backup | .tachibk import and export required in release 1 |
 | Downloads backup | Separate export/migration operation |
 | Portable settings | Selected by backup category; secrets/device-local state excluded |
