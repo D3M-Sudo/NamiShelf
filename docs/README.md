@@ -32,6 +32,11 @@ This documentation records the conditional downstream-base assessment, approved 
 - `25-self-hosted-sync-adapter-options.md` — WebDAV selection and server compatibility requirements.
 - `26-extension-ipc-transport-and-broker-design.md` — approved stdio transport, broker contract, capability boundary, and security requirements.
 - `27-android-mihon-extension-api-compatibility-matrix.md` — API-family compatibility classification, broker mappings, unsupported behaviors, and fixture-based validation plan.
+- `29-extension-ipc-protocol-v1.md` — normative IPC v1 framing, JSON control messages, binary streams, handshake, errors, and conformance gates.
+- `30-extension-capability-catalogue.md` — capability identifiers, proposed permission profiles, consent, revocation, and source-auth boundaries.
+- `31-pre-code-implementation-blueprint.md` — ordered workstreams, M0 recommendation, readiness gates, and owner inputs.
+- `32-native-backup-v1-implementation-profile.md` — proposed native ZIP/JCS JSON profile, integrity, archive safety, encryption boundaries, and restore flow.
+- `33-provider-neutral-sync-domain-protocol.md` — sync entities, operation model, conflict requirements, E2EE envelope, and GitHub/WebDAV adapter contract.
 - `15-architecture-decisions-required.md` — remaining owner decisions.
 - `16-provider-neutral-sync-protocol.md` — sync domain/protocol, provider adapters, conflicts, and security.
 - `17-xdg-filesystem-and-migration-design.md` — Linux directory layout and safe migration.
@@ -70,18 +75,18 @@ This documentation records the conditional downstream-base assessment, approved 
 | Extension network policy | Brokered access limited to source-declared origins; redirects revalidated |
 | Extension capability UX | Editable predefined profiles; explicit extra consent for sensitive capabilities |
 | Large extension payloads | Temporary scoped broker handles with quotas and cancellation |
-| Extension wire encoding | Pending owner decision; JSON length-prefixed framing is proposed |
+| Extension wire encoding | UTF-8 JSON control frames plus binary stream frames, length-prefixed (ADR-011) |
 | Android/Mihon extension compatibility | Versioned API profile; DEX-to-JVM plus explicit API shims and broker mapping |
 | Android APK extensions | DEX-to-JVM plus declared Android/Mihon API compatibility required in first release |
 | Third-party extensions | Included in first public release |
 | OS isolation | Pursue if sustainable; exact mechanism may be deferred by later decision |
 | Linux target | Linux Mint 22.3 primary; Ubuntu-, Debian-, and Arch-based targets in scope |
 | Packaging goals | AppImage, Flatpak, DEB |
-| Implementation | Not authorized; documentation/planning only |
+| Implementation | Planning specifications published; application code phase still requires explicit authorization |
 
 ## Evidence baseline
 
 - Mihon Desktop: `AltairCardinal/mihon-desktop@701080c251c8fd8b35d0b57a481d93b9a9eb3701`
 - Mihon upstream: `mihonapp/mihon@e588e04359fe1058206a2cbac1b01018ad787359`
 
-Re-check before implementation. No build, test execution, dependency resolution, advisory scan, complete license report, Linux runtime validation, extension fixture execution, or reproducible package test has been performed.
+Re-check before implementation. No build, test execution, dependency resolution, advisory scan, complete license report, Linux runtime validation, extension fixture execution, cryptographic review, or reproducible package test has been performed.
