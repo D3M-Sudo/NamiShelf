@@ -1,6 +1,6 @@
 # Application Update and Release Channel Strategy
 
-**Status:** Native DEB/Flatpak updates and a dedicated AppImage updater approved under ADR-022. Concrete updater technology, signing operations and UX remain deferred.
+**Status:** Native DEB/Flatpak updates, dedicated AppImage updater and Stable-only initial public channel approved under ADR-022 and ADR-027. Concrete updater technology, signing operations and UX remain deferred.
 
 ## 1. Update ownership by package format
 
@@ -38,7 +38,7 @@ No downloaded shell script or arbitrary update hook may be executed. Per-user Ap
 
 ## 4. Channels and compatibility
 
-Separate stable and any future preview/testing channels. Channel switching must be explicit and visible. The initial release may expose only stable; additional channels are not implied.
+Stable is the only initial public release channel under ADR-027. Any future preview/testing channel requires a separate owner-approved decision and must be isolated from stable metadata. Channel switching, if introduced later, must be explicit and visible.
 
 Application binaries, extension packages and source/catalog metadata are distinct update domains:
 - application updates use release signing and package-format ownership;
@@ -67,7 +67,7 @@ Handle unavailable network, invalid signature, digest mismatch, interrupted down
 - AppImage updater technology and supported installation layouts.
 - Release metadata schema and signing format.
 - Trusted key bootstrap, custody, rotation and revocation.
-- Stable-only initial channel versus preview channels.
+- Stable-only initial public channel is owner-approved under ADR-027; any preview/testing channel requires a separate future decision.
 - Rollback activation mechanism and health criterion.
 - Update notification, consent and scheduling UX.
 - Full versus delta downloads and offline behavior.
