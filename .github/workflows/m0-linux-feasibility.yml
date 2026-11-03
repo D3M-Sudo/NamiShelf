@@ -84,18 +84,59 @@ jobs:
           set -euo pipefail
           ./gradlew --no-daemon --stacktrace :app-desktop:jvmTest
 
-      - name: Capture resolved desktop runtime dependency graph
+      - name: Prepare isolated virtual display and DBus tools
+        if: steps.desktop_tests.outcome == 'success'
+        shell: bash
+        run: |
+          set -euo pipefail
+          sudo apt-get update
+          sudo apt-get install --yes --no-install-recommends xvfb xauth xdotool dbus-x11
+
+      - name: Launch unmodified desktop app in isolated X11 session
+        if: steps.desktop_tests.outcome == 'success'
+        working-directory: candidate
+        shell: bash
+        run: |
+          set -uo pipefail
+          isolated="$RUNNER_TEMP/m0-isolated-home"
+          mkdir -p "$isolated/home" "$isolated/config" "$isolated/data" "$isolated/cache"
+          export HOME="$isolated/home"
+          export XDG_CONFIG_HOME="$isolated/config"
+          export XDG_DATA_HOME="$isolated/data"
+          export XDG_CACHE_HOME="$isolated/cache"
+          set +e
+          dbus-run-session -- xvfb-run -a timeout --signal=TERM --kill-after=10s 60s \\
+            ./gradlew --no-daemon :app-desktop:run \\
+            > "$RUNNER_TEMP/m0-x11-launch.log" 2>&1
+          result=$?
+          set -e
+          echo "$result" > "$RUNNER_TEMP/m0-x11-launch.exit-code"
+          if [ "$result" -eq 124 ]; then
+            echo "Application process remained alive for the 60-second smoke window."
+          elif [ "$result" -eq 0 ]; then
+            echo "Application task exited cleanly before the smoke window elapsed."
+          else
+            echo "Application launch failed with exit code $result."
+            tail -n 120 "$RUNNER_TEMP/m0-x11-launch.log"
+            exit "$result"
+          fi
+
+      - name: Generate desktop license metadata and dependency report
         if: always()
         working-directory: candidate
         shell: bash
         run: |
           mkdir -p "$RUNNER_TEMP/m0-evidence"
-          ./gradlew --no-daemon :app-desktop:dependencies --configuration jvmRuntimeClasspath \
+          ./gradlew --no-daemon :app-desktop:exportLibraryDefinitionsJvm \\
+            > "$RUNNER_TEMP/m0-evidence/aboutlibraries-export.log" 2>&1 || true
+          ./gradlew --no-daemon :app-desktop:dependencies --configuration jvmRuntimeClasspath \\
             > "$RUNNER_TEMP/m0-evidence/desktop-runtime-dependencies.txt" 2>&1 || true
-          cp -f app-desktop/build/reports/tests/jvmTest/index.html \
+          cp -f app-desktop/build/reports/tests/jvmTest/index.html \\
             "$RUNNER_TEMP/m0-evidence/desktop-jvm-test-report.html" 2>/dev/null || true
           cp -f "$RUNNER_TEMP/m0-environment.txt" "$RUNNER_TEMP/m0-evidence/" 2>/dev/null || true
           cp -f "$RUNNER_TEMP/android-toolchain-check.json" "$RUNNER_TEMP/m0-evidence/" 2>/dev/null || true
+          cp -f "$RUNNER_TEMP/m0-x11-launch.log" "$RUNNER_TEMP/m0-evidence/" 2>/dev/null || true
+          cp -f "$RUNNER_TEMP/m0-x11-launch.exit-code" "$RUNNER_TEMP/m0-evidence/" 2>/dev/null || true
 
       - name: Probe Linux native distribution task
         if: always()
