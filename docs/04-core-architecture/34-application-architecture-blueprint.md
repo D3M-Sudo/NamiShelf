@@ -8,7 +8,7 @@
 NamiShelf is an independent Linux desktop application inspired by Mihon. Its architecture must preserve useful Mihon/Mihon Desktop domain behavior while providing a desktop-first UX, Linux-native integration, isolated third-party extensions, portable backup, and provider-neutral E2EE synchronization.
 
 Primary constraints:
-- Kotlin/JVM desktop candidate; Compose Desktop is the current UI baseline inherited from the conditional downstream candidate.
+- Kotlin/JVM desktop; Compose Multiplatform Desktop is owner-approved as the reference UI framework under ADR-014, subject to mandatory Linux M0 validation gates.
 - Linux Mint 22.3 x86_64 is the first validation target.
 - Modular monolith for trusted application code; separate OS process for every third-party extension.
 - Offline-first local library and reader operation.
