@@ -13,7 +13,7 @@ NamiShelf should therefore maintain a canonical, versioned, platform-neutral bac
 - future Mihon format adapter, only after official implementation/specification and fixtures are available;
 - NamiShelf-native full-fidelity backup.
 
-The NamiShelf-native format and default UX are not yet owner-approved.
+**Owner decision (2026-11-03):** NamiShelf-native backup is the default; legacy .tachibk import and export are required in release 1; downloads are exported/migrated separately; portable settings are selected by category.
 
 ## 2. Current Mihon Android v0.21.3 contract
 
