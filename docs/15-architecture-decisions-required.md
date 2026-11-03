@@ -1,139 +1,152 @@
-# NamiShelf — Architecture Decisions Required Before Implementation
+# NamiShelf — Final Architecture Decision Register and Pre-Code Gates
 
-**Status:** Consolidated decision register; remaining choices only  
+**Status:** Consolidated owner decisions and remaining implementation blockers  
 **Date:** 2026-11-03  
-**Scope:** Product/architecture choices only; no implementation authorized
+**Scope:** Architecture and specification only; no application code implementation is performed by this register.
 
-This document consolidates decisions that cannot be settled safely by static inspection alone. Recommendations are proposals, not accepted decisions.
+This document supersedes older "open decision" lists where later ADRs or owner confirmations resolved the question. In case of conflict, the latest numbered ADR and explicit owner confirmation take precedence.
 
-## 1. Linux credential storage behavior
+## 1. Product and technical base
 
-**Evidence:** the candidate uses Secret Service through `secret-tool`, encrypted AES-GCM records, and a separately stored wrapping key. It intentionally has no plaintext fallback. The inspected desktop integration test exercises native credential round-trip on Windows/macOS, but skips Linux; Linux tests use a fake command runner.
+- Product: NamiShelf, independent Linux desktop application inspired by Mihon; not an official Mihon product.
+- Repository: `D3M-Sudo/NamiShelf`.
+- Technical base: `AltairCardinal/mihon-desktop` remains a **conditional candidate**, not yet accepted as the production base.
+- Upstream strategy: maintain Mihon upstream as a reference and selectively integrate relevant changes; preserve a documented downstream delta.
+- UI: desktop-first hybrid UX, not a direct Android UI port.
+- Documentation: technical English.
+- Owner: D3M-Sudo.
 
-**Recommendation:** keep Secret Service as the persistent credential backend; fail closed when unavailable. Provide an explicit “secure credential service unavailable” state and disable persistent sync authorization rather than downgrade to plaintext. Decide whether an optional session-only credential mode is desirable; default recommendation is no session-only mode in the first release because it complicates refresh/restart semantics.
+**Blocking gate:** the candidate has not passed Linux build/runtime feasibility, resolved dependency/SBOM, full licensing/provenance, extension security, or native integration validation. A code phase must start with a bounded feasibility spike, not assume the base is already accepted.
 
-**Owner decision required:** Is sync allowed to operate only when an OS credential service is available, with no fallback? Proposed default: **yes**.
+## 2. First-release product scope and Linux targets
 
-## 2. Sync provider and protocol
+Confirmed:
+- Reading, sources, library, tracking, backup, extensions, downloads, and history.
+- Third-party extensions included in the first public release.
+- Linux Mint 22.3 is the primary validation environment.
+- Linux x86_64 is the first release gate; aarch64 follows only after native dependency and package validation.
+- AppImage, Flatpak, and DEB are packaging goals, each independently gated.
+- Clean NamiShelf XDG profile; migration/import from Mihon Desktop is explicit opt-in and must not silently adopt or mutate the old profile.
+- Stability and bounded memory take priority over aggressive reader prefetch. Numeric budgets require real measurements.
 
-**Evidence:** candidate sync uses a custom GitHub private-repository protocol. It is not compatible with upstream Mihon clients and introduces GitHub account, API, repository, and token lifecycle dependencies.
+## 3. Extensions and security
 
-**Recommendation:** define a provider-neutral NamiShelf sync domain/protocol and keep transport behind an adapter. GitHub may be the first provider, but do not make GitHub repository layout or Git object transport the public protocol contract. This preserves the option of self-hosting or another provider later, at additional initial design cost.
+Owner-confirmed:
+- One OS process per extension.
+- All privileged data access mediated by NamiShelf broker; no direct core DB, backup, sync credential/key, tracking credential, or arbitrary host-file access.
+- stdio is the IPC transport.
+- Source-origin-restricted network policy.
+- Editable predefined capability profiles.
+- Large payload transfer via broker-issued temporary handles.
+- Android APK extensions converted DEX-to-JVM are required in release 1.
+- Third-party extensions are required in release 1.
+- OS-level sandboxing should be pursued where technically sustainable; if not, the exact mechanism/release commitment must be deferred to an explicit owner decision. Process separation is not a sandbox.
 
-**Owner decision:** **B — Provider-neutral**, confirmed on 2026-11-03. NamiShelf will define a provider-independent sync domain/protocol and isolate transports behind adapters. GitHub may be an initial adapter, but its repository layout and Git object model will not define the public protocol. Sync is included in the first public release, as confirmed 2026-11-03. GitHub is the first provider adapter; self-hosting is also required in release 1, so a second self-hosted adapter is needed.
+Engineering defaults now specified:
+- Protocol v1.0: UTF-8 JSON control frames plus binary stream frames, four-byte big-endian length prefix and explicit frame type (ADR-011 / document 29).
+- Default-deny capability evaluation; host-computed intersection of product policy, profile, user overrides, source policy and method requirement.
+- Standard Source, Authenticated Source, and Restricted/Review profiles are proposed, not yet owner-approved UX names/defaults (document 30).
+- Network: HTTPS, per-source cookie/auth isolation, redirect reauthorization at each hop, no cross-origin credential forwarding, local/private/link-local/metadata destinations denied by default, DNS rebinding/SSRF defenses.
+- Handles: random opaque identifiers bound to extension/process/session/request, short expiry, byte/concurrency quotas, cancellation, backpressure and revocation invalidation.
+- Unsupported required Android/Mihon APIs block activation; unsupported optional APIs fail explicitly. No silent no-ops.
 
-## 3. Backup compatibility architecture
+Documents: 05, 26, 27, 29, 30.
 
-**Owner decisions:** confirmed on 2026-11-03.
+## 4. Backup architecture
 
-- **Native format:** NamiShelf-native, versioned format is the default; Mihon formats are interoperability adapters.
-- **Container:** ZIP; use ZIP64 extensions where required for large archives.
-- **Structured payload:** canonical JSON.
-- **Encryption:** optional per backup.
-- **Library selection:** complete library selected by default.
-- **Settings:** portable settings selected by category.
-- **Legacy Mihon/Tachiyomi:** both .tachibk import and export required in release 1; export must disclose omitted and approximated fields.
-- **Downloads:** separate export/migration operation.
-- **Future Mihon format:** implement an adapter only after official format and implementation are inspectable and fixture-testable.
+Owner-confirmed:
+- NamiShelf-native format is canonical; Mihon formats are interoperability adapters.
+- Native container: ZIP/ZIP64.
+- Structured payload: JSON, with canonicalization profile to be finalized.
+- Encryption optional per backup.
+- Complete library selected by default.
+- Portable settings selected by category.
+- Legacy Mihon/Tachiyomi `.tachibk` import and export required in release 1.
+- Downloads are a separate export/migration operation.
+- Future Mihon format adapter only after official implementation/format is inspectable and fixture-testable.
 
-Remaining design tasks: canonical JSON profile, manifest schema, ZIP feature subset, integrity/authentication model, encryption/KDF/recovery profile, settings allowlist, download archive layout, and legacy export loss-report UX.
+Required safety:
+- ZIP traversal/duplicate path/symlink rejection, decompression and entry limits, streaming, validation before mutation, restore preview, checkpoint, bounded batches, cancellation and explicit partial-restore report.
+- No credentials, cookies, provider tokens, E2EE keys, OS wrapping keys, or extension signing secrets in backups.
+- Legacy export must disclose omitted/approximated fields; no silent data loss.
 
-Mandatory safeguards: bounded streaming, compressed/decompressed limits, pre-restore preview, recovery checkpoint, and explicit partial-restore reporting.
+Still to finalize technically: canonical JSON standard, manifest/schema, integrity construction, AEAD/KDF profile after cryptographic review, hard parser limits, exact settings allowlist, download archive layout, loss-report format and file extension. These are engineering specifications, not unresolved product direction.
 
-Detailed design: [19 — Mihon backup compatibility](19-mihon-backup-compatibility-architecture.md), [20 — Backup workflow and conformance](20-backup-workflow-and-conformance-plan.md), [21 — Native container options](21-native-backup-container-options.md).
+Documents: 14, 19, 20, 21, 22.
 
-## 4. Linux filesystem layout and migration
+## 5. Synchronization architecture
 
-**Evidence:** candidate Linux path resolution currently uses legacy `~/.mihon` rather than XDG config/data/cache/state locations. Credential wrapping-key identity is derived from the canonical secure-store directory path, so moving the directory without migrating its OS credential item makes encrypted sync records unreadable.
+Owner-confirmed:
+- Provider-neutral NamiShelf sync domain/protocol (strategy B).
+- No mandatory NamiShelf-hosted service in release 1.
+- GitHub is the first provider adapter.
+- Self-hosting is required in release 1; WebDAV is the second adapter.
+- E2EE mandatory for all synchronized user payloads.
+- Sync scope: core only — library entries, chapter read/progress state, categories, followed authors.
+- Recovery supports both a user-held recovery key and authenticated transfer from an already-authorized device.
+- Device revocation rotates keys for future synchronized data.
 
-**Recommendation:** use XDG directories for new NamiShelf installations, with explicit migration from legacy Mihon Desktop paths. Separate config, data, cache, state, logs, downloads, extensions, and backups. Migration must treat secure credential material specially; do not copy ciphertext alone or silently generate a new wrapping key.
+Explicit exclusions from release-1 sync: history, tracking associations, general preferences, downloads, extension state/binaries, provider credentials, tracker credentials, cookies and passwords.
 
-**Owner decision:** **A — Clean NamiShelf profile**, confirmed 2026-11-03. Use new XDG paths and an explicit opt-in import/migration assistant; never silently adopt or mutate an existing Mihon Desktop profile.
+Technical gates:
+- GitHub and WebDAV adapter conformance, concurrency and interruption semantics.
+- Cryptographic suite/key hierarchy must receive dedicated independent review; no custom cryptography and no primitive selection by guesswork.
+- Device enrollment, key rotation, stale-device behavior, replay/rollback prevention and recovery need protocol fixtures.
+- Historical ciphertext after revocation remains unresolved: retain under old keys, re-encrypt for remaining devices, or delete where feasible. Rotation cannot erase plaintext or ciphertext already copied by a revoked device.
 
-## 5. Linux architectures and packaging release policy
+Documents: 16, 23, 24, 25.
 
-**Evidence:** candidate declares Windows MSI and macOS DMG, not Linux packaging. Native-sensitive components include Skiko/Skia, SQLite JDBC, JNA, SevenZipJBinding, and filesystem watching. No resolved Linux runtime graph or complete x86_64/aarch64 artifact inventory was produced.
+## 6. Linux credentials and platform policy
 
-**Recommendation:** make Linux x86_64 the first release gate on Mint 22.3/Ubuntu base. Keep aarch64 as a planned target but do not promise it until all native dependencies and package formats are validated. Keep AppImage, Flatpak, and DEB as goals, but permit release-format staging if one cannot meet security/maintenance criteria.
+Evidence-based recommendation:
+- Keep Secret Service as persistent credential backend and fail closed; never introduce a plaintext fallback.
+- Native Linux and Flatpak credential service behavior has not been validated.
 
-**Owner decision:** x86_64 first, aarch64 after validation, confirmed 2026-11-03. AppImage, Flatpak, and DEB remain packaging goals, subject to individual release gates.
+Owner confirmation still needed: whether persistent sync must be unavailable whenever Secret Service is unavailable, with no session-only fallback. Recommended default: yes.
 
-## 6. Extension sandbox commitment
+Other platform policy details requiring owner input before release packaging freeze:
+- minimum Debian/Ubuntu/Arch support window;
+- bundled versus system JVM;
+- Wayland support/release criteria;
+- Flatpak runtime and application ID;
+- AppImage update/signature policy.
 
-The owner already approved one process per extension, brokered data access, DEX-to-JVM support, and third-party extensions in release 1. The remaining OS-level sandbox mechanism is conditional on sustainability.
+These do not block writing implementation code for a Linux feasibility spike.
 
-**Recommendation:** preserve the current conditional commitment. Do not claim that process separation alone is an OS sandbox. Require a documented security posture for each package format and a later explicit release decision if full OS sandboxing cannot be delivered.
+## 7. Explicitly unresolved owner decisions
 
-## 7. Reader performance budgets
+Only the following require owner choice or confirmation rather than ordinary engineering specification:
 
-**Evidence:** candidate has Skia decode/downsampling/region decode and memory accounting concepts, but no Linux measurements on NamiShelf's target hardware.
+1. **Authorize the first code phase:** permit a bounded Linux x86_64 feasibility spike on the conditional Mihon Desktop candidate, without authorizing a production fork/derivation or extension/sync release enablement. This is the next required authorization.
+2. **Credential prerequisite:** confirm fail-closed Secret Service requirement and no session-only fallback.
+3. **Capability UX:** approve or revise the proposed profile names/default grants in document 30.
+4. **Historical ciphertext after device revocation:** choose retention under old keys, re-encryption for remaining devices, or deletion where feasible. Engineering recommendation: re-encrypt for remaining devices, then request provider deletion of superseded objects where supported; document that provider versioning/backups may retain old ciphertext and a revoked device may already possess it.
+5. **Encrypted backup recovery:** confirm that loss of the backup password means the encrypted backup is unrecoverable; no hidden recovery escrow is proposed.
+6. **Platform release policy:** confirm minimum distro/JVM/Wayland/Flatpak/AppImage policy before packaging freeze.
 
-**Recommendation:** define acceptance budgets before optimization decisions: startup, first-page latency, decoded-image memory, cache memory, prefetch concurrency, and post-chapter memory release. Use the primary Linux Mint 22.3 environment as the reference profile; do not infer performance from code comments.
+Everything else in the approved scope can proceed as engineering specification with secure defaults, fixture validation, and documented evidence.
 
-**Owner decision:** prioritize stability and bounded memory over aggressive prefetch, confirmed 2026-11-03. Numeric budgets must be measured on the Linux Mint 22.3 reference hardware before being fixed.
+## 8. First code phase recommendation
 
-## 8. Remaining owner decisions and implementation readiness gates
+**M0 — Linux feasibility and baseline, not full product implementation**
 
-**Sync decisions already resolved:** provider-neutral protocol; no mandatory NamiShelf-hosted service; GitHub first adapter; self-hosting required in release 1; mandatory E2EE; core entity scope only. See ADR-006. Remaining sync choices are WebDAV server compatibility/concurrency, GitHub authorization lifecycle, E2EE cryptographic profile, recovery-key encoding, device-transfer channel, historical ciphertext handling after revocation, and conflict semantics.
+1. Reconfirm exact candidate and upstream commit snapshots.
+2. Create a reproducible Linux x86_64 environment on Mint 22.3 or a clean compatible Ubuntu base.
+3. Build and launch the unmodified candidate; record baseline tests and blockers.
+4. Resolve runtime dependency graph, native artifacts, SBOM, license/NOTICE and provenance.
+5. Verify clean NamiShelf XDG profile without touching legacy Mihon Desktop data.
+6. Test Secret Service integration in the actual Linux session.
+7. Produce a go/no-go report for adopting the candidate.
 
-The candidate remains a conditional base. Before implementation freeze:
-1. Static security review of extension adapters and broker design.
-2. Linux-only build feasibility and resolved dependency/SBOM review.
-3. Native Linux credential integration evidence.
-4. Backup resource limits and cross-version fixture plan.
-5. XDG path/migration decision.
-6. Validate the selected WebDAV adapter's server capability profile and define GitHub authorization scopes/account lifecycle.
-7. First-release architecture coverage and package policy.
-8. Reader memory/performance budgets.
+Do not enable third-party extension execution or synchronization in M0. Do not port or implement security-sensitive subsystems until their specifications and review gates are complete.
 
-No build, test, dependency resolution, installation, application coding, or repository changes outside the NamiShelf documentation branch have been performed in this phase.
+## 9. Operational guardrails
 
-
-## 9. Extension IPC and Android/Mihon compatibility planning
-
-**Owner decision:** stdio pipes with a versioned framed protocol are selected for release-1 extension IPC (ADR-008, 2026-11-03).
-
-Remaining design work:
-1. Specify frame encoding, schema validation, handshake, version negotiation, request correlation, cancellation, backpressure, and streaming.
-2. Define the capability catalogue and consent UX, including source-scoped settings/cache and network access.
-3. Define redirect, cookie/session, origin, TLS, localhost/private-network, and credential-forwarding policies.
-4. Build a versioned Android/Mihon API compatibility matrix for real extension fixtures. DEX-to-JVM conversion is necessary but not sufficient.
-5. Specify deterministic unsupported behavior for Android services that cannot safely or meaningfully be emulated on desktop.
-6. Validate process launch, stdio, termination, and resource controls under AppImage, Flatpak, and DEB constraints.
-
-These are design and evidence gates; they do not authorize implementation or extension execution.
-
-## 10. Extension broker and compatibility decisions still open
-
-**Resolved:** stdio pipes are the extension IPC transport (ADR-008). Android APK DEX-to-JVM support and third-party extensions are release-1 requirements; compatibility must be explicitly versioned and fixture-backed (ADR-009).
-
-**Still open before implementation freeze:**
-1. Wire encoding/schema and exact handshake/version negotiation.
-2. Capability catalogue, user-consent model, grant/revoke UX, and per-source scoping.
-3. Network policy: origin allowlisting, redirects, cookies/session isolation, sensitive headers, private/LAN destinations, proxy behavior, TLS and DNS.
-4. Streaming protocol for large chapter/image payloads, quotas, cancellation and backpressure.
-5. Exact Mihon API baseline and supported method-level subset; see document 27.
-6. Android shim implementation strategy, preference UI mapping, bitmap semantics, browser-mediated authentication and native-library policy.
-7. OS sandbox feasibility and release posture for AppImage, Flatpak and DEB.
-8. Per-extension CPU, memory, thread, descriptor, request and storage quotas.
-
-Do not treat proposed defaults in design documents as owner-approved product decisions until explicitly confirmed. No extension runtime work is authorized.
-
-## 11. Owner-approved broker policy (ADR-010)
-
-**Resolved:** network access is restricted to source-declared origins; capability grants use editable predefined profiles; large content uses temporary broker-issued handles.
-
-**Remaining technical specification work:**
-1. Define origin declaration format, catalog/source trust, DNS resolution and rebinding defense, redirect state machine, proxy rules and TLS behavior.
-2. Define profile names, default grants, sensitive capability list, upgrade prompts, user overrides, revocation and audit events.
-3. Define handle lifecycle, unguessability, binding, expiry, chunking, quotas, cancellation, backpressure, resume and cleanup.
-4. Specify how AppImage, Flatpak and DEB deployments enforce network/process boundaries and clearly document any controls that are application-level rather than OS-enforced.
-
-These choices are approved design constraints, not implementation authorization.
-
-
-## 12. Extension wire protocol proposal
-
-Document 28 proposes a 4-byte big-endian length prefix and UTF-8 JSON control envelope over the approved stdio transport. This is a recommendation only; the owner has not selected the encoding.
-
-The next owner decision should select JSON, CBOR, Protocol Buffers, or another encoding. The proposal also identifies unresolved frame limits, version negotiation, handshake fields, error taxonomy, and streaming-handle chunk/expiry semantics. Do not treat proposed values as approved defaults.
+- No changes to Mihon upstream or the external Mihon Desktop repository.
+- NamiShelf work remains in its own repository and branches.
+- Preserve all license notices, attribution and provenance.
+- No release claim without reproducible evidence.
+- No secrets in logs, IPC diagnostics, arguments, environment, backups or extension processes.
+- No arbitrary extension code in the main process.
+- Security-critical crypto and archive parsing require independent review.
+- A design decision is not an authorization to build, install dependencies, execute extensions, merge branches, or publish releases.
