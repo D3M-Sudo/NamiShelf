@@ -74,13 +74,15 @@ The owner already approved one process per extension, brokered data access, DEX-
 
 ## 8. Remaining owner decisions and implementation readiness gates
 
+**Sync decisions already resolved:** provider-neutral protocol; no mandatory NamiShelf-hosted service; GitHub first adapter; self-hosting required in release 1; mandatory E2EE; core entity scope only. See ADR-006. Remaining sync choices are the concrete self-hosted adapter, E2EE key recovery/device enrollment, cryptographic profile, and conflict semantics.
+
 The candidate remains a conditional base. Before implementation freeze:
 1. Static security review of extension adapters and broker design.
 2. Linux-only build feasibility and resolved dependency/SBOM review.
 3. Native Linux credential integration evidence.
 4. Backup resource limits and cross-version fixture plan.
 5. XDG path/migration decision.
-6. Sync provider decision if sync is in first-release scope.
+6. Select and validate the second, self-hosted sync adapter; define GitHub authorization scopes and account lifecycle.
 7. First-release architecture coverage and package policy.
 8. Reader memory/performance budgets.
 
