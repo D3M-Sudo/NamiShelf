@@ -1,6 +1,6 @@
 # NamiShelf — Extension IPC Transport and Broker Design
 
-**Status:** Stdio transport owner-approved; wire schema and broker policy remain design work
+**Status:** Stdio transport and broker policy direction owner-approved; exact wire schema/limits remain engineering proposals
 **Date:** 2026-11-03
 **Decision basis:** Owner-approved one-process-per-extension topology and brokered data access
 
@@ -146,7 +146,7 @@ The owner selected editable predefined permission profiles. NamiShelf owns the p
 - Never silently grant newly requested capabilities during extension or profile upgrades.
 - Revoke active requests and associated handles when a grant is withdrawn.
 
-Exact profile names, default grants, sensitive-capability taxonomy, and UX remain open.
+The three profile names and default grants are owner-approved under ADR-025 and specified in document 30. Detailed sensitive-capability taxonomy and consent UX remain engineering work and must preserve those grants.
 
 ### 12.3 Brokered streaming handles
 
