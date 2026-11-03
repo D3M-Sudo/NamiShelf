@@ -24,6 +24,7 @@ All documentation is organized in thematic subdirectories. This index is the ent
 
 ## Audit and licensing
 
+- [M0 Linux feasibility report](../02-audit-and-licensing/02-m0-candidate-linux-feasibility-report.md) — pinned candidate, Linux blockers, evidence gaps and follow-up gates.
 - [Downstream audit](../02-audit-and-licensing/01-downstream-audit.md)
 - [License and dependency review](../02-audit-and-licensing/06-license-and-dependency-review.md)
 
