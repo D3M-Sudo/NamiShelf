@@ -1,106 +1,95 @@
 # NamiShelf — Agent Handoff and Operational Guardrails
 
-**Status:** Planning-only handoff  
-**Date:** 2026-11-03
+**Status:** Planning complete except explicit M0 authorization; no M0 execution or application implementation  
+**Date:** 2026-11-03  
+**Authoritative register:** `docs/01-project-governance/15-architecture-decisions-required.md`  
+**Documentation index:** `docs/01-project-governance/00-documentation-index.md`
 
-## 1. Product objective
+## 1. Product objective and candidate
 
-Prepare NamiShelf as an independent Linux desktop application inspired by Mihon, with `AltairCardinal/mihon-desktop` as a conditional technical-base candidate.
+NamiShelf is an independent Linux desktop application inspired by Mihon; it is not an official Mihon product. `AltairCardinal/mihon-desktop` is the preferred but conditional technical-base candidate. It has not been accepted as the production base. M0 must provide evidence before any fork/import/production-derivation decision.
 
-## 2. Confirmed owner decisions
+## 2. Owner-approved decisions
 
-- Product: NamiShelf; independent/inspired, not official.
-- Repository: `D3M-Sudo/NamiShelf`; documentation publication authorized on existing branch `feature`.
-- Candidate base: conditional adoption of `AltairCardinal/mihon-desktop`.
-- Upstream policy: retain upstream references and selectively integrate changes.
-- Synchronization: provider-neutral domain/protocol; no mandatory NamiShelf-hosted service; GitHub is first adapter; self-hosting is required in release 1 and therefore requires WebDAV as second adapter; E2EE mandatory; recovery via recovery key plus authorized-device transfer; device revocation rotates keys for future data; release-1 scope limited to library, chapter read/progress, categories, followed authors (owner-approved 2026-11-03).
-- Backup: NamiShelf-native versioned format is the default; ZIP container (ZIP64 where required), canonical JSON payloads, optional per-backup encryption, and full-library selection by default (owner-approved 2026-11-03). Legacy Mihon/Tachiyomi .tachibk import and export are required in release 1; downloads use a separate export/migration flow; portable settings are selected by category.
-- Linux filesystem: clean NamiShelf XDG profile with explicit opt-in migration/import; no silent profile adoption (owner-approved 2026-11-03).
-- Linux release architecture: x86_64 first; aarch64 after validation (owner-approved 2026-11-03).
-- Reader acceptance: prioritize stability and bounded memory over aggressive prefetch (owner-approved 2026-11-03).
+### Product and platform
+- Linux-first; release 1 x86_64 only; Linux Mint 22.3 x86_64 is the primary reference environment (ADR-021/027).
+- Architecture should avoid unnecessary platform assumptions for future ports, but ARM64, Windows and macOS are not release-1 commitments.
+- Dedicated application JVM/runtime; no arbitrary system-JVM fallback. Exact distribution/version and packaging mechanism follow M0 evidence (ADR-027).
+- X11 is the mandatory first-release baseline; Wayland is claimed only for tested compositor/session combinations (ADR-027).
+- Stable is the only initial public release channel (ADR-027).
+- DEB updates use APT/configured repositories; Flatpak updates use Flatpak remotes; AppImage uses a dedicated per-user updater (ADR-022).
+- Clean NamiShelf XDG profile; Mihon Desktop migration/import is explicit opt-in and must not silently adopt or mutate the old profile (ADR-004/020).
+- Permanent downloads may use a user-selected alternative directory or disk; disposable cache cleanup must never delete permanent content (ADR-020).
 
-- UI: desktop-first hybrid UX inspired by Mihon.
-- Scope: reader, sources, library, tracking, backup, extensions, downloads, history.
-- Packaging: AppImage, Flatpak, DEB.
-- Platforms: Linux Mint 22.3 primary; Ubuntu-, Debian-, and Arch-based targets.
-- Documentation: technical English.
-- Extensions: one process per extension; stdio pipes with versioned framed IPC (ADR-008); brokered data access; Android APK DEX-to-JVM compatibility and third-party extensions required in first release; OS sandbox pursued if technically sustainable, otherwise exact mechanism/commitment deferred by later decision.
+### Core architecture and UX
+- Modular Monolith; physical Gradle module decomposition deferred (ADR-012).
+- SQLite embedded for local structured persistence (ADR-013).
+- Compose Multiplatform Desktop as reference UI framework (ADR-014).
+- Hybrid navigation with collapsible sidebar, central workspace, contextual detail and dedicated reader workspace (ADR-015).
+- One top-level window in release 1 (ADR-016).
+- MVVM + Unidirectional Data Flow (ADR-017).
+- Reader uses asynchronous lazy loading, byte-bounded LRU decoded-page cache and controlled directional prefetch (ADR-018).
+- Chapter payloads use content-addressed filesystem storage with per-chapter manifests; SQLite owns structured metadata (ADR-019).
 
-## 3. Non-negotiable constraints
+### Extensions
+- Third-party extensions are required in release 1, one OS process per extension; no extension code in the main process (ADR-001 addendum).
+- Privileged access is broker-mediated; stdio is the IPC transport (ADR-008).
+- Source-declared origin restrictions and broker-issued streaming handles (ADR-010).
+- Capability profiles approved under ADR-025: Standard Source (default), Authenticated Source (explicit source-scoped consent), Restricted / Review (no network/auth until reviewed). Default deny; no silent permission expansion.
+- Android APK DEX-to-JVM conversion and a declared Android/Mihon API compatibility subset are release-1 requirements (ADR-009); conversion alone is not compatibility.
+- OS-level sandboxing is pursued where sustainable. Process separation is not a sandbox; exact mechanism/release commitment remains a later owner decision if necessary.
+- Document 29 is an engineering IPC proposal, not an owner-frozen wire contract. ADR-011 is intentionally unassigned.
 
-Unless separately authorized:
-- Do not fork or mirror Mihon/Mihon Desktop.
-- Do not modify Mihon upstream or Mihon Desktop.
-- Do not modify application code, build, install dependencies, run setup, or execute state-mutating tests.
-- Do not publish packages/releases.
-- Do not claim Linux, extension, backup, or sync compatibility without evidence.
-- Do not create additional branches, tags, or pull requests unless explicitly requested.
+### Backup
+- NamiShelf-native backup is canonical; Mihon formats are interoperability adapters (ADR-003).
+- ZIP/ZIP64 container, canonical JSON payload, optional encryption, complete library selected by default, settings selectable by category (ADR-005).
+- Legacy `.tachibk` import/export required in release 1; downloads are a separate export/migration operation.
+- Encrypted backups support both password and a separate locally generated recovery key as alternative independent recovery methods (ADR-026). Losing both means unrecoverable; no vendor escrow or plaintext fallback.
 
-The owner has authorized publication of the planning documents to the existing NamiShelf `feature` branch. This authorization does not extend to application implementation.
+### Synchronization
+- Provider-neutral sync; no mandatory NamiShelf-hosted service; GitHub first adapter; WebDAV second adapter and self-hosting required (ADR-002/006/007).
+- E2EE mandatory; core sync scope is library entries, chapter read/progress, categories and followed authors. History, tracking associations, general preferences, downloads, extensions and credentials are excluded.
+- Device enrollment/recovery supports both a user-held recovery key and authenticated transfer from an already-authorized device (ADR-007).
+- Revocation rotates future-data keys; historical ciphertext is re-encrypted for remaining authorized devices, followed by best-effort provider deletion where supported (ADR-024).
+- Cryptographic construction/key hierarchy and conflict protocol require independent review before sync implementation.
 
-## 4. Required sequence before implementation
+### Credentials
+- Linux Secret Service is the only persistent credential backend; fail-closed with no fallback of any kind (ADR-023).
+- When unavailable/locked/inaccessible, credential-dependent operations remain unavailable; unrelated local functionality remains usable.
 
-1. Complete remaining static review of extension security, backup interoperability, sync data flows, reader/image stack, and platform dependencies.
-2. Resolve IPC schema, network broker policy, consent/capability UX, sandbox feasibility, and Android/Mihon API compatibility matrix.
-3. Complete dependency/SBOM/license analysis in an explicitly authorized environment.
-4. Define Linux runtime and packaging acceptance criteria.
-5. Present final architecture recommendation and unresolved trade-offs.
-6. Obtain explicit authorization before coding, builds, dependency installation, or changes to Mihon/Mihon Desktop.
+## 3. M0 authorization gate
+
+The only remaining owner authorization before M0 is explicit permission to perform a bounded Linux x86_64 feasibility assessment on the unmodified conditional Mihon Desktop candidate.
+
+M0 may include an isolated environment, dependency installation, build/start of the unmodified candidate and safe baseline tests only if explicitly authorized. It must not edit candidate or NamiShelf application code, create a fork/import/production derivation, implement features, execute extensions, implement backup/sync, package releases, create PRs or merge.
+
+M0 must pin exact upstream/candidate commits; inspect build/runtime/native dependencies; produce source/dependency/SBOM/license/NOTICE/provenance findings; assess the dedicated JVM, Compose Desktop, SQLite and Secret Service feasibility; inspect clean XDG/profile isolation; assess X11 and record Wayland observations; and produce an evidence-backed go/no-go report.
+
+Any destructive, privileged, out-of-scope or candidate-modifying step requires separate authorization.
+
+## 4. Deferred engineering work — not owner decisions blocking M0
+
+- Exact JVM distribution/version, runtime packaging, minimum distro releases, Flatpak runtime/application ID and AppImage updater/signing operations.
+- Concrete Compose/Kotlin/navigation/state/DI libraries; SQLite driver/SQL layer/schema; physical Gradle module decomposition.
+- Hash algorithm, chapter manifest serialization, directory layout, garbage collection and migration.
+- Extension IPC framing/limits/method registry, Android/Mihon API coverage, DEX-to-JVM validation, OS sandbox mechanism.
+- Backup canonical JSON/ZIP profile, parser limits, integrity construction and independently reviewed cryptographic envelope.
+- Sync cryptographic suite/key hierarchy, causal/conflict model, provider conformance and detailed recovery/revocation protocol.
+- Reader memory/cache/prefetch budgets from measured profiling.
+
+These must be resolved before their respective implementation or release gates, but they do not require additional owner product choices before the M0 feasibility spike.
 
 ## 5. Evidence discipline
 
-Every audit finding must include stable ID, severity/confidence, affected path/behavior, evidence, user impact, remediation, verification method, and status (confirmed/suspected/not assessed). Never call an unexecuted test passed. Never infer security from signatures or classloaders.
+Every audit finding must include stable ID, severity/confidence, affected path/behavior, evidence, user impact, remediation, verification method and status (confirmed/suspected/not assessed). Never call an unexecuted test passed. Never infer security from signatures, process separation or classloaders alone.
 
-## 6. Extension implementation constraints
+## 6. Operational guardrails
 
-- Keep third-party extension code out of the NamiShelf main process.
-- Run one separate process per extension.
-- Mediate data access through a narrow, versioned, validated IPC/broker interface.
-- Do not expose core databases, backups, tracking/sync credentials, arbitrary user files, or generic process execution.
-- Support converted Android APK extensions in the first release, with a declared Android/Mihon API compatibility subset; DEX conversion alone is insufficient.
-- Include third-party extensions in the first public release.
-- Pursue OS sandboxing where technically sustainable; if disproportionate/unreliable, obtain a later owner decision on deferral. Process separation and brokered access remain mandatory.
-- Escalate disproportionately expensive Android compatibility features rather than silently dropping or pretending to support them.
-
-
-## 7. IPC and compatibility planning status
-
-- IPC transport is approved: stdio pipes; stdout is protocol-only and stderr is bounded diagnostics.
-- Wire schema, handshake, capability catalogue, network policy, streaming, and package-specific supervision remain design tasks.
-- Converted Android APK extensions must use the same broker boundary as native JVM extensions.
-- Do not claim general Mihon extension compatibility until the API compatibility matrix and representative extension fixtures are defined and validated.
-
-
-## 8. Broker policy decisions confirmed
-
-- Network: source-declared origins only; broker revalidates redirects and blocks local/private destinations by default.
-- Capability UX: editable predefined profiles, per-capability overrides, and explicit extra consent for sensitive capabilities.
-- Streaming: temporary opaque broker handles scoped to extension process/session/request, with expiry, quotas, cancellation and backpressure.
-- Record these in ADR-010. Do not implement or execute extension code without separate authorization.
-
-
-## 9. Final pre-code specification baseline
-
-The following documents are the implementation-planning references and supersede older unresolved design notes where they conflict:
-
-- ADR-011 records UTF-8 JSON control frames plus binary stream frames over stdio.
-- Document 29 is the normative IPC v1 target.
-- Document 30 defines the proposed capability catalogue and profiles; exact profile names/defaults remain owner-review items.
-- Document 31 defines ordered implementation workstreams and the M0 Linux feasibility gate.
-- Document 32 defines the proposed native backup v1 profile; encryption primitive/KDF selection remains subject to independent review.
-- Document 33 defines the provider-neutral sync domain and adapter requirements; causal conflict model and cryptographic profile remain to be frozen after review.
-- Document 15 is the consolidated decision register and authoritative list of owner inputs.
-
-The next authorized development activity should be a bounded Linux x86_64 feasibility spike on the conditional Mihon Desktop candidate. It must not assume production-base acceptance, enable extension execution, or enable sync. Obtain explicit owner authorization before starting that code/build phase.
-
-
-## 10. Preliminary application architecture baseline
-
-The five-area architecture proposal is now published:
-- 34 — application architecture and module boundaries;
-- 35 — domain data and persistence;
-- 36 — desktop UI and navigation;
-- 37 — service integration and orchestration;
-- 38 — security, lifecycle and distribution.
-
-These documents are proposals pending owner review and M0 evidence. Do not translate a proposed database, dependency injection, JVM packaging, sandbox or module split into an implementation choice without checking its stated gate. No M0, build, installation, application coding or tests have been authorized by this documentation update.
+- No changes to Mihon upstream or the external Mihon Desktop repository.
+- Keep all authorized work in NamiShelf's own repository/branches.
+- Preserve license notices, attribution and provenance.
+- No release claim without reproducible evidence.
+- No secrets in logs, IPC diagnostics, arguments, environment, backups or extension processes.
+- No arbitrary extension code in the main process.
+- No custom cryptography; independent review is mandatory.
+- An architecture decision is not authorization to implement, build, install dependencies, execute extensions, package, merge or publish.
