@@ -767,3 +767,40 @@ After device revocation, NamiShelf will **re-encrypt historical synchronized dat
 Exact migration coordinator, batch sizing, retry/backoff, crash recovery, concurrent-device behavior, provider-specific deletion semantics and historical-object retention reporting remain protocol/implementation specifications. Cryptographic construction and key hierarchy still require independent security review; this ADR does not authorize custom cryptography.
 
 This ADR records a security and sync lifecycle decision only. It does not authorize implementation, builds, dependency installation or tests.
+
+## ADR-025 — Extension capability profiles and default grants
+
+**Decision date:** 2026-11-03  
+**Status:** Owner-approved extension authorization policy.
+
+### Context
+
+NamiShelf must support source extensions without granting them ambient access to host resources, credentials or unrelated sources. The extension host needs a small, explicit set of versioned capability profiles with default-deny enforcement and consent for sensitive operations.
+
+### Decision
+
+Approve the three release-1 capability profiles and default grants defined in `docs/05-extensions/30-extension-capability-catalogue.md`:
+
+- **Standard Source (default):** source search/details/chapters, network access limited to source-declared and host-validated HTTPS origins, broker-issued content stream handles, and extension-private settings read/write.
+- **Authenticated Source:** Standard Source plus source-scoped `source.auth`, enabled only with explicit user consent. NamiShelf retains ownership of credential collection, storage, cookie/session handling and refresh; extensions do not receive general-purpose secrets or vault access.
+- **Restricted / Review:** no network or source-auth capability until the user reviews and explicitly enables the source. Intended for imported/unverified extensions and troubleshooting.
+
+Enforcement requirements:
+- Default deny; extensions cannot grant or broaden their own permissions.
+- Capability grants are scoped to extension and source identity; approval for one source does not authorize another source from the same package.
+- Profiles are permission templates, not trust ratings. Signature/provenance status is shown separately and does not establish safety.
+- Sensitive capabilities require explicit, understandable consent. New capabilities requested by an update are denied until reviewed; no silent permission expansion.
+- Users can inspect effective permissions and revoke them. Revocation cancels in-flight work and invalidates associated handles/session material where applicable.
+- Arbitrary host filesystem access, raw database/backup access, sync keys, provider/tracker credentials and shell execution remain prohibited and are never granted to extensions.
+
+### Consequences
+
+- The catalogue and profiles become the normative release-1 authorization baseline for extension UX and broker enforcement.
+- Any proposed expansion to default grants requires a separate owner-approved policy change.
+- Acceptance validation must cover cross-source isolation, default denial, explicit consent, update-time permission expansion, revocation, handle invalidation and secret-boundary enforcement.
+
+### Deferred implementation details
+
+Profile serialization/version identifiers, exact consent screens, override persistence, extension signing/provenance policy and broker API wiring remain engineering specifications. They must preserve the approved defaults and constraints. This ADR does not authorize extension execution or implementation.
+
+This ADR records an authorization policy only. It does not authorize implementation, builds, dependency installation, extension execution or tests.
