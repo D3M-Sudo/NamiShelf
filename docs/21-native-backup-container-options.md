@@ -1,6 +1,6 @@
 # NamiShelf — Native Backup Container Options Assessment
 
-**Status:** Design comparison and recommendation; no container selected by owner
+**Status:** Owner-approved native format choices; implementation details remain open
 **Date:** 2026-11-03
 
 ## 1. Requirements derived from ADR-003
@@ -23,7 +23,7 @@ The native backup must be independent of Mihon and of the live application datab
 
 ## 3. Recommendation
 
-Prefer a ZIP64-based NamiShelf container for the first native backup generation, subject to a prototype-level design review before coding. It provides broad tooling, straightforward file inspection, a standard manifest-plus-payload layout, and adequate support for the relatively compact library/settings backup. ZIP64 avoids classic ZIP size limits.
+Use a ZIP-based container for the first native backup generation. Use ZIP64 extensions where required for large archives. It provides broad tooling, straightforward file inspection, a standard manifest-plus-payload layout, and adequate support for the relatively compact library/settings backup. ZIP64 avoids classic ZIP size limits.
 
 Suggested logical layout (names are illustrative, not yet a frozen contract):
 
@@ -31,7 +31,7 @@ Suggested logical layout (names are illustrative, not yet a frozen contract):
 - `data/` — structured canonical backup payloads grouped by domain, not by live database table.
 - Optional future attachments — only if a later owner decision authorizes them; downloaded chapter files remain a separate export.
 
-Use a stable canonical serialization for the structured payload. JSON is easier to inspect and migrate; a binary schema such as Protocol Buffers can be more compact but requires stricter schema governance and tooling. This serialization choice remains open and should not reuse Mihon's protobuf DTOs as the NamiShelf domain.
+Use a stable canonical serialization for the structured payload. JSON is easier to inspect and migrate; a binary schema such as Protocol Buffers can be more compact but requires stricter schema governance and tooling. The owner selected canonical JSON for structured payloads. Define a canonicalization profile for deterministic serialization and hashing; do not reuse Mihon's protobuf DTOs as the NamiShelf domain.
 
 ## 4. Mandatory ZIP safety rules
 
@@ -48,7 +48,7 @@ Use a stable canonical serialization for the structured payload. JSON is easier 
 
 Integrity is mandatory. The manifest should include per-payload length and digest, plus a final integrity structure covering the manifest and payload inventory. An unkeyed digest detects accidental corruption but does not authenticate the creator.
 
-If password encryption is approved, encrypt the complete logical archive using an authenticated-encryption envelope rather than relying on ZIP's historical encryption modes. Specify KDF parameters, nonce handling, authentication failure behavior, metadata leakage, and recovery policy in a separate security ADR. Do not reuse OS keyring or sync keys.
+Encryption is optional per backup, as owner-approved. When enabled, use a reviewed authenticated-encryption envelope rather than ZIP's historical encryption modes. Specify KDF parameters, nonce handling, authentication failure behavior, metadata leakage, and recovery policy in a separate security ADR. Do not reuse OS keyring or sync keys.
 
 ## 6. Schema evolution
 
@@ -58,11 +58,10 @@ If password encryption is approved, encrypt the complete logical archive using a
 - Keep fixtures for every released NamiShelf schema and test oldest-supported-to-current restore.
 - Record source application version and backup schema version separately.
 
-## 7. Owner decisions still required
+## 7. Owner-approved choices and remaining design work
 
-1. Approve ZIP64 as the native container, or request a deeper TAR/Zstandard comparison.
-2. Choose structured payload encoding: canonical JSON or a NamiShelf-owned binary schema.
-3. Decide native backup encryption: mandatory, optional per backup, or deferred. Regardless, secrets remain excluded.
-4. Confirm whether users may select individual library categories, or whether only settings categories are configurable.
+Approved on 2026-11-03: ZIP container (ZIP64 when needed); canonical JSON payloads; optional encryption per backup; complete library selected by default, with settings selectable by category.
+
+Still to specify: canonical JSON profile, ZIP feature subset, manifest schema, integrity semantics, authenticated-encryption profile, KDF parameters, metadata leakage, password recovery UX, and exact settings allowlist.
 
 No implementation, build, backup creation, restore, or fixture execution has been performed.
