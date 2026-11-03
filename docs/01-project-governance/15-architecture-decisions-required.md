@@ -98,11 +98,11 @@ Documents: 16, 23, 24, 25.
 
 ## 6. Linux credentials and platform policy
 
-Evidence-based recommendation:
-- Keep Secret Service as persistent credential backend and fail closed; never introduce a plaintext fallback.
-- Native Linux and Flatpak credential service behavior has not been validated.
-
-Owner confirmation still needed: whether persistent sync must be unavailable whenever Secret Service is unavailable, with no session-only fallback. Recommended default: yes.
+Owner-approved under ADR-023:
+- Secret Service is the only persistent credential backend.
+- Credential handling is fail-closed, with no plaintext, file-based, application-managed encrypted-store or session-only in-memory fallback.
+- If Secret Service is unavailable, locked or inaccessible, credential-dependent operations (including authenticated sync) remain unavailable. Unrelated local functionality remains usable.
+- Native Linux and Flatpak Secret Service integration must be validated, including locked/unavailable/error states and proof that no alternate persistence occurs.
 
 Other platform policy details requiring owner input before release packaging freeze:
 - minimum Debian/Ubuntu/Arch support window;
@@ -170,7 +170,6 @@ These are preliminary engineering proposals, not implementation evidence. Physic
 Only the following require owner choice or confirmation rather than ordinary engineering specification:
 
 1. **Authorize the first code phase:** permit a bounded Linux x86_64 feasibility spike on the conditional Mihon Desktop candidate, without authorizing a production fork/derivation or extension/sync release enablement. This is the next required authorization.
-2. **Credential prerequisite:** confirm fail-closed Secret Service requirement and no session-only fallback.
 3. **Capability UX:** approve or revise the proposed profile names/default grants in document 30.
 4. **Historical ciphertext after device revocation:** choose retention under old keys, re-encryption for remaining devices, or deletion where feasible. Engineering recommendation: re-encrypt for remaining devices, then request provider deletion of superseded objects where supported; document that provider versioning/backups may retain old ciphertext and a revoked device may already possess it.
 5. **Encrypted backup recovery:** confirm that loss of the backup password means the encrypted backup is unrecoverable; no hidden recovery escrow is proposed.
