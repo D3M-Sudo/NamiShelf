@@ -12,6 +12,7 @@ Mihon officially identifies v0.21.3 as the last major version able to restore Ta
 
 Therefore:
 - treat `.tachibk` as a **legacy interoperability format**, not NamiShelf's canonical native format;
+- use the owner-approved NamiShelf-native ZIP container with canonical JSON payloads, optional per-backup encryption, and full-library selection by default; portable settings remain category-selectable;
 - retain a dedicated import/export adapter for the last compatible Mihon/Tachiyomi generation;
 - do not invent or assume the future Mihon format;
 - inspect the first Mihon release/source that implements the replacement before specifying a future-format adapter;
