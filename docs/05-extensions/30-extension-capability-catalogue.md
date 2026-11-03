@@ -1,6 +1,6 @@
 # NamiShelf — Extension Capability Catalogue and Permission Profiles
 
-**Status:** Engineering proposal aligned with owner-approved profile model; profile names/default grants require product review before implementation freeze.
+**Status:** Owner-approved release-1 capability profile policy under ADR-025; implementation details remain subject to engineering specification.
 
 ## 1. Authorization model
 
@@ -31,7 +31,7 @@ Capability scopes include extension ID and source ID where relevant. A permissio
 
 ## 3. Initial profiles
 
-Proposed defaults for release-1 UX:
+Owner-approved defaults for release-1 UX under ADR-025:
 
 ### Standard Source (default)
 - source.search, source.details, source.chapters
@@ -71,6 +71,6 @@ Record permission request, grant, denial, override, revocation, profile change, 
 
 Verify cross-source isolation, denied-method behavior, consent persistence, no silent expansion, immediate revocation, handle invalidation, settings namespace isolation, source-auth vault boundaries, profile migration, and malformed capability identifiers.
 
-## 9. Owner input still needed
+## 9. Policy status
 
-Confirm whether the proposed profile names and default grants match the intended user experience. No capability implementation should broaden these defaults without explicit policy review.
+The three profile names and default grants are owner-approved under ADR-025. No implementation may broaden these defaults without a separate explicit policy decision. No capability implementation is authorized by this approval.
