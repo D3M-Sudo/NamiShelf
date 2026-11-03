@@ -163,3 +163,37 @@ This ADR records product direction only. It does not authorize application codin
 Canonical JSON profile, manifest schema, ZIP feature subset, archive integrity/authentication semantics, AEAD/KDF profile, recovery UX, precise settings allowlist, and downloads archive layout.
 
 This ADR authorizes documentation and planning only, not implementation, builds, or dependency installation.
+
+
+## ADR-006 — First-release synchronization provider, hosting, scope, and E2EE
+
+**Decision date:** 2026-11-03  
+**Status:** Owner-approved product constraints; provider topology and cryptographic protocol details remain open
+
+### Decisions
+
+1. **Hosting:** NamiShelf will not operate a mandatory hosted sync service for release 1. Users connect to supported providers using their own accounts or infrastructure.
+2. **First provider:** GitHub is the first provider adapter. GitHub is a transport/provider choice only; it does not define the sync domain or wire protocol.
+3. **Self-hosting:** self-hosted synchronization is a release-1 requirement. A GitHub adapter alone does not satisfy this requirement. The release plan must include a separately deployable/user-managed provider adapter (candidate: WebDAV or self-hosted S3-compatible storage) or the owner must later revise the requirement. Do not claim this requirement is met by GitHub.com.
+4. **End-to-end encryption:** mandatory for all synchronized user payloads. Provider-side encryption and TLS are additional controls, not substitutes for E2EE. The provider must receive ciphertext only, apart from the minimum metadata needed for storage and transport.
+5. **Release-1 sync scope:** core scope only: library entries, chapter read/progress state, categories, and followed authors. History, tracking associations, general preferences, downloads, extension state, and credentials are excluded unless separately approved.
+
+### Consequences
+
+- Release 1 needs at least one GitHub adapter and a self-hosted adapter; adapter order and exact self-hosted technology remain to be decided.
+- Provider capability differences must be represented explicitly. Do not imply equivalent atomicity or consistency.
+- E2EE key generation, device enrollment, recovery, rotation, revocation, and lost-device handling are release-blocking design requirements.
+- Key material must never be stored with provider data, in ordinary backups, logs, crash reports, or extension IPC.
+- Sync must remain usable offline; a provider outage must not block local reading or library operations.
+- Core sync scope must be enforced by schema and tests, not only hidden UI controls.
+
+### Open decisions
+
+- Self-hosted provider for release 1: WebDAV, S3-compatible, or another concrete option.
+- Whether a self-hosted Git server adapter is acceptable as the second adapter, or whether a non-Git object API is preferred.
+- E2EE cryptographic construction, KDF, key hierarchy, device enrollment, recovery, rotation, and revocation model.
+- Whether multi-device recovery uses a user-held recovery key, an explicit device-to-device transfer, or both.
+- Exact canonical entity schema, conflict semantics, tombstone policy, and metadata minimization.
+- GitHub authorization scopes, token lifecycle, and repository creation/selection UX.
+
+This ADR authorizes documentation and planning only, not implementation, builds, dependency installation, or operation of a hosted service.
