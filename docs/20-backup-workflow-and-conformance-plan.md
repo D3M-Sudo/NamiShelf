@@ -53,7 +53,7 @@ Do not label a legacy .tachibk export as a full NamiShelf backup. Warn before ex
 | Categories | Selected by default | Supported subset |
 | Reading history | Selected by default | Supported subset |
 | Tracker associations and progress | Selected by default | Supported metadata; no credentials |
-| Portable app preferences | Opt-in category | Mihon-compatible primitive subset |
+| Portable app preferences | User-selected category | Mihon-compatible primitive subset |
 | Source preferences | Opt-in category, trust review | Compatible source subset |
 | Extension repository metadata | Opt-in category, never auto-enable | Compatible subset |
 | Reader/device presentation | Opt-in only if explicitly portable | Usually omitted |
