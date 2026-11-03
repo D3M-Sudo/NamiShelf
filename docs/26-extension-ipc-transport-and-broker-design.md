@@ -1,6 +1,6 @@
 # NamiShelf — Extension IPC Transport and Broker Design
 
-**Status:** Architecture study and recommendation; transport not owner-approved
+**Status:** Stdio transport owner-approved; wire schema and broker policy remain design work
 **Date:** 2026-11-03
 **Decision basis:** Owner-approved one-process-per-extension topology and brokered data access
 
@@ -25,7 +25,7 @@
 
 ## 3. Recommendation
 
-Prefer **stdio pipes with a length-prefixed, versioned message envelope** for the first Linux release. NamiShelf launches and supervises each extension process directly, so inherited stdin/stdout pipes provide a narrow private channel without exposing a local listening endpoint. Keep stdout exclusively for protocol frames and stderr for bounded diagnostic output.
+Use **stdio pipes with a length-prefixed, versioned message envelope** for the first Linux release (owner-approved 2026-11-03; ADR-008). NamiShelf launches and supervises each extension process directly, so inherited stdin/stdout pipes provide a narrow private channel without exposing a local listening endpoint. Keep stdout exclusively for protocol frames and stderr for bounded diagnostic output.
 
 Use a transport abstraction so a later platform can add Unix domain sockets or another channel without changing the broker contract. Do not use D-Bus as the extension protocol: it can be considered for desktop integration, but should not be required for extension runtime communication.
 
@@ -116,12 +116,8 @@ Android APIs that imply direct filesystem, ContentResolver, Android AccountManag
 - Test brokered network origin, redirect, cookie, and private-network policies.
 - Exercise real converted DEX/JVM fixtures through the same broker interface.
 
-## 11. Owner decision required
+## 11. Owner decision and status
 
-Choose the release-1 IPC transport:
-
-1. **Stdio pipes with framed protocol** — recommended; simplest parent-child trust boundary and packaging story.
-2. **Unix domain sockets** — stronger channel flexibility, but more endpoint and package integration work.
-3. **D-Bus** — native desktop integration, but introduces bus policy and packaging constraints.
+**Resolved:** stdio pipes with a length-prefixed, versioned frame protocol are the release-1 IPC transport (ADR-008). Unix domain sockets and D-Bus are not selected as extension runtime transports.
 
 No transport has been implemented or benchmarked. No extension code has been executed.
