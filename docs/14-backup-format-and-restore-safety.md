@@ -1,87 +1,55 @@
 # NamiShelf — Backup Format Evolution and Restore Safety
 
-**Status:** Static codec/restore review; no backup files decoded or restored  
-**Reviewed candidate:** `AltairCardinal/mihon-desktop@701080c251c8fd8b35d0b57a481d93b9a9eb3701`  
-**Date:** 2026-11-03
+**Status:** Static review; no backup files decoded or restored  
+**Date:** 2026-11-03  
+**Detailed architecture:** [19-mihon-backup-compatibility-architecture.md](19-mihon-backup-compatibility-architecture.md)
 
-## 1. Executive assessment
+## 1. Format strategy
 
-The candidate uses the shared Mihon `BackupCodec` for gzip-compressed protobuf backup files and adds a desktop backup model/restore flow. This is the correct starting point for interoperability. However, the inspected codec reads the entire decompressed gzip stream into memory without an explicit decompressed-size or expansion-ratio limit, and the desktop file reader uses `File.readBytes()` without a visible file-size limit.
+The legacy `.tachibk` gzip/ProtoBuf contract must be treated as a compatibility adapter, not automatically selected as NamiShelf's permanent native format. Mihon v0.21.3 is documented as the last version supporting Tachiyomi-format `.tachibk` restore. The next Mihon version removes that legacy support; its replacement format is not specified by the inspected public announcement.
 
-This is a confirmed hardening requirement for NamiShelf because backup files are user-supplied input and may be malformed or intentionally oversized. This finding is not a claim that a vulnerability has been exploited or that Mihon upstream is uniquely affected; the codec is shared code.
+NamiShelf should keep a canonical versioned backup domain independent of wire formats, with separate legacy Mihon, future Mihon, and NamiShelf-native adapters. The native container format and release scope remain owner decisions.
 
-## 2. Observed format behavior
+## 2. Confirmed hardening requirements
 
-- Encode: protobuf serialization followed by gzip.
-- Decode: rejects empty/JSON-like input; accepts gzip or uncompressed protobuf; normalizes wire compatibility for the Mihon Backup serializer; validates that the decoded backup contains restorable data.
-- Desktop reader: requires a regular `.tachibk` file and decodes the full file bytes.
-- Restore: processes preferences, source preferences, extension repository records, categories, library entries, chapters, history, tracking, and optional author archive data; it accumulates per-item errors and reports partial outcomes.
-- Restore supports excluding application preferences, but other settings and source preferences remain part of the import path.
+### BKP-01 — Unbounded backup input
 
-## 3. Findings
+**Priority:** High hardening requirement; **confidence:** High.
 
-### BKP-01 — Unbounded compressed and decompressed backup input
+The inspected candidate reads complete file bytes and decompresses gzip into memory without visible explicit compressed/decompressed limits. Mihon v0.21.3 Android has a streaming reader/writer, which is a better implementation reference, but streaming alone does not replace strict byte/count limits.
 
-**Severity:** High hardening priority; **confidence:** High.
+Required: bounded streaming, compressed/decompressed byte caps, per-entry and collection limits, cancellation, malformed/truncated input handling, and fixture-based selection of legitimate limits.
 
-Evidence: `DesktopBackupCreator.readBackupFile` reads the complete file with `readBytes()`; `BackupCodec.decode` decompresses gzip with `readByteArray()`. No explicit maximum compressed size, maximum decompressed size, or expansion-ratio bound is visible in these paths.
+### BKP-02 — Partial restore semantics
 
-Impact: a very large or highly compressible backup can cause excessive heap use or process termination before protobuf semantic validation. A malicious backup can also impose excessive CPU/memory cost.
+**Priority:** Medium; **confidence:** High.
 
-Required remediation direction: bounded streaming input, compressed-size cap, decompressed-size cap, protobuf collection/string limits where possible, and cancellation/timeout. Establish limits using legitimate large-library fixtures before choosing product defaults.
+The candidate restore path records per-item errors and can leave a partially applied restore. This is resilient but not globally atomic.
 
-### BKP-02 — Restore is not an all-or-nothing transaction
+Required: preflight, preview, recovery checkpoint, coherent transaction boundaries where possible, idempotent retries, and explicit partial outcome reporting. Do not claim all-or-nothing restore.
 
-**Severity:** Medium; **confidence:** High.
+### BKP-03 — Imported configuration trust
 
-Evidence: restore applies categories/preferences/repositories and then iterates through library entries, catching per-item exceptions and recording partial failures. It reports `PARTIAL` outcome when errors exist. The observed flow is intentionally resilient but is not a single atomic transaction across all imported data.
+**Priority:** Medium; **confidence:** High.
 
-Impact: after a partial failure, the database may contain a mixture of restored and pre-existing state. Users need a preview, checkpoint, clear partial report, and recovery guidance.
+Source preferences and extension repository configuration can affect later network and extension behavior.
 
-Required remediation: preflight validation, snapshot/backup before restore, conflict preview, transaction boundaries for coherent units, idempotent retry semantics, and explicit partial-restore UX. Do not claim global atomicity.
+Required: treat imported endpoints/settings as untrusted; preview repositories; validate schemes/hosts; revalidate signer fingerprints; never auto-execute extension code during restore.
 
-### BKP-03 — Source preferences and extension repositories are executable-adjacent configuration
+## 3. Compatibility requirements
 
-**Severity:** Medium; **confidence:** High.
+- Keep exact legacy protobuf field mappings inside the legacy adapter.
+- Do not assume unknown fields survive Mihon read/write round-trips.
+- Do not invent the next Mihon format; inspect its official implementation and fixtures when available.
+- Maintain versioned golden fixtures for each supported Mihon generation.
+- Test semantic import/export, not just successful decoding.
+- Report every field omitted or approximated by legacy export.
+- Exclude credentials and downloaded chapter bytes by default.
 
-Evidence: restore writes per-source preferences and extension repository configuration; repository restore checks signing-key fingerprint conflicts. These values can affect later network/source/extension behavior.
+## 4. Required acceptance tests
 
-Impact: a backup is not merely passive reading progress data. Imported repository URLs and source settings can influence future trust and network operations.
+Compressed/decompressed limit tests; expansion-ratio tests; truncated gzip; malformed protobuf; unknown fields; duplicate identities; large strings/collections; real Mihon fixtures; NamiShelf round trips; Mihon cross-import; cancellation; partial restore; recovery; malicious repository metadata; and secret-exclusion tests.
 
-Required remediation: show imported repositories before activation, validate schemes/hosts, re-run signer verification, preserve existing trust on fingerprint mismatch, and keep network credentials out of the backup.
+## 5. References
 
-## 4. Format evolution recommendation
-
-Retain the Mihon `.tachibk` format as the interoperability layer. Do not fork or silently mutate the canonical protobuf schema.
-
-For NamiShelf-specific data:
-- prefer a versioned, namespaced optional protobuf extension section only if the wire contract can preserve unknown fields safely across Mihon versions;
-- otherwise use a separate NamiShelf companion manifest/file in a documented archive/container;
-- never make ordinary Mihon restore depend on NamiShelf-only sections;
-- define downgrade behavior and loss reporting;
-- include a schema/version migration policy and fixture corpus.
-
-The exact extension mechanism is a design decision, not settled by this assessment.
-
-## 5. Required acceptance tests
-
-1. Reject compressed files above a documented input limit before allocating full content.
-2. Reject decompressed streams above a documented output limit.
-3. Test high expansion-ratio gzip inputs.
-4. Test truncated gzip, malformed protobuf, unknown fields, duplicate identities, and oversized strings/collections.
-5. Test real Mihon backups from each supported compatibility release.
-6. Test NamiShelf export/import round trips and Mihon cross-import.
-7. Test partial restore, cancellation, retry, and pre-restore recovery.
-8. Test untrusted extension repository URLs and signer fingerprint conflicts.
-9. Prove tokens, cookies, and sync credentials are excluded.
-10. Verify backup preview and clear reporting of data not included.
-
-## 6. Recommendation
-
-Use Mihon protobuf/gzip as the base interoperability contract, but harden parser resource limits before release and avoid extending the canonical format until the owner chooses the NamiShelf-specific data strategy.
-
-## 7. Source references
-
-- [BackupCodec.kt](https://github.com/AltairCardinal/mihon-desktop/blob/701080c251c8fd8b35d0b57a481d93b9a9eb3701/data/src/commonMain/kotlin/tachiyomi/data/backup/BackupCodec.kt)
-- [DesktopBackupCreator.kt](https://github.com/AltairCardinal/mihon-desktop/blob/701080c251c8fd8b35d0b57a481d93b9a9eb3701/app-desktop/src/main/kotlin/mihon/desktop/backup/DesktopBackupCreator.kt)
-- [DesktopBackupRestorer.kt](https://github.com/AltairCardinal/mihon-desktop/blob/701080c251c8fd8b35d0b57a481d93b9a9eb3701/app-desktop/src/main/kotlin/mihon/desktop/backup/DesktopBackupRestorer.kt)
+See [document 19](19-mihon-backup-compatibility-architecture.md) for the pinned Android source files, official guide, and version policy.
