@@ -224,3 +224,37 @@ This ADR authorizes documentation and planning only, not implementation, builds,
 WebDAV server compatibility profile and capability probes; conflict/conditional-write protocol; recovery-key encoding and entropy requirements; device transfer channel; key hierarchy and cryptographic suite; rotation propagation; stale-device behavior; treatment of historical ciphertext; and recovery after all trusted devices are lost.
 
 This ADR authorizes documentation and planning only, not implementation, builds, dependency installation, or provider deployment.
+
+
+## ADR-008 — Extension runtime IPC transport
+
+**Decision date:** 2026-11-03  
+**Status:** Owner-approved transport choice; wire schema and runtime details remain design work
+
+### Decision
+
+Use **stdio pipes** between NamiShelf and each separately supervised extension process. The channel uses a versioned framed protocol. Standard output is reserved exclusively for protocol frames; standard error is a bounded diagnostic stream and must be redacted before logging.
+
+### Required properties
+
+- Parent-owned process launch, supervision, cancellation, termination, and restart.
+- Length-prefixed frames with strict maximum sizes and schema validation.
+- Protocol major/minor negotiation and explicit compatibility behavior.
+- Correlation IDs, bounded in-flight requests, deadlines, cancellation, and backpressure.
+- No listening TCP port, ambient socket endpoint, or unnecessary inherited file descriptors.
+- Large content delivered only through explicit brokered streaming operations with quotas and cancellation; never as unbounded control-message blobs.
+- Transport abstraction must not leak into extension API/domain contracts.
+- Same broker and capability policy for native JVM and converted DEX-to-JVM extensions.
+
+### Consequences
+
+- Extension stdout cannot be used for ordinary logs; runtime adapters must redirect or capture extension diagnostics safely.
+- The host must handle malformed/truncated/oversized frames, partial reads/writes, process death, restart, and stale request IDs.
+- Stdio is the selected transport, not a sandbox. Per-extension process separation and broker authorization remain mandatory; OS-level isolation remains conditional under prior decisions.
+- AppImage, Flatpak, and DEB process-launch/stdio behavior must be validated before implementation freeze.
+
+### Open technical details
+
+Frame encoding, schema language, protocol version policy, handshake state machine, timeout/quota defaults, streaming channel design, Android API mapping, network broker rules, and packaging-specific process supervision.
+
+This ADR authorizes documentation and planning only, not implementation, builds, dependency installation, or extension execution.
