@@ -136,3 +136,30 @@ This ADR authorizes documentation and planning only, not implementation.
 - Reader optimizations must not compromise memory bounds or long-session stability.
 
 This ADR records product direction only. It does not authorize application coding, builds, dependency installation, or changes to Mihon/Mihon Desktop.
+
+## ADR-005 — Native backup container and serialization
+
+**Decision date:** 2026-11-03  
+**Status:** Owner-approved design direction; security profile and detailed schema remain open
+
+### Decisions
+
+1. **Container:** ZIP; use ZIP64 extensions where required for large archives.
+2. **Structured payload:** canonical JSON, with a documented canonicalization profile to be specified before implementation.
+3. **Encryption:** optional per backup. When enabled, use a reviewed authenticated-encryption envelope; do not use legacy ZIP encryption.
+4. **Library selection:** the complete library is selected by default. Portable settings remain selectable by category.
+5. **Downloads:** remain outside the ordinary backup and use a separate export/migration operation (ADR-003).
+
+### Consequences
+
+- NamiShelf owns its JSON schema and migration policy; Mihon protobuf field numbers remain isolated in the legacy adapter.
+- Deterministic canonicalization is required for stable digests and reproducible fixtures.
+- ZIP path normalization, duplicate-entry rejection, decompression limits, and ZIP64 interoperability are mandatory.
+- Optional encryption requires explicit UX for password creation, verification, forgotten passwords, and metadata leakage.
+- Credentials, tokens, cookies, signing keys, and device-local state remain excluded regardless of encryption.
+
+### Open technical details
+
+Canonical JSON profile, manifest schema, ZIP feature subset, archive integrity/authentication semantics, AEAD/KDF profile, recovery UX, precise settings allowlist, and downloads archive layout.
+
+This ADR authorizes documentation and planning only, not implementation, builds, or dependency installation.
