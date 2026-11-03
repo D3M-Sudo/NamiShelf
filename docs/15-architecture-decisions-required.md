@@ -20,12 +20,7 @@ This document consolidates decisions that cannot be settled safely by static ins
 
 **Recommendation:** define a provider-neutral NamiShelf sync domain/protocol and keep transport behind an adapter. GitHub may be the first provider, but do not make GitHub repository layout or Git object transport the public protocol contract. This preserves the option of self-hosting or another provider later, at additional initial design cost.
 
-**Owner decision required:** choose:
-- **A — GitHub-first:** adopt the candidate protocol initially and document GitHub as a hard service dependency.
-- **B — Provider-neutral:** define protocol/provider boundary now; GitHub is one adapter.
-- **C — Defer sync:** ship local-only first and add sync after initial release.
-
-Suggested default: **B**, if sync is a first-release feature; otherwise **C** is safer than coupling the product to a protocol without a committed requirement.
+**Owner decision:** **B — Provider-neutral**, confirmed on 2026-11-03. NamiShelf will define a provider-independent sync domain/protocol and isolate transports behind adapters. GitHub may be an initial adapter, but its repository layout and Git object model will not define the public protocol. This does not decide whether sync ships in the first release or select a concrete provider.
 
 ## 3. Backup format extension
 
