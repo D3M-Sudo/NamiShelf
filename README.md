@@ -8,7 +8,7 @@ The project is in its architecture and documentation phase. The current technica
 
 ## Documentation
 
-The planning and audit baseline is maintained in [`docs/`](docs/README.md), covering the downstream audit, architecture decisions, upstream synchronization, Linux platform design, extension security and compatibility, licensing/dependencies, and agent handoff.
+The planning and audit baseline is maintained in [`docs/`](docs/README.md), covering the downstream audit, architecture decisions, upstream synchronization, Linux platform design, extension security and compatibility, backup interoperability, sync architecture, reader/image pipeline, Linux runtime/dependencies, licensing, and agent handoff.
 
 ## Key architecture directions
 
