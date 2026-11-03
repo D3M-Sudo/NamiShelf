@@ -74,14 +74,19 @@ The reader is a distinct interaction mode with:
 
 Reader settings are divided into portable defaults and device-specific rendering preferences. Reader navigation must remain usable when background sync is offline.
 
-## 7. State ownership
+## 7. State ownership and presentation model
 
-- View state belongs to the screen/view-model layer and is reconstructible.
-- Durable user state is written through application use cases.
-- Long-running operation state is owned by its service and observed by the UI.
+NamiShelf uses MVVM with Unidirectional Data Flow (UDF), approved under ADR-017. The specific ViewModel, state, navigation and dependency-injection libraries remain deferred until M0.
+
+- Each screen or cohesive feature scope exposes immutable, observable UI state.
+- User interactions are explicit typed events/intents processed by the ViewModel or equivalent presentation state holder.
+- Presentation invokes application use cases; it does not call repositories, databases or network clients directly.
+- State transitions are deterministic and testable; loading, empty, partial, stale, offline, permission-denied and error states are explicit.
+- One-off navigation, file-picker and notification effects are distinct from durable screen state and consumed predictably.
+- Durable user state is written through application use cases and remains authoritative outside the UI.
+- Long-running download, tracking and synchronization state is owned by application services/job coordinators and observed by the UI; it survives screen disposal and navigation.
 - Do not keep duplicate mutable copies of library/read state in screen state.
-- UI must handle loading, empty, partial, stale, offline, permission-denied and error states explicitly.
-- Avoid UI-triggered network calls during recomposition; actions are explicit and idempotent where possible.
+- Compose rendering remains side-effect free: recomposition must not initiate network or database work.
 
 ## 8. Accessibility and desktop behavior
 
