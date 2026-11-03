@@ -133,3 +133,11 @@ Exact IPC technology/schema, sandbox mechanism, network broker policy, user-cons
 The owner selected stdio pipes for extension runtime IPC (ADR-008, 2026-11-03). NamiShelf launches and supervises each extension process and communicates through a length-prefixed, versioned frame protocol. Standard output is protocol-only; standard error is bounded diagnostics. This transport choice does not replace capability checks, process separation, or optional OS-level sandboxing.
 
 Large content must use explicit brokered streaming with quotas, deadlines, cancellation, and backpressure. Native JVM and converted DEX-to-JVM extensions use the same broker and policy boundary.
+
+
+## 13. Owner-approved broker policy (ADR-010)
+
+- **Network:** source-declared origins only, enforced by the broker. Re-authorize each redirect; isolate cookies per source; strip sensitive headers on cross-origin changes; require TLS; deny local/private destinations by default.
+- **Permissions:** editable predefined capability profiles, with effective grants visible to the user. Sensitive capabilities require explicit additional consent. Extension updates cannot silently broaden permissions.
+- **Streaming:** large content is transferred through opaque temporary broker handles bound to process/session/request. Enforce expiry, byte/concurrency quotas, cancellation and backpressure.
+- The same controls apply to native JVM and converted Android/Mihon extensions. None of these controls is replaced by process separation or optional OS sandboxing.
