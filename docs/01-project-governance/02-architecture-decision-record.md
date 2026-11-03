@@ -733,3 +733,37 @@ Use the Linux Secret Service API as the **only persistent credential backend**, 
 Exact Secret Service client/library, item attributes, collection naming, unlock prompts, secret rotation/deletion UX, and Flatpak permission/runtime integration remain implementation decisions subject to M0 inspection and security review. These details must not weaken the fail-closed/no-fallback requirement.
 
 This ADR records a security decision only. It does not authorize implementation, builds, dependency installation or tests.
+
+## ADR-024 — Re-encryption of historical sync data after device revocation
+
+**Decision date:** 2026-11-03  
+**Status:** Owner-approved security and synchronization lifecycle policy.
+
+### Context
+
+When a trusted device is revoked, ADR-007 requires key rotation so that the revoked device cannot decrypt future synchronized payloads. Historical ciphertext may still be stored by providers under the previous key version. Retaining it indefinitely leaves the remaining trusted devices dependent on an obsolete key and may preserve superseded objects in provider storage.
+
+### Decision
+
+After device revocation, NamiShelf will **re-encrypt historical synchronized data for the remaining authorized devices using the new key version**, then request deletion of superseded ciphertext objects from the provider wherever the provider supports deletion.
+
+- The new key is distributed only to devices that remain authorized, using the approved device lifecycle and recovery mechanisms.
+- Re-encryption must be performed from data available to an authorized device or trusted local sync coordinator; the provider must never receive plaintext or encryption keys.
+- The migration must be resumable and idempotent, with explicit key-version and object-version tracking. Interrupted migration must not leave the sync domain in an ambiguous mixed state.
+- Superseded ciphertext deletion is best-effort and must respect provider capability declarations. NamiShelf must report when deletion is unsupported, incomplete or unverifiable.
+- Provider versioning, backups, retention policies or replicas may preserve old ciphertext after a delete request. NamiShelf must not claim guaranteed erasure from provider infrastructure.
+- A revoked device may already possess historical ciphertext and any plaintext it previously decrypted. Rotation and provider deletion cannot retroactively revoke that knowledge or erase independent copies.
+- Revocation must prevent the revoked device from receiving the new key or decrypting payloads created under the new key version.
+
+### Consequences
+
+- Revocation becomes a lifecycle operation that includes key rotation, historical-data migration and provider cleanup, rather than a key change alone.
+- Provider adapters must expose deletion/versioning capabilities and report their guarantees accurately.
+- The sync protocol must support resumable re-encryption, migration checkpoints, key-version boundaries and stale-device rejection.
+- User-facing status must distinguish successful key rotation, completed re-encryption and best-effort provider deletion.
+
+### Deferred technical details
+
+Exact migration coordinator, batch sizing, retry/backoff, crash recovery, concurrent-device behavior, provider-specific deletion semantics and historical-object retention reporting remain protocol/implementation specifications. Cryptographic construction and key hierarchy still require independent security review; this ADR does not authorize custom cryptography.
+
+This ADR records a security and sync lifecycle decision only. It does not authorize implementation, builds, dependency installation or tests.
