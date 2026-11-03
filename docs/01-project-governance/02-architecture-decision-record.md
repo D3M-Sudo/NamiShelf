@@ -503,3 +503,38 @@ Specific ViewModel/state libraries, coroutine/Flow conventions, navigation libra
 - M0 must map the candidate's existing presentation architecture to this model and identify reuse/adaptation cost.
 
 This ADR records an architecture decision only. It does not authorize UI implementation, builds, dependency installation, or tests.
+
+
+## ADR-018 — Bounded lazy loading and LRU page cache for the reader
+
+**Decision date:** 2026-11-03  
+**Status:** Owner-approved reader architecture; numeric tuning parameters deferred to profiling.
+
+### Context
+
+Reader workloads can contain long chapters and high-resolution page images. Eagerly decoding a complete chapter creates unpredictable memory pressure, while strict one-page streaming can cause avoidable stalls during ordinary navigation. NamiShelf must remain usable on resource-constrained Linux systems.
+
+### Decision
+
+Adopt **asynchronous lazy page loading with a bounded LRU cache and controlled prefetch**.
+
+- Load and decode pages on demand, independently of Compose rendering.
+- Prioritize the visible page and a small configurable neighborhood around the current reading position.
+- Prefetch a bounded number of adjacent pages in the likely navigation direction; allow direction and reading mode to influence scheduling.
+- Keep decoded page memory under an explicit cache budget and evict least-recently-used eligible entries.
+- Keep source/download bytes and decoded bitmap memory as distinct cache/storage concerns.
+- Cancel or deprioritize obsolete work when the reader position changes; avoid duplicate in-flight page requests.
+- On memory pressure, reduce or trim decoded cache entries without losing the durable reading position.
+- Surface page load/decode failures with a recoverable placeholder and explicit retry; one corrupt page must not crash the reader.
+- Persist reading progress through application/domain services, not through transient cache state.
+- Keep image decoding and I/O off the UI thread; Compose recomposition must not trigger page loading as an uncontrolled side effect.
+
+### Deferred tuning and implementation choices
+
+Cache byte budget, page-count ceiling, prefetch radius/direction policy, decode subsampling, concurrency limits, cancellation policy, disk-cache policy, image decoder library and instrumentation are deferred until M0 feasibility and subsequent reader profiling. Defaults must be conservative and measurable; do not invent fixed numeric limits before measuring representative image fixtures on the reference Linux hardware.
+
+### Acceptance evidence
+
+Before release, validate long chapters, mixed image dimensions/formats, rapid forward/backward navigation, repeated chapter entry/exit, corrupt/unsupported images, cancellation, low-memory pressure and restoration of reading position. Record peak and sustained memory, page-ready latency, dropped/stalled rendering and cache hit/eviction behavior.
+
+This ADR records an architecture decision only. It does not authorize reader implementation, builds, dependency installation or tests.
