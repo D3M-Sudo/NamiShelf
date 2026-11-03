@@ -700,3 +700,36 @@ Use **native update mechanisms for DEB and Flatpak, with a dedicated updater for
 AppImage update implementation/library, release metadata format, signing key custody and rotation, update channel policy, delta versus full downloads, rollback health checks, notification UX, update cadence and offline behavior remain M0/release engineering decisions. The DEB repository and Flatpak remote hosting/release channels also require separate operational planning.
 
 This ADR records an update strategy only. It does not authorize implementation, builds, dependency installation or tests.
+
+## ADR-023 — Fail-closed Linux Secret Service credential storage
+
+**Decision date:** 2026-11-03  
+**Status:** Owner-approved security requirement.
+
+### Context
+
+NamiShelf requires provider credentials for synchronization and may integrate other authenticated services. Persisting credentials in application files or introducing ad hoc fallback stores would expand the secret-handling surface and create inconsistent protection across native Linux and Flatpak deployments.
+
+### Decision
+
+Use the Linux Secret Service API as the **only persistent credential backend**, with a fail-closed policy and no fallback.
+
+- Persisted provider credentials and other supported service secrets may be stored only through Secret Service.
+- If Secret Service is unavailable, locked, inaccessible or returns an error, NamiShelf must not persist the secret elsewhere.
+- Operations requiring an unavailable credential must fail safely and remain unavailable until Secret Service is usable again. In particular, synchronization requiring provider authentication is unavailable; local reading and other unrelated functions remain usable.
+- No plaintext file, application-managed encrypted-file store, environment-variable persistence, database field, backup entry, extension process or session-only in-memory fallback is permitted as an alternate credential path.
+- User-facing diagnostics must explain that secure credential storage is unavailable without exposing secret values, provider tokens or sensitive metadata.
+- Native Linux and Flatpak Secret Service integration, including service locking/unlocking, portal/runtime access and error handling, must be validated during the Linux feasibility and packaging gates.
+
+### Consequences
+
+- Credential-dependent functionality is intentionally unavailable in sessions without a working Secret Service implementation.
+- The application has one consistent persistence boundary and avoids silently weakening credential protection.
+- Packaging and runtime compatibility must include Secret Service access as a platform integration requirement.
+- Tests must verify fail-closed behavior for missing, locked, denied and failing Secret Service states, and verify that no alternate persistence occurs.
+
+### Deferred implementation details
+
+Exact Secret Service client/library, item attributes, collection naming, unlock prompts, secret rotation/deletion UX, and Flatpak permission/runtime integration remain implementation decisions subject to M0 inspection and security review. These details must not weaken the fail-closed/no-fallback requirement.
+
+This ADR records a security decision only. It does not authorize implementation, builds, dependency installation or tests.
