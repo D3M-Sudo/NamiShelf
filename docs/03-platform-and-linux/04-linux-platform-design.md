@@ -1,6 +1,6 @@
 # NamiShelf — Linux Platform Design and Validation Plan
 
-**Status:** Proposed; no implementation selected  
+**Status:** Platform design; release policy approved under ADR-021 and ADR-027; implementation not started  
 **Primary validation environment:** Linux Mint 22.3  
 **Additional targets:** Ubuntu-based, Debian-based, Arch-based distributions
 
@@ -13,7 +13,7 @@ The candidate is Kotlin/JVM with Compose Desktop. In the reviewed baseline, Linu
 Keep product/domain behavior independent from distribution-specific integration.
 
 ### Core desktop runtime
-- JVM runtime and application lifecycle.
+- Dedicated application JVM/runtime for release 1 under ADR-027; exact distribution/version and packaging approach follow M0 evidence.
 - Compose Desktop windowing/input.
 - Persistent storage/database.
 - Network stack and cookie handling.
@@ -27,7 +27,7 @@ Keep product/domain behavior independent from distribution-specific integration.
 - Portal-based file/directory selection in sandboxed deployments.
 - URL opening, notifications if in scope, keyboard shortcuts, window-manager behavior.
 - HiDPI, fractional scaling, multi-monitor behavior.
-- Wayland and X11 compatibility.
+- X11 is the mandatory first-release baseline; Wayland is advertised only for tested compositor/session combinations (ADR-027).
 
 Do not hardcode a Cinnamon-only implementation. Mint 22.3 is the primary acceptance environment, not the only target.
 
@@ -73,6 +73,8 @@ Define supported Debian/Ubuntu baseline and dependency policy. Validate package 
 
 Record distribution release/codename, kernel/architecture, Cinnamon version, X11/Wayland session, JVM runtime policy, GPU/driver, image rendering, memory/startup budgets, and portal/desktop integration versions. Do not assume package state or hardware capabilities beyond owner-supplied information.
 
-## 7. Open platform decisions
+## 7. Approved policy and deferred engineering details
 
-Require explicit approval before locking: bundled vs system JVM, minimum supported distribution window, Wayland release criteria, Flatpak runtime/application ID, AppImage update mechanism, and notification/desktop integration scope.
+Owner-approved under ADR-027: dedicated application JVM/runtime (no arbitrary system-JVM fallback); X11 mandatory baseline; Wayland support only for tested compositor/session combinations; Stable-only initial public channel. DEB updates use APT/repositories, Flatpak updates use Flatpak remotes, and AppImage uses a dedicated per-user updater.
+
+Deferred engineering details: exact JVM distribution/version and packaging mechanism; tested minimum distribution window; Flatpak runtime/application ID; AppImage updater technology/signing operations; notification/desktop integration scope. These are engineering/release gates, not unresolved owner decisions.
