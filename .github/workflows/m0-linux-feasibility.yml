@@ -86,26 +86,38 @@ jobs:
           ./gradlew --version
           timeout --signal=TERM --kill-after=30s 15m ./gradlew --no-daemon --console=plain --no-watch-fs --stacktrace :app-desktop:compileKotlinJvm
 
-      - name: Run desktop JVM tests
+      - name: Prepare isolated Secret Service and virtual display
+        shell: bash
+        run: |
+          set -euo pipefail
+          sudo apt-get update
+          sudo apt-get install --yes --no-install-recommends \
+            gnome-keyring libsecret-tools dbus-x11 xvfb xauth xdotool
+          command -v gnome-keyring-daemon
+          command -v secret-tool
+          command -v dbus-run-session
+
+      - name: Run desktop JVM tests with isolated Secret Service
         id: desktop_tests
         working-directory: candidate
         shell: bash
         run: |
           set -euo pipefail
           set +e
-          timeout --signal=TERM --kill-after=30s 15m ./gradlew --no-daemon --console=plain --no-watch-fs --stacktrace :app-desktop:jvmTest
+          dbus-run-session -- bash -euo pipefail -c '
+            printf "%s\\n" "nami-m0-ci-ephemeral-keyring" |
+              gnome-keyring-daemon --unlock --components=secrets
+            printf "%s\\n" "m0-probe-secret" |
+              secret-tool store --label="NamiShelf M0 CI probe" service nami-m0-probe account runner
+            actual="$(secret-tool lookup service nami-m0-probe account runner)"
+            test "$actual" = "m0-probe-secret"
+            secret-tool clear service nami-m0-probe account runner
+            ./gradlew --no-daemon --console=plain --no-watch-fs --stacktrace :app-desktop:jvmTest
+          '
           result=$?
           set -e
           echo "Desktop JVM test exit code: $result"
           exit "$result"
-
-      - name: Prepare isolated virtual display and DBus tools
-        if: steps.desktop_tests.outcome == 'success'
-        shell: bash
-        run: |
-          set -euo pipefail
-          sudo apt-get update
-          sudo apt-get install --yes --no-install-recommends xvfb xauth xdotool dbus-x11
 
       - name: Launch unmodified desktop app in isolated X11 session
         if: steps.desktop_tests.outcome == 'success'
