@@ -660,3 +660,43 @@ Adopt a **Linux-first release strategy**.
 Exact minimum distribution versions, glibc/runtime baseline, desktop environment coverage, Wayland/X11 matrix, GPU/graphics requirements, ARM64 feasibility and future platform prioritization remain open for M0 and release planning.
 
 This ADR records a platform support decision only. It does not authorize implementation, builds, dependency installation or tests.
+
+
+## ADR-022 — Native package updates and dedicated AppImage updater
+
+**Decision date:** 2026-11-03  
+**Status:** Owner-approved release update strategy.
+
+### Context
+
+NamiShelf targets DEB, Flatpak and AppImage on Linux. These formats have different installation, ownership, sandbox and update lifecycles. A single privileged updater would conflict with platform package managers and create unnecessary security and maintenance risk.
+
+### Decision
+
+Use **native update mechanisms for DEB and Flatpak, with a dedicated updater for AppImage**.
+
+- **DEB:** updates are delivered through the configured APT/repository mechanism. NamiShelf may notify users that an update is available, but must not replace package-manager ownership or modify system package state itself.
+- **Flatpak:** updates are delivered through Flatpak remotes and the Flatpak update mechanism. The application must not attempt to bypass the sandbox or mutate its own deployed files.
+- **AppImage:** provide a dedicated user-space updater appropriate to the AppImage installation model. It must verify release authenticity and artifact integrity before activation, preserve the previous working version for rollback, and never require root privileges for a per-user installation.
+- The updater must not overwrite or migrate user database, permanent downloads, configuration, cache or backup data as part of replacing application binaries.
+- Update checks, downloads and installation/activation are distinct stages with explicit user-visible status and recoverable failure behavior.
+- Updates must be obtained only from configured trusted release channels. Transport security alone is not proof of artifact authenticity; cryptographic signature or equivalent release-provenance verification is required.
+- Application updates are separate from extension updates and source/catalog metadata updates. Each has its own trust, versioning, compatibility and rollback policy.
+- Automatic silent installation is not required by this decision; user consent and exact AppImage update UX remain to be specified.
+
+### Security and reliability requirements
+
+- Verify signed release metadata/artifacts using a pinned or otherwise securely bootstrapped trust root.
+- Reject invalid signatures, mismatched hashes, unexpected channels and downgrade attempts unless an explicit recovery path authorizes them.
+- Stage downloads separately and activate only after complete verification.
+- Preserve the previous AppImage until the new version launches successfully or an explicit health criterion is met; rollback must remain possible.
+- Avoid executing downloaded update scripts or arbitrary package hooks outside the native package mechanisms.
+- Do not request elevated privileges for AppImage self-update.
+- Handle interrupted downloads, insufficient disk space, read-only locations and concurrent application instances safely.
+- Never update user data formats destructively without a separately versioned migration and recovery plan.
+
+### Deferred decisions
+
+AppImage update implementation/library, release metadata format, signing key custody and rotation, update channel policy, delta versus full downloads, rollback health checks, notification UX, update cadence and offline behavior remain M0/release engineering decisions. The DEB repository and Flatpak remote hosting/release channels also require separate operational planning.
+
+This ADR records an update strategy only. It does not authorize implementation, builds, dependency installation or tests.
