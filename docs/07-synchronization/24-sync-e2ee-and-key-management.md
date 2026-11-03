@@ -1,6 +1,6 @@
 # NamiShelf — Sync E2EE and Key Management Design
 
-**Status:** Requirements and threat-boundary design; cryptographic suite not selected
+**Status:** Threat-boundary and key-management design; owner decisions ADR-024 supersede the historical-ciphertext statements below. Cryptographic suite not selected
 **Date:** 2026-11-03
 **Decision basis:** ADR-006 — E2EE mandatory for release 1
 
@@ -76,13 +76,13 @@ Recovery must not silently downgrade encryption or allow provider credentials al
 
 Revoking a device triggers key rotation for future synchronized data. The revoked device must not receive the new key version. Rotation must be coordinated through authenticated account state and cannot rely solely on provider ETags or Git history.
 
-This does not retroactively erase plaintext or old ciphertext already copied by the revoked device. Historical ciphertext handling remains an explicit open decision: retain under old keys, re-encrypt for remaining devices, or delete where safe and feasible.
+This does not retroactively erase plaintext or old ciphertext already copied by the revoked device. Under ADR-024, historical ciphertext must be re-encrypted for remaining authorized devices under the new key version, then deletion of superseded provider objects must be requested where supported. Provider backups/versioning/replicas may retain old ciphertext; deletion is best-effort and must not be represented as guaranteed erasure.
 
 ## 7. Rotation and revocation engineering requirements
 
 - Support device revocation and define whether it triggers account-key rotation.
 - A revoked device must not decrypt future payloads after the rotation boundary.
-- Decide how historical ciphertext is handled: re-encryption, retention under old keys, or deletion.
+- Implement resumable, idempotent historical re-encryption for remaining authorized devices and best-effort provider deletion under ADR-024.
 - Define recovery after a device is offline across multiple key rotations.
 - Prevent stale devices from overwriting newer key metadata or restoring revoked device state.
 - Keep an auditable local device list without exposing private key material.
@@ -105,8 +105,8 @@ Use authenticated sequence/version metadata to detect replay and rollback. Provi
 ## 10. Open security decisions
 
 1. Select the key hierarchy and cryptographic suite only after a dedicated threat-model and cryptographic review.
-2. Choose recovery: user-held recovery key, device-to-device transfer, or both.
-3. Define whether revoking a device forces account-key rotation.
+2. Recovery model is owner-approved: both user-held recovery key and authenticated authorized-device transfer (ADR-007). Define the concrete protocol.
+3. Device revocation triggers key rotation for future data (ADR-007); historical re-encryption and best-effort deletion are required by ADR-024.
 4. Define metadata minimization and whether object sizes/timestamps require padding or indirection.
 5. Define account identity and device enrollment without a NamiShelf-operated service.
 6. Define export/transfer procedure when changing self-hosted providers.
@@ -122,3 +122,12 @@ Use authenticated sequence/version metadata to detect replay and rollback. Provi
 - Loss-of-all-devices behavior is tested and documented.
 
 No cryptographic primitive, library, or key hierarchy is selected by this document. No implementation or security test has been run.
+
+## 12. Decision reconciliation
+
+The following historical decision statements in this document are superseded:
+- Recovery supports both a user-held recovery key and authenticated transfer from an already-authorized device (ADR-007); neither is an unresolved owner choice.
+- Revocation rotates keys for future data (ADR-007).
+- Historical synchronized ciphertext is re-encrypted for remaining authorized devices under the new key version, followed by best-effort provider deletion where supported (ADR-024). Provider backups/versioning/replicas may retain old ciphertext, and a revoked device may already possess copies.
+
+The cryptographic suite/key hierarchy, causal model, metadata minimization, provider conformance and recovery protocol remain engineering/security gates before sync implementation. No cryptographic primitive is selected here.
