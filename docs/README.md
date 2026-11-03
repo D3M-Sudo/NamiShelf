@@ -30,7 +30,8 @@ This documentation records the conditional downstream-base assessment, approved 
 - `23-sync-provider-strategy.md` — approved GitHub-first, self-hosted, E2EE sync requirements and remaining adapter/key-management choices.
 - `24-sync-e2ee-and-key-management.md` — E2EE threat boundaries, key lifecycle, device enrollment, recovery, and provider ciphertext requirements.
 - `25-self-hosted-sync-adapter-options.md` — WebDAV selection and server compatibility requirements.
-- `26-extension-ipc-transport-and-broker-design.md` — comparison of stdio, Unix sockets, and D-Bus; broker contract and security requirements.
+- `26-extension-ipc-transport-and-broker-design.md` — approved stdio transport, broker contract, capability boundary, and security requirements.
+- `27-android-mihon-extension-api-compatibility-matrix.md` — API-family compatibility classification, broker mappings, unsupported behaviors, and fixture-based validation plan.
 - `15-architecture-decisions-required.md` — remaining owner decisions.
 - `16-provider-neutral-sync-protocol.md` — sync domain/protocol, provider adapters, conflicts, and security.
 - `17-xdg-filesystem-and-migration-design.md` — Linux directory layout and safe migration.
@@ -65,6 +66,7 @@ This documentation records the conditional downstream-base assessment, approved 
 | Portable settings | Selected by backup category; secrets/device-local state excluded |
 | Extension execution | One separate process per third-party extension |
 | Extension data access | Mediated by NamiShelf through versioned IPC/broker |
+| Extension IPC transport | Stdio pipes; versioned framed protocol |
 | Android APK extensions | DEX-to-JVM plus declared Android/Mihon API compatibility required in first release |
 | Third-party extensions | Included in first public release |
 | OS isolation | Pursue if sustainable; exact mechanism may be deferred by later decision |
