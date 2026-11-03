@@ -258,3 +258,26 @@ Use **stdio pipes** between NamiShelf and each separately supervised extension p
 Frame encoding, schema language, protocol version policy, handshake state machine, timeout/quota defaults, streaming channel design, Android API mapping, network broker rules, and packaging-specific process supervision.
 
 This ADR authorizes documentation and planning only, not implementation, builds, dependency installation, or extension execution.
+
+## ADR-009 — Android/Mihon extension compatibility contract
+
+**Decision date:** 2026-11-03  
+**Status:** Product requirement confirmed; exact API subset remains a design and validation task
+
+### Decision and constraints
+
+Android APK extensions converted from DEX to JVM are required in release 1, and third-party extensions are part of the first public release. Conversion alone is not considered compatibility. NamiShelf must publish a versioned Android/Mihon API compatibility profile and explicitly classify each API as supported, supported with limitations, unsupported, prohibited, or unassessed.
+
+All converted extension code runs in its own process and uses the same stdio IPC broker and capability policy as native JVM extensions. Android shims must not expose unrestricted Android Context, ContentResolver, PackageManager, AccountManager, filesystem, service, or network access.
+
+Unsupported required APIs must prevent activation with a clear diagnostic. Unsupported optional APIs must return documented deterministic errors, not silent no-ops or fabricated success.
+
+### Release-1 acceptance gates
+
+- Pin the Mihon extension API baseline.
+- Publish method-level compatibility matrix.
+- Validate representative, legally usable APK fixtures.
+- Verify broker authorization, process isolation, resource limits, and deterministic unsupported behavior.
+- Complete license/provenance and security review before enabling third-party extensions by default.
+
+This ADR authorizes planning and documentation only; it does not authorize extension downloads, conversion, execution, implementation, or builds.
