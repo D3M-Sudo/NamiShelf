@@ -63,6 +63,8 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
+          export ANDROID_HOME="${ANDROID_HOME:-/usr/local/lib/android/sdk}"
+          export PATH="$ANDROID_HOME/cmdline-tools/latest/bin:$ANDROID_HOME/platform-tools:$PATH"
           sdkmanager --install "platforms;android-36" "build-tools;36.0.0" "platform-tools"
           python3 -c 'import sys; assert sys.version_info >= (3, 11), sys.version'
           python3 candidate/scripts/build-android.py check | tee "$RUNNER_TEMP/android-toolchain-check.json"
@@ -105,8 +107,8 @@ jobs:
           export XDG_DATA_HOME="$isolated/data"
           export XDG_CACHE_HOME="$isolated/cache"
           set +e
-          dbus-run-session -- xvfb-run -a timeout --signal=TERM --kill-after=10s 60s \\
-            ./gradlew --no-daemon :app-desktop:run \\
+          dbus-run-session -- xvfb-run -a timeout --signal=TERM --kill-after=10s 60s \
+            ./gradlew --no-daemon :app-desktop:run \
             > "$RUNNER_TEMP/m0-x11-launch.log" 2>&1
           result=$?
           set -e
@@ -127,11 +129,11 @@ jobs:
         shell: bash
         run: |
           mkdir -p "$RUNNER_TEMP/m0-evidence"
-          ./gradlew --no-daemon :app-desktop:exportLibraryDefinitionsJvm \\
+          ./gradlew --no-daemon :app-desktop:exportLibraryDefinitionsJvm \
             > "$RUNNER_TEMP/m0-evidence/aboutlibraries-export.log" 2>&1 || true
-          ./gradlew --no-daemon :app-desktop:dependencies --configuration jvmRuntimeClasspath \\
+          ./gradlew --no-daemon :app-desktop:dependencies --configuration jvmRuntimeClasspath \
             > "$RUNNER_TEMP/m0-evidence/desktop-runtime-dependencies.txt" 2>&1 || true
-          cp -f app-desktop/build/reports/tests/jvmTest/index.html \\
+          cp -f app-desktop/build/reports/tests/jvmTest/index.html \
             "$RUNNER_TEMP/m0-evidence/desktop-jvm-test-report.html" 2>/dev/null || true
           cp -f "$RUNNER_TEMP/m0-environment.txt" "$RUNNER_TEMP/m0-evidence/" 2>/dev/null || true
           cp -f "$RUNNER_TEMP/android-toolchain-check.json" "$RUNNER_TEMP/m0-evidence/" 2>/dev/null || true
