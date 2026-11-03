@@ -804,3 +804,38 @@ Enforcement requirements:
 Profile serialization/version identifiers, exact consent screens, override persistence, extension signing/provenance policy and broker API wiring remain engineering specifications. They must preserve the approved defaults and constraints. This ADR does not authorize extension execution or implementation.
 
 This ADR records an authorization policy only. It does not authorize implementation, builds, dependency installation, extension execution or tests.
+
+## ADR-026 — Dual recovery methods for encrypted backups
+
+**Decision date:** 2026-11-03  
+**Status:** Owner-approved backup recovery policy.
+
+### Context
+
+Encrypted NamiShelf backups must remain recoverable without introducing server-side key escrow or weakening encryption. Password-only recovery makes a backup permanently inaccessible if its password is lost. A separately held recovery key provides an independent recovery path while keeping control with the user.
+
+### Decision
+
+Every encrypted backup must support **both the backup password and a separate recovery key** as alternative recovery methods.
+
+- The user sets or supplies the backup password when creating an encrypted backup.
+- NamiShelf generates a high-entropy recovery key locally. It is independent of the password and is shown to the user once at creation or explicit regeneration; the user must be instructed to store it separately and securely.
+- Either the password or the recovery key must independently be sufficient to recover the same backup encryption key and authenticate/decrypt the backup. The two methods are alternatives, not two factors required together.
+- The recovery key must never be transmitted to synchronization providers, embedded in plaintext metadata, logged, or included in the backup payload in recoverable form. NamiShelf provides no server-side or vendor-held escrow.
+- The backup envelope must contain versioned, independently authenticated key-wrapping/recovery slots or an equivalent reviewed construction. The cryptographic design must be selected and independently reviewed; do not invent a custom construction or select primitives before that review.
+- Wrong passwords, invalid recovery keys, tampered wrapping metadata and authentication failures must fail closed. There is no plaintext fallback.
+- Losing both the password and recovery key makes the encrypted backup unrecoverable. NamiShelf must communicate this limitation clearly.
+- Recovery-key regeneration or replacement must be an explicit operation that creates a new valid recovery path for newly created backups; it must not silently invalidate existing backups or claim to alter recovery material already embedded in them.
+
+### Consequences
+
+- Backup creation and restore UX must support password setup plus one-time recovery-key display and confirmation that the user has saved it.
+- Restore accepts either method and clearly identifies which method is being used without exposing the supplied secret.
+- The format profile must version and authenticate recovery metadata and include conformance fixtures for password recovery, recovery-key recovery, invalid inputs, tampering and missing/both-lost cases.
+- Users remain responsible for storing the recovery key separately; NamiShelf cannot recover a backup when both recovery methods are lost.
+
+### Deferred technical details
+
+Recovery-key encoding/format, entropy and length, key derivation/wrapping construction, envelope slot serialization, regeneration UX and compatibility behavior across future backup versions require cryptographic design and independent review. This ADR does not authorize implementation or custom cryptography.
+
+This ADR records a backup recovery policy only. It does not authorize implementation, builds, dependency installation or tests.
