@@ -69,3 +69,11 @@ Every audit finding must include stable ID, severity/confidence, affected path/b
 - Wire schema, handshake, capability catalogue, network policy, streaming, and package-specific supervision remain design tasks.
 - Converted Android APK extensions must use the same broker boundary as native JVM extensions.
 - Do not claim general Mihon extension compatibility until the API compatibility matrix and representative extension fixtures are defined and validated.
+
+
+## 8. Broker policy decisions confirmed
+
+- Network: source-declared origins only; broker revalidates redirects and blocks local/private destinations by default.
+- Capability UX: editable predefined profiles, per-capability overrides, and explicit extra consent for sensitive capabilities.
+- Streaming: temporary opaque broker handles scoped to extension process/session/request, with expiry, quotas, cancellation and backpressure.
+- Record these in ADR-010. Do not implement or execute extension code without separate authorization.
