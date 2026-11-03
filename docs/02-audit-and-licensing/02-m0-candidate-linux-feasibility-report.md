@@ -200,3 +200,27 @@ The packaging probe is deliberately non-gating: its exit code and log are captur
 **Execution status at report revision:** workflow file committed; a completed GitHub Actions run and its artifact have not yet been inspected. No build/test pass is claimed. The Xvfb launch smoke is now part of the workflow but is not yet an observed pass. Secret Service success/fail-closed runtime behavior, URI integration, native ELF closure, complete SBOM/license review and the final GO/NO-GO remain open until evidence is collected. The workflow does not yet establish those results.
 
 No files in the external candidate repository are modified. No NamiShelf application source, package, release, PR or merge is produced by this workflow.
+
+## 12. Repository CI inventory — 2026-11-03
+
+A repository-wide Actions inventory was performed after the first M0 workflow executions. At the time of inspection, the repository exposed five runs of the single workflow `.github/workflows/m0-linux-feasibility.yml` (no other workflow files were present).
+
+| Run | Commit | Result at inspection | Evidence |
+|---|---|---|---|
+| #1 `41720328088` | `c35404d` | Failure | SDK preflight failed: `sdkmanager: command not found`. Candidate checkout at the pinned SHA succeeded. Compilation/tests were skipped. Artifact uploaded, but its dependency report is not evidence of successful tests. |
+| #2 `41720562026` | `151f03b` | Cancelled | Superseded during workflow edits; no completed job evidence. |
+| #3 `41720600337` | `8242f31` | Cancelled | Checkout and Android SDK preflight succeeded; Kotlin/JVM compile succeeded. `:app-desktop:jvmTest` was cancelled while in progress; X11 smoke was skipped. Packaging probe was entered, but run was cancelled before artifact completion. |
+| #4 `41724406499` | `cfe36ff` | In progress | SDK setup succeeded; Kotlin/JVM compilation was in progress at the latest inspection. Tests and subsequent steps had not started. |
+| #5 `41724989858` | `e313b92` | Pending | Created after adding bounded SDK discovery/install and clearer packaging-probe reporting. Not yet executed at inspection time. |
+
+### CI findings and corrective actions
+
+1. Run #1 exposed a concrete environment assumption: the workflow called `sdkmanager` without ensuring Android command-line tools were installed or locating the binary. The latest workflow now discovers the executable under `ANDROID_HOME/cmdline-tools`, emits an explicit diagnostic if absent, and bounds SDK installation to eight minutes.
+2. Run #3 proved that the pinned candidate can be checked out and that `:app-desktop:compileKotlinJvm` completed successfully on Ubuntu 24.04 / Temurin JDK 21. It did **not** prove JVM tests pass.
+3. The original packaging probe always returned success from its shell step, regardless of Gradle's exit code. The latest workflow now emits a warning for a non-zero Gradle result and retains the actual exit code/log as evidence. The probe remains non-gating by design.
+4. The workflow now has a 45-minute job limit, 15-minute compile/test limits, 5-minute report/package-probe limits, and cancellation of superseded runs. These limits were not active in earlier run attempts.
+5. The Android SDK setup, desktop compilation, test execution, Xvfb launch, AboutLibraries export and artifact upload are sequential. A failure in an early required step prevents later runtime evidence from being collected; report-generation steps are best-effort and must not be mistaken for passing checks.
+
+### Current CI verdict
+
+**CI infrastructure: partially stabilized; M0 evidence: incomplete.** The strongest successful result so far is desktop Kotlin/JVM compilation. No completed test pass, GUI launch pass, native packaging support, complete SBOM/license review, Secret Service runtime validation or Linux Mint 22.3 compatibility result has been established. The latest workflow revision has been committed but its run was still pending at inventory time. No GO decision can be based on these runs.
