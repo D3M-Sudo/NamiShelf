@@ -1,6 +1,6 @@
 # NamiShelf — First-Release Sync Provider Strategy
 
-**Status:** Owner decisions recorded; self-hosted adapter and E2EE design remain open
+**Status:** Provider choices and E2EE requirement owner-approved; adapter conformance and cryptographic engineering remain open
 **Date:** 2026-11-03
 **Basis:** ADR-002, ADR-004, and the static candidate sync assessment
 
@@ -41,7 +41,7 @@ Do not build a hosted NamiShelf service as a hidden prerequisite for the first r
 
 Recommended staged approach:
 - Define and test the provider-neutral sync protocol first.
-- Implement one provider adapter for release 1 after the owner chooses the hosting model.
+- Implement the owner-selected GitHub and WebDAV adapters after the provider-neutral contract and security design are ready.
 - Keep the adapter contract capable of supporting at least one alternative provider without changing domain entities.
 - If minimizing service operations is the priority, compare GitHub adapter and user-managed WebDAV as the first two concrete implementations.
 - If broad infrastructure flexibility is the priority, evaluate S3-compatible object storage but do not assume it provides database-like transactions.
@@ -70,14 +70,14 @@ Every adapter must explicitly declare and test:
 - Minimize metadata and document exactly which library/reading information leaves the device.
 - Keep access tokens out of URLs, logs, crash reports, process arguments, and extension IPC.
 - Support disconnect/revoke and explain what remote data remains after disconnect.
-- Define device enrollment, key rotation, lost-device revocation, recovery, and multi-device key transfer before implementation.
+- Implement the owner-approved device enrollment/recovery paths, future-data key rotation and historical ciphertext re-encryption under ADR-007/024; exact wire protocol and cryptographic construction require independent review before implementation.
 
 ## 7. Owner-approved decisions and remaining design
 
 1. **Resolved — hosting:** no mandatory NamiShelf-hosted service in release 1; users use their own provider accounts/infrastructure.
 2. **Resolved — first adapter:** GitHub. Its API, repository layout, and Git object model remain behind the provider adapter.
 3. **Resolved — self-hosting:** required in release 1. WebDAV is the approved second adapter alongside GitHub. Its server compatibility and conditional-write guarantees must be validated.
-4. **Resolved — E2EE:** mandatory for all synced user payloads. Recovery uses both a user-held recovery key and authenticated transfer from an authorized device. Device revocation triggers rotation for future data. Cryptographic construction, key lifecycle details, and metadata leakage remain open.
+4. **Resolved — E2EE and revocation:** mandatory for all synced user payloads. Recovery uses both a user-held recovery key and authenticated transfer from an authorized device. Device revocation rotates future-data keys and triggers historical re-encryption for remaining devices plus best-effort provider deletion (ADR-024). Cryptographic construction, exact key lifecycle protocol and metadata minimization remain engineering/security gates.
 5. **Resolved — scope:** core only: library entries, chapter read/progress state, categories, and followed authors. History, tracking, preferences, downloads, and extension data are excluded from release 1.
 
 ## 8. Architecture implications and explicit non-goals
