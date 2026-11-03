@@ -170,9 +170,9 @@ These are preliminary engineering proposals, not implementation evidence. Physic
 Only the following require owner choice or confirmation rather than ordinary engineering specification:
 
 1. **Authorize the first code phase:** permit a bounded Linux x86_64 feasibility spike on the conditional Mihon Desktop candidate, without authorizing a production fork/derivation or extension/sync release enablement. This is the next required authorization.
-3. **Capability UX:** approve or revise the proposed profile names/default grants in document 30.
-5. **Encrypted backup recovery:** confirm that loss of the backup password means the encrypted backup is unrecoverable; no hidden recovery escrow is proposed.
-6. **Platform release policy:** confirm minimum distro/JVM/Wayland/Flatpak/AppImage policy before packaging freeze.
+2. **Capability UX:** approve or revise the proposed profile names/default grants in document 30.
+3. **Encrypted backup recovery:** confirm that loss of the backup password means the encrypted backup is unrecoverable; no hidden recovery escrow is proposed.
+4. **Platform release policy:** confirm minimum distro/JVM/Wayland/Flatpak/AppImage policy before packaging freeze.
 
 Everything else in the approved scope can proceed as engineering specification with secure defaults, fixture validation, and documented evidence. The five-area preliminary architecture baseline is documented; it still requires owner review before architecture freeze.
 
