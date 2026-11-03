@@ -1,11 +1,11 @@
 # NamiShelf — Linux Release and Reader Acceptance Plan
 
-**Status:** Proposed gates; no runtime validation performed  
+**Status:** Proposed acceptance gates aligned with owner-approved ADR-021/ADR-027; no runtime validation performed  
 **Date:** 2026-11-03
 
 ## Platform strategy
 
-Linux x86_64 on Linux Mint 22.3 / supported Ubuntu base is the first validation target. Debian- and Arch-based distributions follow after the baseline stabilizes. Linux aarch64 remains conditional until all native dependencies, package formats, and runtime behavior are validated.
+Linux x86_64 on Linux Mint 22.3 is the primary reference target. Ubuntu-, Debian- and Arch-based x86_64 distributions are target families only when exact releases and package combinations are tested and documented. ARM64 is outside the release-1 support commitment.
 
 ## Packaging gates
 
@@ -15,7 +15,7 @@ Linux x86_64 on Linux Mint 22.3 / supported Ubuntu base is the first validation 
 | Flatpak | Runtime/SDK compatibility, portals, permissions, Secret Service/D-Bus, extension process policy |
 | AppImage | Clean launch, native loading, glibc baseline, desktop integration, update/signature policy, stable data paths |
 
-A successful packaging task alone does not establish support. Each format requires clean-environment smoke, upgrade, and uninstall verification.
+A successful packaging task alone does not establish support. Each format requires clean-environment smoke, upgrade, and uninstall verification. X11 is the mandatory first-release baseline; Wayland is supported only for tested compositor/session combinations. Stable is the only initial public release channel.
 
 ## Architecture policy
 
