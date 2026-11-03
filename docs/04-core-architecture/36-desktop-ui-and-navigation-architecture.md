@@ -33,7 +33,7 @@ Proposed shell:
 - Global command/search entry point.
 - Status surface for downloads, sync state, extension errors and background tasks.
 
-The hybrid shell and dedicated reader workspace are owner-approved under ADR-015. Reader entry/exit must preserve the prior navigation context; background operations continue independently.
+The hybrid shell and dedicated reader workspace are owner-approved under ADR-015. Reader entry/exit must preserve the prior navigation context; background operations continue independently. Under ADR-016, these workspaces are hosted in one top-level application window; reader mode does not spawn a separate application window.
 - Standard menus, dialogs and notifications.
 
 Avoid permanently visible dense toolbars that compete with reading content. The reader should offer a distraction-reduced mode and predictable escape/navigation behavior.
@@ -98,7 +98,11 @@ Reader settings are divided into portable defaults and device-specific rendering
 
 Use a shared design system for spacing, typography, semantic colors, icon sizing, elevation and component states. Avoid copying Android Material navigation patterns without adaptation. Establish light/dark theme behavior and high-contrast semantics before polishing feature screens.
 
-## 10. Decisions to validate with prototypes
+## 10. Single-window lifecycle
+
+NamiShelf has one top-level application window for release 1 (ADR-016). Feature navigation, contextual details and reader mode transition within this window. Native dialogs, menus and file pickers may use transient platform surfaces. Screen composition lifecycle must not own long-running downloads, tracking or synchronization jobs. Window size, minimum dimensions, close behavior and startup restoration remain open for M0/UX review.
+
+## 11. Decisions to validate with prototypes
 
 - Sidebar versus compact navigation rail behavior.
 - Library density and optional detail pane.
@@ -110,4 +114,4 @@ Use a shared design system for spacing, typography, semantic colors, icon sizing
 
 These should be settled through low-cost wireframes/prototypes and owner review, not guessed as final visual decisions. The high-level layout choice itself is no longer open: sidebar collapse, conditional detail pane and dedicated reader workspace are approved.
 
-No UI implementation or visual prototype has been created. Framework adoption is conditional on passing the Linux M0 gates; failure requires evidence-based owner review.
+Multi-window support is not a release-1 requirement. Detached reader windows may be reconsidered only through a future explicit architecture decision. No UI implementation or visual prototype has been created. Framework adoption is conditional on passing the Linux M0 gates; failure requires evidence-based owner review.
