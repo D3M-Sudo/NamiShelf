@@ -281,3 +281,29 @@ Unsupported required APIs must prevent activation with a clear diagnostic. Unsup
 - Complete license/provenance and security review before enabling third-party extensions by default.
 
 This ADR authorizes planning and documentation only; it does not authorize extension downloads, conversion, execution, implementation, or builds.
+
+## ADR-010 — Extension broker network, capability profiles, and streaming handles
+
+**Decision date:** 2026-11-03  
+**Status:** Owner-approved policy direction; detailed schemas and enforcement remain design work
+
+### Decisions
+
+1. **Network policy — source-declared origins:** extension network access is mediated by the NamiShelf broker and limited to origins declared for the installed source and allowed by host policy. Redirects are re-evaluated at every hop; cross-origin redirects do not inherit credentials, cookies, or sensitive headers. TLS validation is mandatory. Localhost, private, link-local, and other sensitive address ranges are denied by default.
+2. **Capability UX — profiles:** users grant capabilities through editable, predefined profiles rather than approving every routine capability individually. The host displays the effective permissions, permits per-capability overrides, and requires explicit additional consent for sensitive capabilities. An extension cannot self-grant or silently expand its profile.
+3. **Large content — brokered handles:** large images/chapter payloads use opaque, temporary handles issued by the broker, not unbounded IPC control-message blobs. Handles are scoped to the extension process/session and request, with expiry, byte quotas, cancellation, and access validation.
+
+### Consequences
+
+- Source manifests and catalog metadata are untrusted declarations, not authority. NamiShelf validates origins and the user-approved profile before each request.
+- DNS resolution and redirect handling must prevent private-network and rebinding bypasses; policy is applied to the resolved destination and each redirect hop.
+- Cookie jars and authentication state are source-scoped. Sensitive headers are stripped on origin changes and never forwarded by default.
+- Capability profiles are versioned by host policy. On extension/profile upgrades, newly requested permissions require renewed consent; previously granted permissions are not broadened automatically.
+- Handles are unguessable, short-lived, non-transferable across extensions, and invalidated on cancellation, process exit, revocation, or expiry. The broker enforces streaming quotas and backpressure.
+- These policies apply equally to native JVM and converted DEX-to-JVM extensions.
+
+### Open technical details
+
+Exact source-origin declaration format and catalog trust model; DNS pinning/rebinding defense; proxy behavior; capability profile names/defaults and sensitive-capability taxonomy; consent and revocation UX; handle token format, storage, chunking, resume semantics, and quota defaults; and per-package network enforcement.
+
+This ADR authorizes documentation and planning only, not implementation, builds, dependency installation, extension downloads, or execution.
