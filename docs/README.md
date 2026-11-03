@@ -10,7 +10,7 @@ This documentation records the conditional downstream-base assessment, approved 
 ## Documents
 
 - `01-downstream-audit.md` — initial evidence and risks in Mihon Desktop.
-- `02-architecture-decision-record.md` — conditional base decision, extension decisions, and provider-neutral sync ADR.
+- `02-architecture-decision-record.md` — conditional base decision and owner-approved extension, sync, backup, and first-release scope ADRs.
 - `03-upstream-sync-strategy.md` — upstream tracking and selective integration policy.
 - `04-linux-platform-design.md` — Linux/Mint porting workstreams and validation matrix.
 - `05-extension-security-model.md` — per-extension process model, brokered data access, conditional OS isolation, Android APK compatibility.
@@ -25,6 +25,7 @@ This documentation records the conditional downstream-base assessment, approved 
 - `14-backup-format-and-restore-safety.md` — format evolution, resource limits, and partial restore semantics.
 - `19-mihon-backup-compatibility-architecture.md` — pinned Android v0.21.3 backup implementation, legacy wire contract, and approved NamiShelf adapter strategy.
 - `20-backup-workflow-and-conformance-plan.md` — backup UX, download export separation, loss reporting, and format conformance plan.
+- `21-native-backup-container-options.md` — comparison of ZIP64, TAR/Zstandard, and custom container options with security requirements.
 - `15-architecture-decisions-required.md` — remaining owner decisions.
 - `16-provider-neutral-sync-protocol.md` — sync domain/protocol, provider adapters, conflicts, and security.
 - `17-xdg-filesystem-and-migration-design.md` — Linux directory layout and safe migration.
