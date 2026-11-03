@@ -376,3 +376,51 @@ The SQLite JDBC/native driver, SQLDelight or other query layer, ORM choice, conn
 - Migration, backup consistency, corruption recovery and concurrent background-operation behavior are release acceptance requirements.
 
 This ADR records an architecture decision only. It does not authorize M0, database implementation, builds, dependency installation, tests, or changes to Mihon/Mihon Desktop.
+
+
+## ADR-014 — Compose Multiplatform Desktop as the UI framework
+
+**Decision date:** 2026-11-03  
+**Status:** Owner-approved framework direction; Linux feasibility and performance are mandatory M0 gates.
+
+### Context
+
+NamiShelf is a Kotlin/JVM desktop application derived conditionally from the Mihon Desktop candidate. The candidate already uses Compose Multiplatform Desktop. Replacing the UI framework would create substantial rewrite and integration cost. NamiShelf nevertheless requires a desktop-first UX and cannot assume that Android-oriented UI patterns or current Linux behavior are suitable.
+
+### Decision
+
+Adopt **Compose Multiplatform Desktop** as the reference UI framework for NamiShelf.
+
+- Build a desktop-first hybrid UX rather than a literal Android screen port.
+- Keep presentation dependent on application use cases and typed UI state, not directly on repositories or infrastructure.
+- Use a shared design system for accessibility, themes, typography, spacing and component behavior.
+- Treat the reader as a focused desktop workspace with bounded-memory page presentation.
+- Preserve framework-independent domain and application contracts.
+
+### M0 mandatory validation gates
+
+The framework choice is approved as the direction, but technical feasibility is not presumed. M0 must verify on the Linux Mint 22.3 x86_64 reference environment:
+
+- clean Linux build and startup of the candidate UI;
+- runtime compatibility and native dependency resolution;
+- memory footprint and sustained-session behavior;
+- rendering performance for library views and image-heavy reader workloads;
+- HiDPI/fractional scaling, font rendering and resizing;
+- keyboard navigation, focus behavior and accessibility support;
+- X11 baseline and Wayland behavior within the agreed support policy;
+- compatibility with AppImage, Flatpak and DEB packaging constraints.
+
+A failed critical gate must be documented with reproducible evidence and brought to the owner before framework replacement or major UI rewrite is considered.
+
+### Deferred decisions
+
+Exact Compose Multiplatform and Kotlin versions, navigation/state libraries, UI architecture library, rendering configuration, minimum window size, responsive breakpoints and visual design details remain subject to candidate inspection and UX validation.
+
+### Consequences
+
+- Compose Multiplatform Desktop is the reference framework; JavaFX and GTK4/Libadwaita are not parallel implementation targets.
+- Linux performance and compatibility are explicit adoption gates, not assumptions.
+- The downstream UI may be selectively reused, refactored or replaced within Compose after M0 evidence and desktop UX review.
+- No UI coding, framework upgrade or dependency installation is authorized by this ADR.
+
+This ADR records an architecture decision only. It does not authorize M0 execution, builds, tests, dependency installation, or code changes.
