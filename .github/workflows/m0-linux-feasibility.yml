@@ -19,7 +19,7 @@ jobs:
   linux-feasibility:
     name: Pinned Mihon Desktop Linux feasibility
     runs-on: ubuntu-24.04
-    timeout-minutes: 45
+    timeout-minutes: 30
     permissions:
       contents: read
     env:
@@ -90,8 +90,8 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          sudo apt-get update
-          sudo apt-get install --yes --no-install-recommends \
+          timeout --signal=TERM --kill-after=15s 5m sudo apt-get update
+          timeout --signal=TERM --kill-after=15s 5m sudo apt-get install --yes --no-install-recommends \
             gnome-keyring libsecret-tools dbus-x11 xvfb xauth xdotool
           command -v gnome-keyring-daemon
           command -v secret-tool
@@ -104,7 +104,7 @@ jobs:
         run: |
           set -euo pipefail
           set +e
-          dbus-run-session -- bash -euo pipefail -c '
+          timeout --signal=TERM --kill-after=30s 15m dbus-run-session -- bash -euo pipefail -c '
             printf "%s\\n" "nami-m0-ci-ephemeral-keyring" |
               gnome-keyring-daemon --unlock --components=secrets
             printf "%s\\n" "m0-probe-secret" |
@@ -113,8 +113,8 @@ jobs:
             test "$actual" = "m0-probe-secret"
             secret-tool clear service nami-m0-probe account runner
             ./gradlew --no-daemon --console=plain --no-watch-fs --stacktrace :app-desktop:jvmTest
-          '
-          result=$?
+          ' 2>&1 | tee "$RUNNER_TEMP/m0-jvm-tests.log"
+          result=${PIPESTATUS[0]}
           set -e
           echo "Desktop JVM test exit code: $result"
           exit "$result"
@@ -160,6 +160,7 @@ jobs:
             > "$RUNNER_TEMP/m0-evidence/desktop-runtime-dependencies.txt" 2>&1 || true
           cp -f app-desktop/build/reports/tests/jvmTest/index.html \
             "$RUNNER_TEMP/m0-evidence/desktop-jvm-test-report.html" 2>/dev/null || true
+          cp -f "$RUNNER_TEMP/m0-jvm-tests.log" "$RUNNER_TEMP/m0-evidence/" 2>/dev/null || true
           cp -f "$RUNNER_TEMP/m0-environment.txt" "$RUNNER_TEMP/m0-evidence/" 2>/dev/null || true
           cp -f "$RUNNER_TEMP/android-toolchain-check.json" "$RUNNER_TEMP/m0-evidence/" 2>/dev/null || true
           cp -f "$RUNNER_TEMP/m0-x11-launch.log" "$RUNNER_TEMP/m0-evidence/" 2>/dev/null || true
