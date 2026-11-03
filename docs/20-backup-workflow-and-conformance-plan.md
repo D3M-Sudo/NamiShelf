@@ -27,7 +27,7 @@ Do not label a legacy .tachibk export as a full NamiShelf backup. Warn before ex
 ### Backup creation flow
 - Choose backup destination.
 - Select portable data categories; show default selections and exclusions.
-- Display estimated item counts and approximate size where available.
+- Default to the complete library selection. Allow the user to opt into settings categories individually; show estimated item counts and approximate size where available.
 - Confirm secret/device-local exclusions.
 - Stream creation to a temporary file.
 - Finalize manifest and integrity metadata.
@@ -114,6 +114,6 @@ No compatibility claim is allowed until the corresponding fixture and cross-app 
 
 ## 10. Remaining owner decisions
 
-The high-level backup policy is approved. Before implementation, present a focused decision on native container choice; whether native backup encryption is mandatory, optional, or deferred; exact default portable categories and source-preference trust UX; and whether downloads export is a directory/archive and supports selective manga/chapter scope.
+The owner-approved native format choices are ZIP, canonical JSON, optional per-backup encryption, and full-library selection by default. Remaining design work: define the canonical JSON profile; ZIP feature subset; manifest and integrity model; authenticated-encryption/KDF/recovery profile; precise settings allowlist and source-preference trust UX; and downloads archive layout plus selective manga/chapter scope.
 
 No implementation, build, restore, or fixture execution has been performed.
