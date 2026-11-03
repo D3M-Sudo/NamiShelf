@@ -70,6 +70,7 @@ This documentation records the conditional downstream-base assessment, approved 
 | Extension network policy | Brokered access limited to source-declared origins; redirects revalidated |
 | Extension capability UX | Editable predefined profiles; explicit extra consent for sensitive capabilities |
 | Large extension payloads | Temporary scoped broker handles with quotas and cancellation |
+| Extension wire encoding | Pending owner decision; JSON length-prefixed framing is proposed |
 | Android/Mihon extension compatibility | Versioned API profile; DEX-to-JVM plus explicit API shims and broker mapping |
 | Android APK extensions | DEX-to-JVM plus declared Android/Mihon API compatibility required in first release |
 | Third-party extensions | Included in first public release |
