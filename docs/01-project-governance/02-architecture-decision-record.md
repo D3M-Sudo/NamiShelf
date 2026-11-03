@@ -538,3 +538,49 @@ Cache byte budget, page-count ceiling, prefetch radius/direction policy, decode 
 Before release, validate long chapters, mixed image dimensions/formats, rapid forward/backward navigation, repeated chapter entry/exit, corrupt/unsupported images, cancellation, low-memory pressure and restoration of reading position. Record peak and sustained memory, page-ready latency, dropped/stalled rendering and cache hit/eviction behavior.
 
 This ADR records an architecture decision only. It does not authorize reader implementation, builds, dependency installation or tests.
+
+
+## ADR-019 — Content-addressed chapter storage with per-chapter manifests
+
+**Decision date:** 2026-11-03  
+**Status:** Owner-approved storage architecture direction; exact on-disk layout and algorithms remain subject to M0 review.
+
+### Context
+
+NamiShelf stores structured library and reading metadata in embedded SQLite while chapter images and other large artifacts belong on the filesystem. The reader requires efficient page-level access, integrity checks and separation between permanent downloads and disposable decoded-image cache. Storage paths must remain stable across title changes and source metadata updates.
+
+### Decision
+
+Adopt **content-addressed file storage with stable logical identifiers and a manifest per chapter**.
+
+- SQLite remains authoritative for structured application metadata, relationships, download state and indexed lookup; it is not used to store chapter image blobs.
+- Downloaded page payloads are stored as filesystem artifacts addressed by a cryptographic content hash. The hash algorithm and canonicalization details are implementation decisions to validate in M0.
+- Each chapter has a manifest describing stable chapter identity, ordered page identity, content hash, media metadata where known, and manifest/schema version.
+- Logical manga/chapter identifiers are independent of display titles, URLs and mutable source metadata.
+- A chapter is not marked complete until all required page artifacts and its manifest have been durably written and verified.
+- Downloads use temporary/staging files and an atomic finalization protocol; interrupted work must be recoverable and must not appear as a complete chapter.
+- Deduplication may reuse identical payloads, but reference tracking and garbage collection must ensure that an artifact is not deleted while any retained chapter or operation references it.
+- Permanent downloaded content, temporary download staging, optional disk cache and decoded in-memory LRU cache are distinct storage classes with separate retention policies.
+- File access is mediated by NamiShelf application services; extensions do not receive arbitrary filesystem access.
+
+### Integrity and recovery
+
+- Verify payload hashes when finalizing downloads and during explicit integrity checks.
+- Detect missing, truncated or mismatched artifacts and expose recoverable repair/redownload states.
+- Use versioned manifests and explicit migration rules; unknown future manifest versions must fail safely rather than be silently rewritten.
+- Garbage collection must be conservative, reference-aware and crash-safe.
+- Database/filesystem consistency must be handled as a recoverable cross-resource workflow; do not assume SQLite transactions can atomically include filesystem writes.
+
+### Deferred details
+
+Exact directory layout, hash algorithm, manifest serialization format, page naming, encryption-at-rest, filesystem permissions, backup integration, garbage-collection schedule and migration mechanics remain to be specified after inspecting the candidate and validating M0 constraints. This ADR does not mandate JSON manifests; the native backup JSON decision is separate.
+
+### Consequences
+
+- Chapter storage is independent of title and URL changes.
+- Identical page payloads can be deduplicated.
+- The reader can resolve page artifacts individually without extracting a full chapter archive.
+- Recovery and lifecycle management require explicit manifest validation, reference accounting and staged-download handling.
+- Storage and decoded-image cache budgets remain separate.
+
+This ADR records an architecture decision only. It does not authorize implementation, builds, dependency installation or tests.
