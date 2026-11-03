@@ -24,25 +24,19 @@ This document consolidates decisions that cannot be settled safely by static ins
 
 ## 3. Backup compatibility architecture
 
-**New evidence:** Mihon v0.21.3 is documented as the last version that restores Tachiyomi-format `.tachibk`. The following Mihon version removes this legacy compatibility. The public announcement does not specify the replacement format. The inspected v0.21.3 Android source still writes gzip-compressed Protocol Buffers with streaming entry processing.
+**Owner decision:** confirmed on 2026-11-03.
 
-**Owner direction:** Do not select legacy `.tachibk` as NamiShelf's permanent native backup format. Preserve compatibility with Mihon by studying and implementing format adapters against official versioned contracts. Keep the internal backup model independent of wire formats.
+- **A — NamiShelf-native backup:** approved as the default, versioned native format. Mihon formats are boundary adapters.
+- **Legacy Mihon/Tachiyomi .tachibk:** both import and export are required in the first public release. Export must show a field-loss/unsupported-feature report.
+- **Downloads:** separate export/migration operation; not included in the ordinary library backup by default.
+- **Portable settings:** selected by backup category; device-local state and secrets excluded.
+- **Future Mihon format:** adapter only after the official replacement format and implementation are inspectable and fixture-testable.
 
-**Recommended architecture:**
-- NamiShelf canonical versioned backup domain and native full-fidelity backup.
-- Legacy Mihon/Tachiyomi `.tachibk` import/export adapter, with explicit compatibility version and loss report.
-- Future Mihon adapter only after the replacement format is publicly inspectable and fixtures exist.
-- Downloaded chapters, caches, credentials, cookies, and sync secrets excluded from portable backups by default.
+Detailed evidence and architecture: [document 19](19-mihon-backup-compatibility-architecture.md).
 
-**Still requires owner decision:**
-1. Is NamiShelf-native backup the default, with Mihon formats as interoperability paths?
-2. Must release 1 export legacy `.tachibk`, or is legacy import sufficient initially?
-3. Should native backups include downloaded chapter files, or should downloads have a separate export/migration operation?
-4. Should portable settings be included by default or selected by explicit backup categories?
+Remaining design tasks (not owner decisions): native container encoding/extension, manifest/schema/integrity/encryption, exact setting categories, downloads archive semantics, and legacy export loss-report UX.
 
-**Mandatory regardless of format:** compressed/decompressed limits, streaming/bounded parsing, pre-restore preview, recovery checkpoint, and explicit partial-restore reporting.
-
-Detailed evidence and the pinned Android implementation are in [document 19](19-mihon-backup-compatibility-architecture.md).
+Mandatory safeguards: bounded streaming, compressed/decompressed limits, pre-restore preview, recovery checkpoint, and explicit partial-restore reporting.
 
 ## 4. Linux filesystem layout and migration
 
