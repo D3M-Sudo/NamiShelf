@@ -67,6 +67,7 @@ This documentation records the conditional downstream-base assessment, approved 
 | Extension execution | One separate process per third-party extension |
 | Extension data access | Mediated by NamiShelf through versioned IPC/broker |
 | Extension IPC transport | Stdio pipes; versioned framed protocol |
+| Android/Mihon extension compatibility | Versioned API profile; DEX-to-JVM plus explicit API shims and broker mapping |
 | Android APK extensions | DEX-to-JVM plus declared Android/Mihon API compatibility required in first release |
 | Third-party extensions | Included in first public release |
 | OS isolation | Pursue if sustainable; exact mechanism may be deferred by later decision |
