@@ -38,6 +38,10 @@ This documentation records the conditional downstream-base assessment, approved 
 | Candidate technical base | `AltairCardinal/mihon-desktop`, conditional |
 | Upstream policy | Retain upstream reference and integrate selectively |
 | Sync architecture | Provider-neutral domain/protocol; provider-specific adapters |
+| Sync release scope | Required in first public release; initial provider undecided |
+| Linux profile | Clean XDG profile; explicit opt-in migration |
+| CPU architecture | x86_64 first; aarch64 after validation |
+| Reader priority | Stability and bounded memory over aggressive prefetch |
 | Backup architecture | NamiShelf-native versioned format; Mihon formats are adapters |
 | Legacy Mihon backup | .tachibk import and export required in release 1 |
 | Downloads backup | Separate export/migration operation |
