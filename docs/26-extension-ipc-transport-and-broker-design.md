@@ -121,3 +121,37 @@ Android APIs that imply direct filesystem, ContentResolver, Android AccountManag
 **Resolved:** stdio pipes with a length-prefixed, versioned frame protocol are the release-1 IPC transport (ADR-008). Unix domain sockets and D-Bus are not selected as extension runtime transports.
 
 No transport has been implemented or benchmarked. No extension code has been executed.
+
+## 12. Owner-approved broker policy (ADR-010)
+
+### 12.1 Network: source-declared origins
+
+The owner selected an origin-restricted model. Extensions do not receive general-purpose network access. The broker validates each request against the installed source's declared origin set and the effective user-approved capability profile.
+
+- Require HTTPS by default; any future exception needs a separate explicit security decision.
+- Re-evaluate every redirect hop against the origin policy.
+- Strip Authorization, Cookie, and other sensitive headers on origin changes; never forward credentials across origins by default.
+- Deny localhost, loopback, private, link-local, multicast, and cloud metadata destinations by default.
+- Validate DNS results and resolved destinations to mitigate DNS rebinding and redirect-based SSRF.
+- Keep cookie jars and authentication state scoped to a source identity.
+- Do not trust extension-supplied origin declarations without host/catalog validation and user-visible disclosure.
+
+### 12.2 Capability profiles
+
+The owner selected editable predefined permission profiles. NamiShelf owns the profile definitions and computes effective grants; extension manifests only request permissions.
+
+- Display requested and effective capabilities before install/enable.
+- Allow users to inspect and override individual capabilities.
+- Require explicit additional consent for sensitive capabilities.
+- Never silently grant newly requested capabilities during extension or profile upgrades.
+- Revoke active requests and associated handles when a grant is withdrawn.
+
+Exact profile names, default grants, sensitive-capability taxonomy, and UX remain open.
+
+### 12.3 Brokered streaming handles
+
+Large content uses opaque, temporary broker-issued handles rather than large unbounded control frames.
+
+Each handle must be bound to the extension process/session and originating request, expire, enforce byte and concurrency quotas, support cancellation/backpressure, and become invalid on process exit, revocation, cancellation, or expiry. Extensions cannot choose arbitrary host paths or reuse handles across extension identities.
+
+Exact token format, chunk size, resume semantics, quotas, and storage strategy remain open.
