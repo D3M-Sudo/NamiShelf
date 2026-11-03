@@ -113,35 +113,39 @@ Other platform policy details requiring owner input before release packaging fre
 
 These do not block writing implementation code for a Linux feasibility spike.
 
-## 7. Chapter storage decision
+## 7. Storage location and XDG policy
+
+Owner-approved under ADR-020: XDG-aligned separation for application data, configuration and disposable cache, with an explicit user-configurable location for permanent downloads (including another disk). Cache cleanup must never delete permanent chapters, manifests or the database. Missing external volumes must not be treated as an empty library or trigger silent cache fallback. Relocation must be verified, recoverable and non-destructive; Flatpak external access requires portal/permission validation. See `docs/04-core-architecture/39-xdg-storage-layout-and-download-location.md`.
+
+## 8. Chapter storage decision
 
 Owner-approved under ADR-019: content-addressed filesystem storage, stable logical manga/chapter identifiers and a versioned per-chapter manifest. SQLite remains authoritative for structured metadata; permanent page payloads remain filesystem artifacts. Staging, permanent downloads, disposable disk cache and decoded-memory cache are separate retention classes. Hash algorithm, manifest serialization, directory layout, garbage collection and migration details remain open for M0. See `docs/04-core-architecture/38-content-addressed-storage-and-chapter-manifests.md`.
 
-## 8. Reader page-loading decision
+## 9. Reader page-loading decision
 
 Owner-approved under ADR-018: asynchronous lazy loading, a byte-bounded LRU decoded-page cache and controlled directional prefetch. I/O and decoding stay off the UI thread; visible pages outrank speculative work; cache eviction never deletes durable downloads or reading progress. Numeric budgets, concurrency, prefetch radius, decoder and disk-cache policy require M0 inspection and measured reader profiling. See `docs/04-core-architecture/37-reader-runtime-and-page-pipeline.md`.
 
-## 9. Presentation state model decision
+## 10. Presentation state model decision
 
 Owner-approved under ADR-017: MVVM combined with Unidirectional Data Flow. Screens expose immutable observable state; user interactions are typed events; presentation invokes application use cases; one-off effects are separate from durable state. Long-running work remains service-owned and survives navigation/screen disposal. Specific ViewModel/state, navigation, coroutine and DI libraries are deferred until M0.
 
-## 10. Window model decision
+## 11. Window model decision
 
 Owner-approved under ADR-016: one top-level application window for release 1. Library, feature destinations, contextual detail and reader mode transition within that window. Native transient dialogs/file pickers are permitted. Long-running background operations remain independent of screen lifecycle. Detached reader windows and broader multi-window support are not release-1 requirements.
 
-## 11. Desktop navigation decision
+## 12. Desktop navigation decision
 
 Owner-approved under ADR-015: hybrid shell with collapsible persistent sidebar, central content workspace, optional contextual detail pane, and dedicated reader workspace. Reader entry/exit restores the previous navigation context; background operations continue independently. Exact responsive breakpoints, pane widths, minimum window size, tab/multi-window behavior and shortcut assignments remain prototype-level details.
 
-## 12. UI framework decision
+## 13. UI framework decision
 
 Owner-approved under ADR-014: Compose Multiplatform Desktop is the reference UI framework. The UX remains desktop-first rather than an Android UI port. Linux build/runtime, memory, sustained reader rendering, HiDPI/fractional scaling, accessibility, X11/Wayland policy and AppImage/Flatpak/DEB constraints are mandatory M0 gates. Kotlin/Compose versions and navigation/state libraries remain deferred. A failed critical gate requires evidence and owner review; do not silently replace the framework.
 
-## 13. Local persistence decision
+## 14. Local persistence decision
 
 Owner-approved under ADR-013: SQLite embedded is the reference technology for local structured persistence. Large page/download artifacts and caches remain in managed filesystem storage. Database driver, SQL access layer, ORM/query framework, concurrency configuration and physical schema are deferred until after M0 inspection. If the candidate's SQLite stack proves unsuitable, present evidence and alternatives for explicit owner review; do not silently switch databases.
 
-## 14. Preliminary application architecture baseline
+## 15. Preliminary application architecture baseline
 
 The five-area architecture baseline is now documented in:
 
@@ -153,7 +157,7 @@ The five-area architecture baseline is now documented in:
 
 These are preliminary engineering proposals, not implementation evidence. Physical module count, SQLite driver/SQL access layer, Compose versions/navigation-state libraries, JVM packaging, OS sandbox mechanism and cryptographic suite remain conditional on M0 inspection or later owner decisions.
 
-## 15. Explicitly unresolved owner decisions
+## 16. Explicitly unresolved owner decisions
 
 Only the following require owner choice or confirmation rather than ordinary engineering specification:
 
@@ -166,7 +170,7 @@ Only the following require owner choice or confirmation rather than ordinary eng
 
 Everything else in the approved scope can proceed as engineering specification with secure defaults, fixture validation, and documented evidence. The five-area preliminary architecture baseline is documented; it still requires owner review before architecture freeze.
 
-## 16. First code phase recommendation
+## 17. First code phase recommendation
 
 **M0 — Linux feasibility and baseline, not full product implementation**
 
@@ -180,7 +184,7 @@ Everything else in the approved scope can proceed as engineering specification w
 
 Do not enable third-party extension execution or synchronization in M0. Do not port or implement security-sensitive subsystems until their specifications and review gates are complete.
 
-## 17. Operational guardrails
+## 18. Operational guardrails
 
 - No changes to Mihon upstream or the external Mihon Desktop repository.
 - NamiShelf work remains in its own repository and branches.
