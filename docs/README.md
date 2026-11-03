@@ -26,6 +26,10 @@ This documentation records the conditional downstream-base assessment, approved 
 - `19-mihon-backup-compatibility-architecture.md` — pinned Android v0.21.3 backup implementation, legacy wire contract, and approved NamiShelf adapter strategy.
 - `20-backup-workflow-and-conformance-plan.md` — backup UX, download export separation, loss reporting, and format conformance plan.
 - `21-native-backup-container-options.md` — approved ZIP/JSON/encryption choices and remaining schema/security details.
+- `22-native-backup-format-contract-draft.md` — manifest, canonical JSON, integrity, optional encryption, ZIP safety, and restore state machine.
+- `23-sync-provider-strategy.md` — approved GitHub-first, self-hosted, E2EE sync requirements and remaining adapter/key-management choices.
+- `24-sync-e2ee-and-key-management.md` — E2EE threat boundaries, key lifecycle, device enrollment, recovery, and provider ciphertext requirements.
+- `25-self-hosted-sync-adapter-options.md` — comparison of WebDAV, S3-compatible storage, and self-hosted Git.
 - `15-architecture-decisions-required.md` — remaining owner decisions.
 - `16-provider-neutral-sync-protocol.md` — sync domain/protocol, provider adapters, conflicts, and security.
 - `17-xdg-filesystem-and-migration-design.md` — Linux directory layout and safe migration.
