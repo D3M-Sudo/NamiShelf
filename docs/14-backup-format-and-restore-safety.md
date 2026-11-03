@@ -8,7 +8,7 @@
 
 The legacy `.tachibk` gzip/ProtoBuf contract must be treated as a compatibility adapter, not automatically selected as NamiShelf's permanent native format. Mihon v0.21.3 is documented as the last version supporting Tachiyomi-format `.tachibk` restore. The next Mihon version removes that legacy support; its replacement format is not specified by the inspected public announcement.
 
-NamiShelf should keep a canonical versioned backup domain independent of wire formats, with separate legacy Mihon, future Mihon, and NamiShelf-native adapters. The native container format and release scope remain owner decisions.
+NamiShelf should keep a canonical versioned backup domain independent of wire formats, with separate legacy Mihon, future Mihon, and NamiShelf-native adapters. The owner approved NamiShelf-native backup as the default, legacy .tachibk import/export in release 1, separate downloads export/migration, and category-selected portable settings. Native container encoding and security details remain design tasks.
 
 ## 2. Confirmed hardening requirements
 
