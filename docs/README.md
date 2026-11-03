@@ -29,7 +29,8 @@ This documentation records the conditional downstream-base assessment, approved 
 - `22-native-backup-format-contract-draft.md` — manifest, canonical JSON, integrity, optional encryption, ZIP safety, and restore state machine.
 - `23-sync-provider-strategy.md` — approved GitHub-first, self-hosted, E2EE sync requirements and remaining adapter/key-management choices.
 - `24-sync-e2ee-and-key-management.md` — E2EE threat boundaries, key lifecycle, device enrollment, recovery, and provider ciphertext requirements.
-- `25-self-hosted-sync-adapter-options.md` — comparison of WebDAV, S3-compatible storage, and self-hosted Git.
+- `25-self-hosted-sync-adapter-options.md` — WebDAV selection and server compatibility requirements.
+- `26-extension-ipc-transport-and-broker-design.md` — comparison of stdio, Unix sockets, and D-Bus; broker contract and security requirements.
 - `15-architecture-decisions-required.md` — remaining owner decisions.
 - `16-provider-neutral-sync-protocol.md` — sync domain/protocol, provider adapters, conflicts, and security.
 - `17-xdg-filesystem-and-migration-design.md` — Linux directory layout and safe migration.
