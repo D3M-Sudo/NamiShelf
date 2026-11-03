@@ -4,7 +4,7 @@ NamiShelf is an independent Linux desktop application project inspired by Mihon.
 
 ## Project status
 
-The project is in its architecture and documentation phase. The current technical base candidate is `AltairCardinal/mihon-desktop`, subject to Linux portability, security, dependency, licensing, backup, and maintenance acceptance gates. No application implementation or Linux runtime validation is claimed at this stage.
+The project is in its architecture/specification phase. The current technical base candidate is `AltairCardinal/mihon-desktop`, subject to Linux portability, security, dependency, licensing, backup, and maintenance acceptance gates. Detailed pre-code specifications now cover extension IPC v1, capability profiles, Android/Mihon compatibility, native backup v1, provider-neutral E2EE sync, and ordered implementation gates. No application code implementation or Linux runtime validation is claimed at this stage.
 
 ## Documentation
 
