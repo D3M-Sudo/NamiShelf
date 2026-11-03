@@ -1,6 +1,6 @@
 # NamiShelf — Domain Data and Persistence Architecture
 
-**Status:** Proposed logical model; physical schema and database technology remain unselected.  
+**Status:** SQLite embedded is owner-approved as the local persistence technology under ADR-013. Driver, SQL access layer and physical schema remain deferred until after M0.  
 **Scope:** Local data ownership, identity, persistence, migrations and lifecycle.
 
 ## 1. Design principles
@@ -57,9 +57,9 @@ Conceptual relationships:
 
 ## 5. Persistence recommendation
 
-A relational embedded database is the preferred candidate for transactional library, chapter, category, history, tracking and job metadata. SQLite is a likely fit for desktop portability and migration tooling, but selection is conditional on M0 verifying the downstream candidate's current database stack, driver compatibility, concurrency behavior, licensing and native packaging.
+SQLite embedded is the approved reference technology for transactional library, chapter, category, history, tracking and job metadata. M0 must verify the downstream candidate's current SQLite stack, JVM driver compatibility, concurrency behavior, licensing and native packaging. If the existing stack is unsuitable, document evidence and alternatives for explicit owner review; do not silently substitute another database.
 
-Do not lock a new ORM or query framework before inspecting the candidate's SQLDelight/AndroidX SQLite adaptations and JVM runtime. Prefer explicit migrations and observable SQL over an abstraction that obscures query behavior.
+Do not lock a new ORM, JDBC/native driver or query framework before inspecting the candidate's SQLDelight/AndroidX SQLite adaptations and JVM runtime. Prefer explicit migrations and observable SQL over an abstraction that obscures query behavior.
 
 Large chapter/image files belong in managed filesystem storage, not database BLOBs by default. Cache files are disposable and stored separately from durable downloads. Database stores metadata and managed artifact references.
 
@@ -123,7 +123,7 @@ Define retention per context. Removing an extension must preserve user library m
 
 ## 10. Open technical decisions
 
-- Embedded database driver and SQL access layer.
+- SQLite JVM driver/native distribution and SQL access layer.
 - Exact entity schema and indexes.
 - Whether history is event-based, state-based or hybrid.
 - Download artifact layout and checksum policy.
@@ -131,6 +131,6 @@ Define retention per context. Removing an extension must preserve user library m
 - Retention and delete semantics for linked records.
 - Migration/import mapping from the candidate profile.
 
-These are to be resolved from candidate inspection and domain fixtures before schema freeze.
+These are to be resolved from candidate inspection and domain fixtures before schema freeze. SQLite itself is not open for re-selection absent new evidence and an explicit owner decision.
 
 No schema migration, database access or implementation has been performed.
