@@ -624,3 +624,39 @@ XDG paths are the Linux reference policy. AppImage and DEB must respect user XDG
 Exact default path resolution, app ID/case convention, external-volume identity tracking, relocation UX and crash-recovery protocol, removable-volume behavior, free-space thresholds, symlink policy and Flatpak portal integration remain M0/design validation items.
 
 This ADR records an architecture decision only. It does not authorize implementation, builds, dependency installation or tests.
+
+
+## ADR-021 — Linux-first release scope with x86_64 support
+
+**Decision date:** 2026-11-03  
+**Status:** Owner-approved platform strategy.
+
+### Context
+
+NamiShelf's first release needs a bounded, testable platform matrix. The primary development and validation environment is Linux Mint 22.3. Supporting multiple operating systems and CPU architectures immediately would expand packaging, native integration, performance and regression-testing requirements before the core desktop experience is established.
+
+### Decision
+
+Adopt a **Linux-first release strategy**.
+
+- Release 1 officially targets Linux on x86_64.
+- Linux Mint 22.3 is the primary reference environment for development acceptance and manual validation.
+- The supported Linux distribution families are Ubuntu-based, Debian-based and Arch-based, subject to a declared minimum runtime/dependency baseline established during M0.
+- Planned release-1 package formats remain AppImage, Flatpak and DEB. Their actual distribution coverage and support guarantees must be documented separately; a package format does not itself guarantee compatibility with every distribution.
+- Windows, macOS and ARM64 are outside the release-1 support commitment.
+- The modular monolith, domain/application boundaries and platform services must avoid unnecessary Linux-specific dependencies in platform-neutral logic, preserving a practical path to future ports.
+- Future Windows/macOS/ARM64 support requires explicit compatibility, packaging and test evidence; architectural preparedness is not a support promise.
+
+### Release gates
+
+- Linux Mint 22.3 x86_64 is the mandatory reference validation target.
+- At least one representative Ubuntu-based, Debian-based and Arch-based environment must be included in compatibility validation before claiming broad support for those families.
+- AppImage, Flatpak and DEB packaging must each receive install, launch, update/upgrade and uninstall validation appropriate to the format.
+- Flatpak filesystem/portal permissions, external download locations, desktop integration and native image/runtime dependencies must be tested in the sandbox.
+- The minimum supported distribution/runtime baseline must be declared before release, not inferred from successful builds on the developer machine.
+
+### Deferred decisions
+
+Exact minimum distribution versions, glibc/runtime baseline, desktop environment coverage, Wayland/X11 matrix, GPU/graphics requirements, ARM64 feasibility and future platform prioritization remain open for M0 and release planning.
+
+This ADR records a platform support decision only. It does not authorize implementation, builds, dependency installation or tests.
