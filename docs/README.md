@@ -47,6 +47,7 @@ This documentation records the conditional downstream-base assessment, approved 
 | Native backup container | ZIP (ZIP64 when required) |
 | Native backup payload | Canonical JSON |
 | Native backup encryption | Optional per backup |
+| Library selection | Full library selected by default |
 | Library selection | Full library selected by default; settings selectable by category |
 | Legacy Mihon backup | .tachibk import and export required in release 1 |
 | Downloads backup | Separate export/migration operation |
