@@ -24,19 +24,23 @@ This document consolidates decisions that cannot be settled safely by static ins
 
 ## 3. Backup compatibility architecture
 
-**Owner decision:** confirmed on 2026-11-03.
+**Owner decisions:** confirmed on 2026-11-03.
 
-- **A — NamiShelf-native backup:** approved as the default, versioned native format. Mihon formats are boundary adapters.
-- **Legacy Mihon/Tachiyomi .tachibk:** both import and export are required in the first public release. Export must show a field-loss/unsupported-feature report.
-- **Downloads:** separate export/migration operation; not included in the ordinary library backup by default.
-- **Portable settings:** selected by backup category; device-local state and secrets excluded.
-- **Future Mihon format:** adapter only after the official replacement format and implementation are inspectable and fixture-testable.
+- **Native format:** NamiShelf-native, versioned format is the default; Mihon formats are interoperability adapters.
+- **Container:** ZIP; use ZIP64 extensions where required for large archives.
+- **Structured payload:** canonical JSON.
+- **Encryption:** optional per backup.
+- **Library selection:** complete library selected by default.
+- **Settings:** portable settings selected by category.
+- **Legacy Mihon/Tachiyomi:** both .tachibk import and export required in release 1; export must disclose omitted and approximated fields.
+- **Downloads:** separate export/migration operation.
+- **Future Mihon format:** implement an adapter only after official format and implementation are inspectable and fixture-testable.
 
-Detailed evidence and architecture: [document 19](19-mihon-backup-compatibility-architecture.md).
-
-Remaining design tasks (not owner decisions): native container encoding/extension, manifest/schema/integrity/encryption, exact setting categories, downloads archive semantics, and legacy export loss-report UX.
+Remaining design tasks: canonical JSON profile, manifest schema, ZIP feature subset, integrity/authentication model, encryption/KDF/recovery profile, settings allowlist, download archive layout, and legacy export loss-report UX.
 
 Mandatory safeguards: bounded streaming, compressed/decompressed limits, pre-restore preview, recovery checkpoint, and explicit partial-restore reporting.
+
+Detailed design: [19 — Mihon backup compatibility](19-mihon-backup-compatibility-architecture.md), [20 — Backup workflow and conformance](20-backup-workflow-and-conformance-plan.md), [21 — Native container options](21-native-backup-container-options.md).
 
 ## 4. Linux filesystem layout and migration
 
