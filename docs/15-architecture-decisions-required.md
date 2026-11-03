@@ -87,3 +87,18 @@ The candidate remains a conditional base. Before implementation freeze:
 8. Reader memory/performance budgets.
 
 No build, test, dependency resolution, installation, application coding, or repository changes outside the NamiShelf documentation branch have been performed in this phase.
+
+
+## 9. Extension IPC and Android/Mihon compatibility planning
+
+**Owner decision:** stdio pipes with a versioned framed protocol are selected for release-1 extension IPC (ADR-008, 2026-11-03).
+
+Remaining design work:
+1. Specify frame encoding, schema validation, handshake, version negotiation, request correlation, cancellation, backpressure, and streaming.
+2. Define the capability catalogue and consent UX, including source-scoped settings/cache and network access.
+3. Define redirect, cookie/session, origin, TLS, localhost/private-network, and credential-forwarding policies.
+4. Build a versioned Android/Mihon API compatibility matrix for real extension fixtures. DEX-to-JVM conversion is necessary but not sufficient.
+5. Specify deterministic unsupported behavior for Android services that cannot safely or meaningfully be emulated on desktop.
+6. Validate process launch, stdio, termination, and resource controls under AppImage, Flatpak, and DEB constraints.
+
+These are design and evidence gates; they do not authorize implementation or extension execution.
