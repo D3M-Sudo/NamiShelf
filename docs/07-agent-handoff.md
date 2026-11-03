@@ -13,7 +13,7 @@ Prepare NamiShelf as an independent Linux desktop application inspired by Mihon,
 - Repository: `D3M-Sudo/NamiShelf`; documentation publication authorized on existing branch `feature`.
 - Candidate base: conditional adoption of `AltairCardinal/mihon-desktop`.
 - Upstream policy: retain upstream references and selectively integrate changes.
-- Synchronization: provider-neutral domain/protocol; no mandatory NamiShelf-hosted service; GitHub is first adapter; self-hosting is required in release 1 and therefore requires a second self-hosted adapter; E2EE mandatory; release-1 scope limited to library, chapter read/progress, categories, followed authors (owner-approved 2026-11-03).
+- Synchronization: provider-neutral domain/protocol; no mandatory NamiShelf-hosted service; GitHub is first adapter; self-hosting is required in release 1 and therefore requires WebDAV as second adapter; E2EE mandatory; recovery via recovery key plus authorized-device transfer; device revocation rotates keys for future data; release-1 scope limited to library, chapter read/progress, categories, followed authors (owner-approved 2026-11-03).
 - Backup: NamiShelf-native versioned format is the default; ZIP container (ZIP64 where required), canonical JSON payloads, optional per-backup encryption, and full-library selection by default (owner-approved 2026-11-03). Legacy Mihon/Tachiyomi .tachibk import and export are required in release 1; downloads use a separate export/migration flow; portable settings are selected by category.
 - Linux filesystem: clean NamiShelf XDG profile with explicit opt-in migration/import; no silent profile adoption (owner-approved 2026-11-03).
 - Linux release architecture: x86_64 first; aarch64 after validation (owner-approved 2026-11-03).
