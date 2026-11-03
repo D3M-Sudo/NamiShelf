@@ -81,3 +81,35 @@ Define a provider-neutral NamiShelf sync domain and protocol. Provider-specific 
 First-release sync scope, initial provider, end-to-end encryption, key recovery/device enrollment, entity conflict rules, quotas, retention, and service operating costs.
 
 This ADR authorizes planning only, not implementation.
+
+
+## ADR-003 — NamiShelf-native backup with Mihon interoperability adapters
+
+**Decision date:** 2026-11-03  
+**Status:** Owner-approved architecture; detailed container design remains open
+
+### Context
+
+Mihon v0.21.3 is the last release documented to restore legacy Tachiyomi .tachibk backups. The following Mihon version removes that legacy compatibility. The replacement format was not specified by the inspected public announcement. NamiShelf requires durable long-term backups while retaining practical interoperability with Mihon users.
+
+### Decision
+
+NamiShelf owns a versioned native backup domain and native backup format. Mihon backup formats are independent import/export adapters, not the canonical internal model.
+
+The first public release must support both import and export of the legacy v0.21.3-compatible .tachibk format. Export must disclose unsupported or lossy fields. Downloads use a separate export/migration operation. Portable settings are selected by backup category; secrets and device-local state are excluded.
+
+A future Mihon backup adapter may be added only after its official implementation/format is inspectable and validated with fixtures.
+
+### Consequences
+
+- NamiShelf can evolve its native backup independently of Mihon's format changes.
+- Legacy interoperability requires exact protobuf compatibility and semantic mapping, not only decoding.
+- Native and legacy fixtures must be versioned separately.
+- Download archives need independent integrity, source identity, and relinking rules.
+- Restore requires bounded streaming, preflight, checkpointing, and explicit partial-result reporting.
+
+### Open design details
+
+Native container encoding and extension, manifest, schema migration, integrity/encryption, exact settings categories, download archive format, and legacy loss-report UX.
+
+This ADR authorizes documentation and planning only, not implementation.
