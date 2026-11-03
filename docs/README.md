@@ -1,53 +1,53 @@
-# NamiShelf — Documentation Phase 01
+# NamiShelf — Documentation Index
 
-**Status:** Draft / evidence-backed planning  
+**Status:** Evidence-backed planning documentation  
 **Date:** 2026-11-03
 
 ## Scope
 
-This documentation baseline records the conditional downstream-base decision, the initial read-only review of `AltairCardinal/mihon-desktop`, Linux porting implications, upstream synchronization principles, and the owner-approved extension execution and first-release requirements.
-
-It is not a security certification, a complete source-code audit, or a guarantee of universal Android API compatibility. It does not authorize changes to Mihon/Mihon Desktop.
+This documentation records the conditional downstream-base assessment, approved product/architecture directions, Linux porting requirements, extension security model, backup interoperability, synchronization design, and outstanding owner decisions. It is not a security certification or runtime compatibility claim.
 
 ## Documents
 
-- `01-downstream-audit.md` — initial evidence and risks found in Mihon Desktop.
-- `02-architecture-decision-record.md` — conditional architecture decision and extension decisions.
+- `01-downstream-audit.md` — initial evidence and risks in Mihon Desktop.
+- `02-architecture-decision-record.md` — conditional base decision, extension decisions, and provider-neutral sync ADR.
 - `03-upstream-sync-strategy.md` — upstream tracking and selective integration policy.
 - `04-linux-platform-design.md` — Linux/Mint porting workstreams and validation matrix.
-- `05-extension-security-model.md` — approved per-extension process model, brokered data access, conditional OS isolation, and required Android APK/DEX-to-JVM compatibility.
-- `06-license-and-dependency-review.md` — preliminary licensing and dependency inventory findings.
-- `07-agent-handoff.md` — constraints and workflow for the next authorized phase.\n- `08-backup-interoperability.md` — Mihon-compatible backup format, coverage, exclusions, and restore acceptance.\n- `09-sync-architecture-assessment.md` — candidate GitHub-backed sync design, credential boundaries, and unresolved product choices.\n- `10-reader-and-image-pipeline-assessment.md` — Skia reader architecture, native runtime risks, and memory validation.\n- `11-linux-runtime-and-dependency-risk.md` — desktop-only build feasibility, native dependencies, and Linux packaging gates.\n- `12-linux-credential-storage-assessment.md` — Secret Service integration, credential lifecycle, and Linux test gaps.\n- `13-linux-native-dependency-and-architecture-matrix.md` — native dependency inventory, x86_64/aarch64 coverage, and XDG path gap.\n- `14-backup-format-and-restore-safety.md` — gzip/protobuf resource limits, partial restore semantics, and format evolution options.\n- `15-architecture-decisions-required.md` — owner decisions required before architecture freeze, with evidence and recommended defaults.
+- `05-extension-security-model.md` — per-extension process model, brokered data access, conditional OS isolation, Android APK compatibility.
+- `06-license-and-dependency-review.md` — preliminary licensing and dependency inventory.
+- `07-agent-handoff.md` — confirmed decisions and operational guardrails.
+- `08-backup-interoperability.md` — Mihon-compatible backup coverage and restore acceptance.
+- `09-sync-architecture-assessment.md` — candidate GitHub-backed sync and credential boundaries.
+- `10-reader-and-image-pipeline-assessment.md` — Skia reader, native runtime risks, and memory validation.
+- `11-linux-runtime-and-dependency-risk.md` — desktop build feasibility and Linux packaging gates.
+- `12-linux-credential-storage-assessment.md` — Secret Service integration and Linux test gaps.
+- `13-linux-native-dependency-and-architecture-matrix.md` — native dependencies, architecture coverage, and XDG gap.
+- `14-backup-format-and-restore-safety.md` — gzip/protobuf resource limits and partial restore semantics.
+- `15-architecture-decisions-required.md` — remaining owner decisions.
+- `16-provider-neutral-sync-protocol.md` — sync domain/protocol, provider adapters, conflicts, and security.
+- `17-xdg-filesystem-and-migration-design.md` — Linux directory layout and safe migration.
+- `18-linux-release-and-reader-acceptance.md` — staged platform/package policy and reader acceptance.
 
-## Current decisions
+## Confirmed owner decisions
 
 | Topic | Decision |
 |---|---|
 | Product identity | NamiShelf, independent product inspired by Mihon |
 | Candidate technical base | `AltairCardinal/mihon-desktop`, conditional |
-| Upstream policy | Keep upstream reference and integrate changes selectively |
-| Linux target | Linux Mint 22.3 primary; Ubuntu-, Debian-, and Arch-based distributions in scope |
-| Packaging | AppImage, Flatpak, DEB |
-| Extension execution | One separate process per extension |
-| Extension data access | Mediated by NamiShelf through a versioned IPC/broker interface |
-| Android APK extensions | DEX-to-JVM conversion plus declared Android/Mihon API compatibility required in first release |
+| Upstream policy | Retain upstream reference and integrate selectively |
+| Sync architecture | Provider-neutral domain/protocol; provider-specific adapters |
+| Extension execution | One separate process per third-party extension |
+| Extension data access | Mediated by NamiShelf through versioned IPC/broker |
+| Android APK extensions | DEX-to-JVM plus declared Android/Mihon API compatibility required in first release |
 | Third-party extensions | Included in first public release |
-| OS isolation | Pursue if technically sustainable; exact mechanism may be deferred by later decision |
-| Documentation publication | Authorized on an existing work branch |
-| Application coding/builds/dependency installation | Not authorized |
+| OS isolation | Pursue if sustainable; exact mechanism may be deferred by later decision |
+| Linux target | Linux Mint 22.3 primary; Ubuntu-, Debian-, and Arch-based targets in scope |
+| Packaging goals | AppImage, Flatpak, DEB |
+| Implementation | Not authorized; documentation/planning only |
 
 ## Evidence baseline
 
-The downstream repository was inspected read-only on `main` at:
+- Mihon Desktop: `AltairCardinal/mihon-desktop@701080c251c8fd8b35d0b57a481d93b9a9eb3701`
+- Mihon upstream: `mihonapp/mihon@e588e04359fe1058206a2cbac1b01018ad787359`
 
-`701080c251c8fd8b35d0b57a481d93b9a9eb3701`
-
-The upstream Mihon snapshot previously recorded for comparison is:
-
-`mihonapp/mihon@e588e04359fe1058206a2cbac1b01018ad787359`
-
-Re-check both references before future implementation work.
-
-## Review limitations
-
-No code was built or executed. No dependency resolution, advisory scan, full license report, Linux runtime validation, extension fixture execution, or reproducible packaging test was performed.
+Re-check before implementation. No build, test execution, dependency resolution, advisory scan, complete license report, Linux runtime validation, extension fixture execution, or reproducible package test has been performed.
