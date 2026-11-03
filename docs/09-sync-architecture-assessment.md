@@ -29,16 +29,16 @@ Candidate README scope includes favorites, followed authors, read status, and re
 
 The credential path is abstracted through `SyncSecureStore`; the actual desktop secure-store implementation, encryption key lifecycle, file permissions, backup/restore behavior, and OS keyring integration require a separate platform review. A class named “secure store” is not itself proof of hardware-backed or OS-vault protection.
 
-## 4. NamiShelf decisions required before adoption
+## 4. NamiShelf owner decisions and remaining design
 
-1. Decide whether NamiShelf will preserve this GitHub-backed transport or define a provider-neutral sync abstraction.
+1. **Resolved:** NamiShelf uses a provider-neutral sync domain/protocol, with provider-specific adapters (ADR-002).
 2. Define account authorization, token scope, refresh/revocation, and logout semantics.
 3. Specify encryption-at-rest and end-to-end encryption threat model, key derivation/recovery, and device enrollment.
 4. Define conflict semantics for read status, progress, favorites, author follows, and deletes.
 5. Specify multi-device concurrency, idempotency, causal ordering, retries, offline queueing, and recovery from interrupted uploads.
 6. Keep credentials outside ordinary backup files and outside extension capabilities.
 7. Ensure diagnostics never include tokens, private repository contents, or sensitive identifiers.
-8. Decide whether a self-hosted or non-GitHub backend is in scope; do not assume GitHub availability or account ownership.
+8. **Resolved direction:** do not make GitHub a protocol requirement. The first provider is still to be selected; assess self-hosted and non-GitHub options.
 9. Define what happens when the user loses the sync secret or private repository access.
 10. Document clearly that upstream Mihon does not speak the candidate's custom protocol.
 
@@ -51,7 +51,11 @@ The credential path is abstracted through `SyncSecureStore`; the actual desktop 
 - Test private repository access, token refresh, rate limits, network interruptions, clock skew, and recovery.
 - Confirm no credential leakage in crash reports, debug logs, process arguments, environment variables, or extension IPC.
 
-## 6. Assessment
+## 6. Owner-approved release scope
+
+Synchronization is required in the first public release. This is a product-scope decision, not evidence that the current candidate's GitHub sync is accepted unchanged. Provider selection, credential policy, encryption, conflict rules, and device recovery remain design work.
+
+## 7. Assessment
 
 The sync architecture is substantial and appears intentionally designed around journals, projections, encryption, and recovery. However, adopting it would create a strong GitHub dependency and a project-specific protocol. NamiShelf should treat it as a candidate subsystem, not as an already-decided product requirement. No sync backend choice is made in this document.
 
