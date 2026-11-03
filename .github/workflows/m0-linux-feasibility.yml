@@ -63,9 +63,17 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
+          set -euo pipefail
           export ANDROID_HOME="${ANDROID_HOME:-/usr/local/lib/android/sdk}"
-          export PATH="$ANDROID_HOME/cmdline-tools/latest/bin:$ANDROID_HOME/platform-tools:$PATH"
-          sdkmanager --install "platforms;android-36" "build-tools;36.0.0" "platform-tools"
+          sdkmanager_path="$(find "$ANDROID_HOME/cmdline-tools" -type f -name sdkmanager -perm -u+x -print -quit 2>/dev/null || true)"
+          if [ -z "$sdkmanager_path" ]; then
+            echo "::error::Android SDK command-line tools are not installed in $ANDROID_HOME"
+            find "$ANDROID_HOME" -maxdepth 4 -type f -name sdkmanager -print 2>/dev/null || true
+            exit 127
+          fi
+          export PATH="$(dirname "$sdkmanager_path"):$ANDROID_HOME/platform-tools:$PATH"
+          echo "Using sdkmanager: $sdkmanager_path"
+          timeout --signal=TERM --kill-after=15s 8m sdkmanager --install "platforms;android-36" "build-tools;36.0.0" "platform-tools"
           python3 -c 'import sys; assert sys.version_info >= (3, 11), sys.version'
           python3 candidate/scripts/build-android.py check | tee "$RUNNER_TEMP/android-toolchain-check.json"
 
@@ -156,9 +164,13 @@ jobs:
           result=$?
           echo "$result" > "$RUNNER_TEMP/m0-packaging-probe.exit-code"
           echo "Linux createDistributable exit code: $result"
-          # This probe is evidence collection: the known absence of a Linux target
-          # must be recorded, not disguised as a passing packaging gate.
-          exit 0
+          if [ "$result" -ne 0 ]; then
+            echo "::warning::Linux native distribution task is unsupported or failed; inspect m0-packaging-probe.log and exit-code artifact."
+          else
+            echo "Linux native distribution task completed; inspect generated outputs before treating packaging as supported."
+          fi
+          # Deliberately non-gating evidence probe. The recorded Gradle exit code,
+          # not this step's conclusion, is the packaging result.
 
       - name: Upload M0 evidence
         if: always()
