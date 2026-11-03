@@ -113,11 +113,15 @@ Other platform policy details requiring owner input before release packaging fre
 
 These do not block writing implementation code for a Linux feasibility spike.
 
-## 7. Local persistence decision
+## 7. UI framework decision
+
+Owner-approved under ADR-014: Compose Multiplatform Desktop is the reference UI framework. The UX remains desktop-first rather than an Android UI port. Linux build/runtime, memory, sustained reader rendering, HiDPI/fractional scaling, accessibility, X11/Wayland policy and AppImage/Flatpak/DEB constraints are mandatory M0 gates. Kotlin/Compose versions and navigation/state libraries remain deferred. A failed critical gate requires evidence and owner review; do not silently replace the framework.
+
+## 8. Local persistence decision
 
 Owner-approved under ADR-013: SQLite embedded is the reference technology for local structured persistence. Large page/download artifacts and caches remain in managed filesystem storage. Database driver, SQL access layer, ORM/query framework, concurrency configuration and physical schema are deferred until after M0 inspection. If the candidate's SQLite stack proves unsuitable, present evidence and alternatives for explicit owner review; do not silently switch databases.
 
-## 8. Preliminary application architecture baseline
+## 9. Preliminary application architecture baseline
 
 The five-area architecture baseline is now documented in:
 
@@ -127,9 +131,9 @@ The five-area architecture baseline is now documented in:
 - `docs/04-core-architecture/37-service-integration-and-feature-orchestration.md` — sources, reader, downloads, tracking, backup, sync and extension orchestration.
 - `docs/03-platform-and-linux/38-security-lifecycle-and-distribution-architecture.md` — trust zones, authorization, credentials, process lifecycle and packaging gates.
 
-These are preliminary engineering proposals, not implementation evidence. Physical module count, SQLite driver/SQL access layer, UI framework details, JVM packaging, OS sandbox mechanism and cryptographic suite remain conditional on M0 inspection or later owner decisions.
+These are preliminary engineering proposals, not implementation evidence. Physical module count, SQLite driver/SQL access layer, Compose versions/navigation-state libraries, JVM packaging, OS sandbox mechanism and cryptographic suite remain conditional on M0 inspection or later owner decisions.
 
-## 9. Explicitly unresolved owner decisions
+## 10. Explicitly unresolved owner decisions
 
 Only the following require owner choice or confirmation rather than ordinary engineering specification:
 
@@ -142,7 +146,7 @@ Only the following require owner choice or confirmation rather than ordinary eng
 
 Everything else in the approved scope can proceed as engineering specification with secure defaults, fixture validation, and documented evidence. The five-area preliminary architecture baseline is documented; it still requires owner review before architecture freeze.
 
-## 10. First code phase recommendation
+## 11. First code phase recommendation
 
 **M0 — Linux feasibility and baseline, not full product implementation**
 
@@ -156,7 +160,7 @@ Everything else in the approved scope can proceed as engineering specification w
 
 Do not enable third-party extension execution or synchronization in M0. Do not port or implement security-sensitive subsystems until their specifications and review gates are complete.
 
-## 11. Operational guardrails
+## 12. Operational guardrails
 
 - No changes to Mihon upstream or the external Mihon Desktop repository.
 - NamiShelf work remains in its own repository and branches.
