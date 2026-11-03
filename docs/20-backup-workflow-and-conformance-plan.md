@@ -90,7 +90,7 @@ Compare streaming behavior, deterministic output, random access, recovery after 
 
 Integrity is mandatory: manifest version, payload lengths, cryptographic hashes, and a final archive-level integrity check. Hashes detect corruption but do not authenticate an attacker-controlled archive.
 
-Optional encryption is a separate decision. If selected, use a well-reviewed authenticated-encryption construction and memory-hard password key derivation or a clearly specified recipient-key model. Never reuse sync credentials or OS wrapping keys as archive keys. Define recovery behavior for forgotten passwords/lost keys before enabling encryption. Avoid claiming authenticity from an unkeyed checksum. Keep secrets and credentials out even when encryption is enabled.
+Encryption is optional per backup. When enabled, use a reviewed authenticated-encryption construction and a bounded, memory-hard password KDF or a clearly specified recipient-key model. Never reuse sync credentials or OS wrapping keys as archive keys. Define recovery behavior for forgotten passwords/lost keys before enabling encryption. Avoid claiming authenticity from an unkeyed checksum. Keep secrets and credentials out even when encryption is enabled.
 
 The exact cryptographic profile requires a dedicated threat-model review before implementation.
 
