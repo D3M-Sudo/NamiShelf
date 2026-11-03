@@ -16,13 +16,14 @@ This documentation records the conditional downstream-base assessment, approved 
 - `05-extension-security-model.md` — per-extension process model, brokered data access, conditional OS isolation, Android APK compatibility.
 - `06-license-and-dependency-review.md` — preliminary licensing and dependency inventory.
 - `07-agent-handoff.md` — confirmed decisions and operational guardrails.
-- `08-backup-interoperability.md` — Mihon-compatible backup coverage and restore acceptance.
+- `08-backup-interoperability.md` — legacy Mihon compatibility boundaries and restore acceptance.
 - `09-sync-architecture-assessment.md` — candidate GitHub-backed sync and credential boundaries.
 - `10-reader-and-image-pipeline-assessment.md` — Skia reader, native runtime risks, and memory validation.
 - `11-linux-runtime-and-dependency-risk.md` — desktop build feasibility and Linux packaging gates.
 - `12-linux-credential-storage-assessment.md` — Secret Service integration and Linux test gaps.
 - `13-linux-native-dependency-and-architecture-matrix.md` — native dependencies, architecture coverage, and XDG gap.
-- `14-backup-format-and-restore-safety.md` — gzip/protobuf resource limits and partial restore semantics.
+- `14-backup-format-and-restore-safety.md` — format evolution, resource limits, and partial restore semantics.
+- `19-mihon-backup-compatibility-architecture.md` — pinned Android v0.21.3 backup implementation, legacy wire contract, and NamiShelf adapter strategy.
 - `15-architecture-decisions-required.md` — remaining owner decisions.
 - `16-provider-neutral-sync-protocol.md` — sync domain/protocol, provider adapters, conflicts, and security.
 - `17-xdg-filesystem-and-migration-design.md` — Linux directory layout and safe migration.
