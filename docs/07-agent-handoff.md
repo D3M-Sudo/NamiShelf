@@ -13,8 +13,12 @@ Prepare NamiShelf as an independent Linux desktop application inspired by Mihon,
 - Repository: `D3M-Sudo/NamiShelf`; documentation publication authorized on existing branch `feature`.
 - Candidate base: conditional adoption of `AltairCardinal/mihon-desktop`.
 - Upstream policy: retain upstream references and selectively integrate changes.
-- Synchronization architecture: provider-neutral domain/protocol with provider-specific adapters; GitHub is not the protocol contract (owner-approved 2026-11-03). First-release sync scope and initial provider remain undecided.
+- Synchronization architecture: provider-neutral domain/protocol with provider-specific adapters; GitHub is not the protocol contract (owner-approved 2026-11-03). Sync is required in the first public release; the initial provider remains undecided.
 - Backup: NamiShelf-native versioned format is the default; legacy Mihon/Tachiyomi .tachibk import and export are required in release 1; downloads use a separate export/migration flow; portable settings are selected by category (owner-approved 2026-11-03).
+- Linux filesystem: clean NamiShelf XDG profile with explicit opt-in migration/import; no silent profile adoption (owner-approved 2026-11-03).
+- Linux release architecture: x86_64 first; aarch64 after validation (owner-approved 2026-11-03).
+- Reader acceptance: prioritize stability and bounded memory over aggressive prefetch (owner-approved 2026-11-03).
+- Sync release scope: sync is required in the first public release; provider-neutral protocol, initial provider still open (owner-approved 2026-11-03).
 - UI: desktop-first hybrid UX inspired by Mihon.
 - Scope: reader, sources, library, tracking, backup, extensions, downloads, history.
 - Packaging: AppImage, Flatpak, DEB.
