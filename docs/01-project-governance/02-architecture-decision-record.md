@@ -433,3 +433,36 @@ This ADR records an architecture decision only. It does not authorize M0 executi
 NamiShelf adopts a hybrid desktop shell: a collapsible persistent sidebar for primary destinations, a central content workspace, an optional contextual detail pane on sufficiently wide windows, and a dedicated reader workspace that can hide or minimize global navigation. The reader is opened contextually from a library entry or chapter, not as a mandatory primary sidebar destination. Returning from the reader restores the previous navigation context. Background downloads and synchronization continue independently and remain visible through a compact status surface.
 
 Exact widths, responsive breakpoints, minimum window size, tab/multi-window behavior, and shortcut assignments remain open for prototype review. The detail pane must collapse to a navigable detail view on narrow windows; keyboard and accessibility support are mandatory. This decision does not authorize UI implementation, builds, dependency installation, or tests.
+
+
+## ADR-016 — Single-window application model
+
+**Decision date:** 2026-11-03  
+**Status:** Owner-approved for the reference application architecture.
+
+### Context
+
+The approved hybrid shell provides a collapsible sidebar, central content workspace, optional contextual detail pane and dedicated reader workspace. A multi-window model would add lifecycle, focus, state restoration, duplicate-session and cross-window coordination complexity before a demonstrated release-1 requirement exists.
+
+### Decision
+
+NamiShelf uses a **single top-level application window** as its release-1 and reference architecture.
+
+- Primary destinations, contextual details and reader mode are hosted within the same top-level window.
+- Entering reader mode transitions the central workspace into the dedicated reader experience; it does not spawn a second application window.
+- Exiting reader mode restores the previous navigation destination and relevant transient context.
+- Background downloads, tracking and synchronization remain service-owned and continue while the user changes screens or enters/exits reader mode.
+- Dialogs, menus and native file pickers may use platform-managed transient surfaces; these do not constitute application multi-window support.
+
+### Consequences
+
+- Window lifecycle and global navigation restoration have one authoritative owner.
+- Feature screens must not assume ownership of independent top-level windows.
+- Cross-feature background work must not be scoped to a screen's composition lifecycle.
+- The architecture should avoid unnecessary coupling to a single-window implementation detail where doing so is inexpensive, but multi-window behavior is not a release-1 requirement or hidden commitment.
+
+### Not decided
+
+Exact window dimensions, minimum size, close-to-tray behavior, startup/window-state restoration, and whether a future release should add optional detached reader windows.
+
+This ADR records an architecture decision only. It does not authorize UI implementation, builds, dependency installation, or tests.
