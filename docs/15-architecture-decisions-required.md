@@ -74,7 +74,7 @@ The owner already approved one process per extension, brokered data access, DEX-
 
 ## 8. Remaining owner decisions and implementation readiness gates
 
-**Sync decisions already resolved:** provider-neutral protocol; no mandatory NamiShelf-hosted service; GitHub first adapter; self-hosting required in release 1; mandatory E2EE; core entity scope only. See ADR-006. Remaining sync choices are the concrete self-hosted adapter, E2EE key recovery/device enrollment, cryptographic profile, and conflict semantics.
+**Sync decisions already resolved:** provider-neutral protocol; no mandatory NamiShelf-hosted service; GitHub first adapter; self-hosting required in release 1; mandatory E2EE; core entity scope only. See ADR-006. Remaining sync choices are WebDAV server compatibility/concurrency, GitHub authorization lifecycle, E2EE cryptographic profile, recovery-key encoding, device-transfer channel, historical ciphertext handling after revocation, and conflict semantics.
 
 The candidate remains a conditional base. Before implementation freeze:
 1. Static security review of extension adapters and broker design.
@@ -82,7 +82,7 @@ The candidate remains a conditional base. Before implementation freeze:
 3. Native Linux credential integration evidence.
 4. Backup resource limits and cross-version fixture plan.
 5. XDG path/migration decision.
-6. Select and validate the second, self-hosted sync adapter; define GitHub authorization scopes and account lifecycle.
+6. Validate the selected WebDAV adapter's server capability profile and define GitHub authorization scopes/account lifecycle.
 7. First-release architecture coverage and package policy.
 8. Reader memory/performance budgets.
 
