@@ -8,8 +8,8 @@ Technical documentation is organized by subject. Start here, then use the folder
 |---|---|
 | [01-project-governance](01-project-governance/) | Architecture decision records, consolidated owner decisions, agent handoff |
 | [02-audit-and-licensing](02-audit-and-licensing/) | Downstream audit, licensing and dependency review |
-| [03-platform-and-linux](03-platform-and-linux/) | Linux platform design, runtime, credentials, native dependencies, XDG and release acceptance |
-| [04-core-architecture](04-core-architecture/) | Upstream integration strategy, reader and image pipeline |
+| [03-platform-and-linux](03-platform-and-linux/) | Linux platform design, runtime, credentials, native dependencies, XDG, security lifecycle and distribution architecture |
+| [04-core-architecture](04-core-architecture/) | Application architecture, domain/persistence, desktop UI, service orchestration, upstream integration and reader pipeline |
 | [05-extensions](05-extensions/) | Extension security, IPC, broker, Android/Mihon API compatibility and capabilities |
 | [06-backup](06-backup/) | Native backup, Mihon compatibility, restore safety and conformance |
 | [07-synchronization](07-synchronization/) | Provider-neutral sync, E2EE, GitHub and WebDAV |
@@ -27,9 +27,14 @@ Technical documentation is organized by subject. Start here, then use the folder
 - [Native Backup v1 Profile](06-backup/32-native-backup-v1-implementation-profile.md) — proposed ZIP/JSON format and restore contract.
 - [Provider-Neutral Sync Protocol](07-synchronization/33-provider-neutral-sync-domain-protocol.md) — sync domain, conflict requirements and provider contract.
 - [Pre-Code Implementation Blueprint](08-development-planning/31-pre-code-implementation-blueprint.md) — ordered workstreams and M0 gate.
+- [Application Architecture Blueprint](04-core-architecture/34-application-architecture-blueprint.md) — module boundaries, dependency rules and lifecycle.
+- [Domain Data and Persistence](04-core-architecture/35-domain-data-and-persistence-architecture.md) — logical entities, identities, XDG storage and migration.
+- [Desktop UI and Navigation](04-core-architecture/36-desktop-ui-and-navigation-architecture.md) — information architecture, shell, reader UX and state ownership.
+- [Service Integration](04-core-architecture/37-service-integration-and-feature-orchestration.md) — source, reader, downloads, tracking, backup, sync and extension workflows.
+- [Security, Lifecycle and Distribution](03-platform-and-linux/38-security-lifecycle-and-distribution-architecture.md) — trust zones, credentials, process lifecycle and package gates.
 
 ## Documentation status
 
-This is a planning/specification repository state. It does not claim that the candidate base has passed Linux feasibility, that the specifications have been implemented, or that security/cryptographic review is complete.
+The preliminary five-area architecture baseline is documented. It remains a proposal pending owner review and M0 feasibility evidence. This repository does not claim that the candidate base has passed Linux feasibility, that the specifications have been implemented, or that security/cryptographic review is complete.
 
 No application code implementation, build, dependency installation, extension execution, sync test, packaging test, PR or merge is implied by the documentation work.

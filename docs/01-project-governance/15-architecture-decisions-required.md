@@ -113,7 +113,19 @@ Other platform policy details requiring owner input before release packaging fre
 
 These do not block writing implementation code for a Linux feasibility spike.
 
-## 7. Explicitly unresolved owner decisions
+## 7. Preliminary application architecture baseline
+
+The five-area architecture baseline is now documented in:
+
+- `docs/04-core-architecture/34-application-architecture-blueprint.md` — modular monolith, logical module responsibilities, dependency direction and lifecycle.
+- `docs/04-core-architecture/35-domain-data-and-persistence-architecture.md` — bounded contexts, stable identity, persistence recommendation, XDG layout and migration.
+- `docs/04-core-architecture/36-desktop-ui-and-navigation-architecture.md` — desktop information architecture, navigation, reader UX and UI state ownership.
+- `docs/04-core-architecture/37-service-integration-and-feature-orchestration.md` — sources, reader, downloads, tracking, backup, sync and extension orchestration.
+- `docs/03-platform-and-linux/38-security-lifecycle-and-distribution-architecture.md` — trust zones, authorization, credentials, process lifecycle and packaging gates.
+
+These are preliminary engineering proposals, not implementation evidence. Physical module count, database driver, UI framework details, JVM packaging, OS sandbox mechanism and cryptographic suite remain conditional on M0 inspection or later owner decisions.
+
+## 8. Explicitly unresolved owner decisions
 
 Only the following require owner choice or confirmation rather than ordinary engineering specification:
 
@@ -124,9 +136,9 @@ Only the following require owner choice or confirmation rather than ordinary eng
 5. **Encrypted backup recovery:** confirm that loss of the backup password means the encrypted backup is unrecoverable; no hidden recovery escrow is proposed.
 6. **Platform release policy:** confirm minimum distro/JVM/Wayland/Flatpak/AppImage policy before packaging freeze.
 
-Everything else in the approved scope can proceed as engineering specification with secure defaults, fixture validation, and documented evidence.
+Everything else in the approved scope can proceed as engineering specification with secure defaults, fixture validation, and documented evidence. The five-area preliminary architecture baseline is documented; it still requires owner review before architecture freeze.
 
-## 8. First code phase recommendation
+## 9. First code phase recommendation
 
 **M0 — Linux feasibility and baseline, not full product implementation**
 
@@ -140,7 +152,7 @@ Everything else in the approved scope can proceed as engineering specification w
 
 Do not enable third-party extension execution or synchronization in M0. Do not port or implement security-sensitive subsystems until their specifications and review gates are complete.
 
-## 9. Operational guardrails
+## 10. Operational guardrails
 
 - No changes to Mihon upstream or the external Mihon Desktop repository.
 - NamiShelf work remains in its own repository and branches.

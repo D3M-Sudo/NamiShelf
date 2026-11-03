@@ -92,3 +92,15 @@ The following documents are the implementation-planning references and supersede
 - Document 15 is the consolidated decision register and authoritative list of owner inputs.
 
 The next authorized development activity should be a bounded Linux x86_64 feasibility spike on the conditional Mihon Desktop candidate. It must not assume production-base acceptance, enable extension execution, or enable sync. Obtain explicit owner authorization before starting that code/build phase.
+
+
+## 10. Preliminary application architecture baseline
+
+The five-area architecture proposal is now published:
+- 34 — application architecture and module boundaries;
+- 35 — domain data and persistence;
+- 36 — desktop UI and navigation;
+- 37 — service integration and orchestration;
+- 38 — security, lifecycle and distribution.
+
+These documents are proposals pending owner review and M0 evidence. Do not translate a proposed database, dependency injection, JVM packaging, sandbox or module split into an implementation choice without checking its stated gate. No M0, build, installation, application coding or tests have been authorized by this documentation update.
