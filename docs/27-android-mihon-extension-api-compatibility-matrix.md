@@ -83,7 +83,9 @@ During this planning phase, do not download, install, convert, or execute extens
 - One process per extension; stdio IPC is the only host control/data interface.
 - Android shims never return privileged Context/service handles.
 - No raw host paths, arbitrary file descriptors, environment secrets, provider tokens, sync keys, tracking credentials, backup handles or database connections.
-- Network passes through broker policy for TLS, origin, redirect, cookie, private-network and quota checks.
+- Network passes through the broker under the owner-approved source-declared-origin policy: validate every redirect hop, enforce TLS, isolate cookies by source, strip sensitive headers across origins, and deny private/local destinations by default.
+- Capabilities are granted through editable predefined profiles; sensitive capabilities require explicit additional consent and upgrades never silently broaden grants.
+- Large payloads use temporary opaque broker handles bound to process/session/request, with expiry, quotas, cancellation and backpressure.
 - Treat APK metadata, manifests, resources and extension responses as untrusted.
 - Process separation is not an OS sandbox; document actual package-specific isolation.
 
@@ -104,3 +106,14 @@ During this planning phase, do not download, install, convert, or execute extens
 Exact Mihon API baseline; Android shim strategy; OkHttp/cookie/redirect semantics; preference descriptor schema; bitmap interoperability; native library policy; browser-mediated login; capability consent UX; per-process resource limits and package-specific sandbox.
 
 No extension has been downloaded, converted, installed or executed. No API family in this matrix has been runtime-validated.
+
+
+## 10. Owner-approved broker policy
+
+The owner selected source-declared origin restrictions, editable capability profiles, and broker-issued streaming handles (ADR-010). Converted Android/Mihon APIs must map to these same policies; no Android compatibility shim may bypass them.
+
+- HTTP operations are restricted to the declared and host-approved source origins. Redirects are re-authorized hop by hop.
+- Cookies and source authentication are isolated by source. Sensitive headers are not forwarded across origin changes.
+- Local/private destinations are denied by default.
+- Effective capabilities come from the host profile and user overrides, not extension self-declaration.
+- Large image/page results use temporary opaque broker handles with scoped lifetime and quotas.
