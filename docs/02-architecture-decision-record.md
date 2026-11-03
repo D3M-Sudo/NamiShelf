@@ -113,3 +113,26 @@ A future Mihon backup adapter may be added only after its official implementatio
 Native container encoding and extension, manifest, schema migration, integrity/encryption, exact settings categories, download archive format, and legacy loss-report UX.
 
 This ADR authorizes documentation and planning only, not implementation.
+
+
+## ADR-004 — First-release Linux and product scope decisions
+
+**Decision date:** 2026-11-03  
+**Status:** Owner-approved planning direction; implementation authorization remains separate
+
+### Decisions
+
+1. **Synchronization release scope:** synchronization is required in the first public release. Its domain/protocol remains provider-neutral under ADR-002. The initial provider is not yet selected.
+2. **Linux profile migration:** use a clean NamiShelf XDG profile. Provide explicit opt-in import/migration; do not silently adopt or mutate an existing Mihon Desktop profile.
+3. **CPU architecture release order:** x86_64 is the first release gate. aarch64 follows only after native dependencies, runtime, and package formats are validated.
+4. **Reader performance priority:** prioritize stability and bounded memory over aggressive prefetch. Set numeric budgets only from measurements on the Linux Mint 22.3 reference profile.
+
+### Consequences
+
+- Release 1 must include a usable sync implementation, not merely a dormant protocol abstraction.
+- Provider selection, credentials, encryption/recovery, conflict semantics, and operating cost require further design.
+- Migration must preserve the original source profile and report unsupported data.
+- aarch64 is a follow-up target rather than a first-release blocker.
+- Reader optimizations must not compromise memory bounds or long-session stability.
+
+This ADR records product direction only. It does not authorize application coding, builds, dependency installation, or changes to Mihon/Mihon Desktop.
