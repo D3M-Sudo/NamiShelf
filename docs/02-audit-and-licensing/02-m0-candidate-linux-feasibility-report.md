@@ -224,3 +224,38 @@ A repository-wide Actions inventory was performed after the first M0 workflow ex
 ### Current CI verdict
 
 **CI infrastructure: partially stabilized; M0 evidence: incomplete.** The strongest successful result so far is desktop Kotlin/JVM compilation. No completed test pass, GUI launch pass, native packaging support, complete SBOM/license review, Secret Service runtime validation or Linux Mint 22.3 compatibility result has been established. The latest workflow revision has been committed but its run was still pending at inventory time. No GO decision can be based on these runs.
+
+## 13. Completed run #5 analysis — 2026-11-03
+
+Run [#41724989858](https://github.com/D3M-Sudo/NamiShelf/actions/runs/41724989858), candidate SHA `701080c251c8fd8b35d0b57a481d93b9a9eb3701`, workflow revision `e313b922d5395d097cf29a65cf8fa1fda0fc4bb8`, completed with conclusion `failure`.
+
+Observed step results:
+- JDK 21, Gradle setup, exact candidate checkout and Android SDK setup: success.
+- `:app-desktop:compileKotlinJvm`: **BUILD SUCCESSFUL in 4m 25s**.
+- `:app-desktop:jvmTest`: failed; the wrapper timeout returned exit code `124` after 15 minutes. Before timeout, Gradle emitted many individual failed tests.
+- Xvfb/DBus installation and application launch: skipped because the test step failed.
+- AboutLibraries and runtime dependency reports: invoked best-effort; their shell commands use `|| true`, so the step's green status does not prove either report succeeded.
+- `:app-desktop:createDistributable`: Gradle exit code `0`; this is not proof of Linux packaging. The candidate's `app-desktop/build.gradle.kts` declares only `TargetFormat.Dmg` and `TargetFormat.Msi`, and its distribution root is selected as a macOS or Windows path. The generic task's zero exit may simply mean no Linux package target was configured. No Linux artifact was asserted or inspected.
+
+### JVM test failure classification
+
+The log contains at least 216 test cases marked `FAILED` before timeout. Failure signatures include:
+- At least 163 log lines referencing `PlatformCredentialUnavailableException`, affecting many production-DI, reader, download-directory, extension and repository wiring tests.
+- At least 29 lines referencing `AssertionFailedError`, indicating additional independent contract/assertion failures.
+- Coroutine timeout failures and XML parser/transformer failures also appear.
+
+The dominant failure is consistent with the runner lacking an active Secret Service session: the candidate's Linux credential backend invokes `secret-tool` and fails closed if the command or Secret Service is unavailable. The workflow ran the tests without provisioning a Secret Service daemon. This is an **environmental test-harness defect** that must be corrected before interpreting all credential-dependent failures as product defects. It does not explain the independent assertion, XML and coroutine failures; those remain to be triaged after a valid credential-service test environment is provided.
+
+### Next CI correction
+
+Commit `b79bb03d1e87c6127018c19fc71374aa60038575` updates the workflow to install `gnome-keyring`, `libsecret-tools`, DBus and Xvfb, then start an isolated DBus session, unlock an ephemeral Secret Service keyring, perform a store/lookup/clear probe, and run the JVM suite inside that session. This is a test-only CI fixture; it does not add a fallback to the application credential backend and does not alter the approved fail-closed security policy.
+
+The new workflow run has not yet been inspected. The next decision must be based on that run's complete test report. Do not increase the timeout until the credential-service environment has been corrected and the test throughput/failures re-evaluated.
+
+### Updated M0 assessment
+
+**Build:** confirmed on Ubuntu 24.04 / JDK 21.
+**JVM tests:** failed; current run is not a valid clean baseline because Secret Service was not provisioned and independent failures remain.
+**Linux GUI:** not tested; gated behind JVM test success.
+**Linux native packaging:** unsupported by the declared DMG/MSI-only target configuration; exit code zero from the generic task is not evidence of a package.
+**GO/NO-GO:** no final GO. The candidate remains a conditional source-reuse candidate, not a Linux-ready desktop base.
