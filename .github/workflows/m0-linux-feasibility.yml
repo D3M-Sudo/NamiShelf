@@ -13,13 +13,13 @@ permissions:
 
 concurrency:
   group: m0-linux-feasibility-${{ github.ref }}
-  cancel-in-progress: false
+  cancel-in-progress: true
 
 jobs:
   linux-feasibility:
     name: Pinned Mihon Desktop Linux feasibility
     runs-on: ubuntu-24.04
-    timeout-minutes: 120
+    timeout-minutes: 45
     permissions:
       contents: read
     env:
@@ -76,7 +76,7 @@ jobs:
           set -euo pipefail
           chmod +x ./gradlew
           ./gradlew --version
-          ./gradlew --no-daemon --stacktrace :app-desktop:compileKotlinJvm
+          timeout --signal=TERM --kill-after=30s 15m ./gradlew --no-daemon --console=plain --no-watch-fs --stacktrace :app-desktop:compileKotlinJvm
 
       - name: Run desktop JVM tests
         id: desktop_tests
@@ -84,7 +84,12 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          ./gradlew --no-daemon --stacktrace :app-desktop:jvmTest
+          set +e
+          timeout --signal=TERM --kill-after=30s 15m ./gradlew --no-daemon --console=plain --no-watch-fs --stacktrace :app-desktop:jvmTest
+          result=$?
+          set -e
+          echo "Desktop JVM test exit code: $result"
+          exit "$result"
 
       - name: Prepare isolated virtual display and DBus tools
         if: steps.desktop_tests.outcome == 'success'
@@ -129,9 +134,9 @@ jobs:
         shell: bash
         run: |
           mkdir -p "$RUNNER_TEMP/m0-evidence"
-          ./gradlew --no-daemon :app-desktop:exportLibraryDefinitionsJvm \
+          timeout --signal=TERM --kill-after=10s 5m ./gradlew --no-daemon --console=plain :app-desktop:exportLibraryDefinitionsJvm \
             > "$RUNNER_TEMP/m0-evidence/aboutlibraries-export.log" 2>&1 || true
-          ./gradlew --no-daemon :app-desktop:dependencies --configuration jvmRuntimeClasspath \
+          timeout --signal=TERM --kill-after=10s 5m ./gradlew --no-daemon --console=plain :app-desktop:dependencies --configuration jvmRuntimeClasspath \
             > "$RUNNER_TEMP/m0-evidence/desktop-runtime-dependencies.txt" 2>&1 || true
           cp -f app-desktop/build/reports/tests/jvmTest/index.html \
             "$RUNNER_TEMP/m0-evidence/desktop-jvm-test-report.html" 2>/dev/null || true
@@ -146,7 +151,7 @@ jobs:
         shell: bash
         run: |
           set +e
-          ./gradlew --no-daemon :app-desktop:createDistributable \
+          timeout --signal=TERM --kill-after=10s 5m ./gradlew --no-daemon --console=plain :app-desktop:createDistributable \
             > "$RUNNER_TEMP/m0-packaging-probe.log" 2>&1
           result=$?
           echo "$result" > "$RUNNER_TEMP/m0-packaging-probe.exit-code"
