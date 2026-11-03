@@ -1,12 +1,12 @@
 # NamiShelf — Extension IPC Protocol v1
 
-**Status:** Normative implementation proposal; JSON control encoding is the engineering default under ADR-011.  
+**Status:** Engineering proposal for the later extension workstream; not an owner-frozen wire contract. ADR-011 is intentionally unassigned.  
 **Transport:** stdio, one child process per extension.  
 **Security boundary:** host-enforced broker; IPC is not an OS sandbox.
 
 ## 1. Scope and invariants
 
-This specification defines the first implementation target for native JVM and converted Android/Mihon extensions. Both runtimes use identical wire messages and broker authorization.
+This proposal describes a candidate first implementation target for native JVM and converted Android/Mihon extensions. Its framing, limits, handshake fields, method registry and compatibility details require engineering validation and must not be treated as owner-approved solely by appearing here. Both runtimes use identical wire messages and broker authorization.
 
 - The host launches, identifies, supervises, and terminates each extension process.
 - stdin/stdout are dedicated to IPC; stdout MUST NOT contain logs.
@@ -134,3 +134,8 @@ Before release, fuzz the parser/state machine and verify the host remains respon
 ## 12. Explicit non-goals
 
 This protocol does not itself provide an OS sandbox, network firewall, cryptographic device attestation, or protection from a compromised host process. It is a constrained local IPC contract backed by process isolation and host-side authorization.
+
+
+## 13. Decision authority and freeze gate
+
+ADR-011 is intentionally unassigned; this document is not authorized by that ADR number. Owner-approved constraints are the one-process-per-extension model, stdio transport, broker-mediated access, source-origin restrictions, capability policy and broker-issued streaming handles (ADRs 008–010 and ADR-025). The exact JSON/binary framing, initial numeric limits, envelope fields, error taxonomy and method registry remain an engineering proposal to be validated in the later extension workstream before implementation freeze. This work is not part of M0.
