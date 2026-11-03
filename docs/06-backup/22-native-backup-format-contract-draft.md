@@ -1,6 +1,6 @@
 # NamiShelf — Native Backup Format Contract Draft
 
-**Status:** Technical draft based on ADR-003 and ADR-005; not a frozen implementation contract
+**Status:** Historical technical draft; superseded for release-1 recovery behavior by ADR-026 and document 32. Not a frozen implementation contract
 **Date:** 2026-11-03
 
 ## 1. Approved constraints
@@ -85,8 +85,9 @@ When enabled:
 - Use a reviewed password-based KDF with parameters stored in the envelope; parameters must be bounded before KDF execution to prevent resource-exhaustion attacks.
 - Generate a fresh random salt and nonce as required by the selected algorithms.
 - Authenticate format/version metadata and ciphertext; fail closed on authentication failure.
-- Do not offer silent password recovery or store the password in application settings.
-- Document that a lost password means the encrypted backup cannot be recovered unless a separately designed recovery mechanism is approved.
+- Password and a separate locally generated recovery key are alternative independent recovery methods under ADR-026; either must independently recover the same backup encryption key.
+- Losing both methods makes the encrypted backup unrecoverable. No vendor escrow, provider transmission or plaintext fallback.
+- The recovery envelope/key-wrapping slots require independent cryptographic review; document 32 is the current engineering profile.
 - Keep key material out of logs, crash reports, telemetry, sync metadata, and extension IPC.
 
 Algorithm selection, KDF profile, parameter bounds, nonce construction, metadata leakage, and password UX remain subject to a dedicated cryptographic review.
@@ -124,3 +125,7 @@ No profile mutation may occur during identification, parsing, verification, or p
 - Do not claim Mihon compatibility without real fixtures and cross-app tests.
 
 No code, build, installation, fixture execution, or restore operation has been performed.
+
+## 11. Supersession notice
+
+This document is retained as design history. For release-1 encrypted-backup recovery, ADR-026 and `docs/06-backup/32-native-backup-v1-implementation-profile.md` are authoritative. The password-only recovery wording formerly present in this draft is obsolete. This draft does not override the approved dual-recovery policy.
