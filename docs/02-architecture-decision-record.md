@@ -53,3 +53,31 @@ The owner confirmed:
 Still open: exact IPC technology and schema, sandbox implementation, network broker policy, user-consent/permission UX, and the precise Android/Mihon API compatibility matrix. Any compatibility feature that proves disproportionately expensive must be surfaced for a later owner decision rather than silently omitted or approximated.
 
 These decisions authorize documentation and planning only. They do not authorize application coding, builds, dependency installation, or changes to Mihon/Mihon Desktop.
+
+
+## ADR-002 — Provider-neutral synchronization architecture
+
+**Decision date:** 2026-11-03  
+**Status:** Owner-approved direction; protocol and release scope remain open
+
+### Context
+
+The candidate sync system is based on a private GitHub repository and custom Git transport. Adopting it unchanged would couple NamiShelf's protocol and account lifecycle to GitHub.
+
+### Decision
+
+Define a provider-neutral NamiShelf sync domain and protocol. Provider-specific transport and authorization live behind adapters. GitHub may be an initial provider, but repository structure, Git objects, and GitHub token semantics are not the domain contract.
+
+### Consequences
+
+- Define canonical entities, schema versions, operation IDs, idempotency, conflict resolution, tombstones, and migrations independently of transport.
+- Declare provider capabilities; do not assume atomic writes or equivalent consistency.
+- Keep credentials in OS secure storage and outside extensions and ordinary backups.
+- Require adapter conformance tests.
+- Preserve offline-first local operation.
+
+### Not decided
+
+First-release sync scope, initial provider, end-to-end encryption, key recovery/device enrollment, entity conflict rules, quotas, retention, and service operating costs.
+
+This ADR authorizes planning only, not implementation.
