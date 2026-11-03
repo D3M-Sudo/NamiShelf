@@ -180,4 +180,23 @@ The next M0 work required to close the evidence gap is:
 7. Generate the resolved dependency inventory/SBOM and verify notices and native artifact licenses.
 8. Reassess GO/NO-GO against NamiShelf's XDG, dedicated runtime, packaging, security and release constraints.
 
-No candidate code, NamiShelf application code, build configuration, branch, release, PR or merge was changed as part of this assessment.
+
+## 11. GitHub Actions execution path (owner-authorized)
+
+On 2026-11-03 the owner authorized completing the remaining M0 evidence using GitHub-hosted CI instead of a local machine. A dedicated workflow was added to the NamiShelf repository:
+
+- Workflow: `.github/workflows/m0-linux-feasibility.yml`
+- Runner: `ubuntu-24.04`
+- JDK: Temurin 21
+- Candidate: `AltairCardinal/mihon-desktop`
+- Immutable candidate commit: `701080c251c8fd8b35d0b57a481d93b9a9eb3701`
+- Permissions: `contents: read`; no application secrets are configured.
+- Candidate checkout is detached at the pinned SHA and checked for a clean worktree.
+- Planned checks: Android SDK/toolchain preflight required by the shared Gradle configuration, desktop JVM compilation, `:app-desktop:jvmTest`, resolved JVM runtime dependency report, and an explicit Linux `:app-desktop:createDistributable` probe.
+- Evidence is uploaded as a workflow artifact with 30-day retention.
+
+The packaging probe is deliberately non-gating: its exit code and log are captured as evidence because the source currently declares only DMG/MSI native formats. A successful JVM compile/test must not be interpreted as Linux packaging support.
+
+**Execution status at report revision:** workflow file committed; a completed GitHub Actions run and its artifact have not yet been inspected. No build/test pass is claimed. Graphical X11 launch, Secret Service runtime behavior, URI integration, native ELF closure, complete SBOM/license review and the final GO/NO-GO remain open until evidence is collected. The workflow does not yet establish those results.
+
+No files in the external candidate repository are modified. No NamiShelf application source, package, release, PR or merge is produced by this workflow.
