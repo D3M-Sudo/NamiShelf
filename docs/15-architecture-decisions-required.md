@@ -22,20 +22,27 @@ This document consolidates decisions that cannot be settled safely by static ins
 
 **Owner decision:** **B — Provider-neutral**, confirmed on 2026-11-03. NamiShelf will define a provider-independent sync domain/protocol and isolate transports behind adapters. GitHub may be an initial adapter, but its repository layout and Git object model will not define the public protocol. This does not decide whether sync ships in the first release or select a concrete provider.
 
-## 3. Backup format extension
+## 3. Backup compatibility architecture
 
-**Evidence:** Mihon uses a canonical gzip/protobuf backup. Candidate desktop adds optional data such as author archive state. The codec accepts gzip or plain protobuf and decompresses the entire stream to memory without a visible explicit compressed/decompressed byte cap. Restore is per-item and can be partial. Imported source preferences and extension repositories can influence later network and extension behavior.
+**New evidence:** Mihon v0.21.3 is documented as the last version that restores Tachiyomi-format `.tachibk`. The following Mihon version removes this legacy compatibility. The public announcement does not specify the replacement format. The inspected v0.21.3 Android source still writes gzip-compressed Protocol Buffers with streaming entry processing.
 
-**Recommendation:** preserve canonical Mihon `.tachibk` interoperability unchanged. Put NamiShelf-only data in a separately versioned companion manifest/archive unless a protobuf extension is proven to preserve unknown fields through Mihon round-trips. Do not silently extend core protobuf fields.
+**Owner direction:** Do not select legacy `.tachibk` as NamiShelf's permanent native backup format. Preserve compatibility with Mihon by studying and implementing format adapters against official versioned contracts. Keep the internal backup model independent of wire formats.
 
-**Owner decision required:** choose:
-- **A — Strict Mihon-compatible only:** no NamiShelf-only fields in the first release.
-- **B — Companion extension:** standard `.tachibk` plus optional versioned NamiShelf companion data.
-- **C — Separate NamiShelf archive:** independent format with explicit Mihon import/export conversion.
+**Recommended architecture:**
+- NamiShelf canonical versioned backup domain and native full-fidelity backup.
+- Legacy Mihon/Tachiyomi `.tachibk` import/export adapter, with explicit compatibility version and loss report.
+- Future Mihon adapter only after the replacement format is publicly inspectable and fixtures exist.
+- Downloaded chapters, caches, credentials, cookies, and sync secrets excluded from portable backups by default.
 
-Suggested default: **B**, while keeping the Mihon backup usable without the companion data.
+**Still requires owner decision:**
+1. Is NamiShelf-native backup the default, with Mihon formats as interoperability paths?
+2. Must release 1 export legacy `.tachibk`, or is legacy import sufficient initially?
+3. Should native backups include downloaded chapter files, or should downloads have a separate export/migration operation?
+4. Should portable settings be included by default or selected by explicit backup categories?
 
-**Mandatory regardless of choice:** enforce compressed and decompressed size limits, bounded parsing, pre-restore preview/checkpoint, and explicit partial-restore reporting before release.
+**Mandatory regardless of format:** compressed/decompressed limits, streaming/bounded parsing, pre-restore preview, recovery checkpoint, and explicit partial-restore reporting.
+
+Detailed evidence and the pinned Android implementation are in [document 19](19-mihon-backup-compatibility-architecture.md).
 
 ## 4. Linux filesystem layout and migration
 
