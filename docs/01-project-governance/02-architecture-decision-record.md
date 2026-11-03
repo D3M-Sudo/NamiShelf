@@ -343,3 +343,36 @@ The module table in document 34 is a logical decomposition, not a command to cre
 Exact Gradle module count, DI framework, package names, database driver, event implementation and candidate refactoring scope.
 
 This ADR records an architecture decision only. It does not authorize M0, code changes, builds, dependency installation, tests, or repository changes outside the documentation work already authorized.
+
+
+## ADR-013 — SQLite as the local persistence technology
+
+**Decision date:** 2026-11-03  
+**Status:** Owner-approved technology direction; driver and SQL access layer deferred until after M0.
+
+### Context
+
+NamiShelf requires durable local persistence for relational library, chapter, category, reading, history, tracking and operation metadata while remaining offline-first and portable across supported Linux distributions. The candidate Mihon Desktop may already contain database abstractions or Android-derived persistence adaptations that must be inspected before selecting a JVM driver or query framework.
+
+### Decision
+
+Adopt **SQLite embedded** as the reference technology for NamiShelf local structured persistence.
+
+- SQLite stores structured domain and operational metadata.
+- Large chapter/image artifacts, durable downloads and disposable caches remain in managed filesystem storage, not database BLOBs by default.
+- Access is mediated by repository/application boundaries; feature UI and extensions never receive direct database handles.
+- Schema changes use ordered, versioned migrations with explicit failure recovery.
+- Backup and sync operate on validated domain-level exports/operations, not by copying the active database file.
+
+### Deferred decisions
+
+The SQLite JDBC/native driver, SQLDelight or other query layer, ORM choice, connection/concurrency configuration, journal mode, schema layout and physical Gradle module mapping are deferred until after M0 inspection of the candidate's database stack, runtime/native dependencies, licensing and packaging behavior.
+
+### Consequences
+
+- SQLite is the local persistence baseline; another database technology is not a co-equal default.
+- M0 must verify that the candidate's existing SQLite stack is suitable for JVM/Linux and all target package formats.
+- If the candidate stack is unsuitable, present concrete evidence and alternatives for an explicit owner decision rather than silently substituting another database.
+- Migration, backup consistency, corruption recovery and concurrent background-operation behavior are release acceptance requirements.
+
+This ADR records an architecture decision only. It does not authorize M0, database implementation, builds, dependency installation, tests, or changes to Mihon/Mihon Desktop.
