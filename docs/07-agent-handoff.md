@@ -24,7 +24,7 @@ Prepare NamiShelf as an independent Linux desktop application inspired by Mihon,
 - Packaging: AppImage, Flatpak, DEB.
 - Platforms: Linux Mint 22.3 primary; Ubuntu-, Debian-, and Arch-based targets.
 - Documentation: technical English.
-- Extensions: one process per extension; brokered data access; Android APK DEX-to-JVM compatibility and third-party extensions required in first release; OS sandbox pursued if technically sustainable, otherwise exact mechanism/commitment deferred by later decision.
+- Extensions: one process per extension; stdio pipes with versioned framed IPC (ADR-008); brokered data access; Android APK DEX-to-JVM compatibility and third-party extensions required in first release; OS sandbox pursued if technically sustainable, otherwise exact mechanism/commitment deferred by later decision.
 
 ## 3. Non-negotiable constraints
 
@@ -61,3 +61,11 @@ Every audit finding must include stable ID, severity/confidence, affected path/b
 - Include third-party extensions in the first public release.
 - Pursue OS sandboxing where technically sustainable; if disproportionate/unreliable, obtain a later owner decision on deferral. Process separation and brokered access remain mandatory.
 - Escalate disproportionately expensive Android compatibility features rather than silently dropping or pretending to support them.
+
+
+## 7. IPC and compatibility planning status
+
+- IPC transport is approved: stdio pipes; stdout is protocol-only and stderr is bounded diagnostics.
+- Wire schema, handshake, capability catalogue, network policy, streaming, and package-specific supervision remain design tasks.
+- Converted Android APK extensions must use the same broker boundary as native JVM extensions.
+- Do not claim general Mihon extension compatibility until the API compatibility matrix and representative extension fixtures are defined and validated.
