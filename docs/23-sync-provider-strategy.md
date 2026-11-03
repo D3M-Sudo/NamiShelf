@@ -1,6 +1,6 @@
 # NamiShelf — First-Release Sync Provider Strategy
 
-**Status:** Architecture options and recommendation; provider not selected
+**Status:** Owner decisions recorded; self-hosted adapter and E2EE design remain open
 **Date:** 2026-11-03
 **Basis:** ADR-002, ADR-004, and the static candidate sync assessment
 
@@ -65,22 +65,26 @@ Every adapter must explicitly declare and test:
 ## 6. Security and privacy baseline
 
 - Transport security is mandatory; never disable certificate validation.
-- Decide separately whether sync payloads require end-to-end encryption. Provider-side encryption is not equivalent to E2EE.
+- End-to-end encryption is mandatory for all release-1 synchronized user payloads. Provider-side encryption is not equivalent to E2EE.
 - Never send credentials, cookies, tracker tokens, extension binaries, or downloaded chapter content by default.
 - Minimize metadata and document exactly which library/reading information leaves the device.
 - Keep access tokens out of URLs, logs, crash reports, process arguments, and extension IPC.
 - Support disconnect/revoke and explain what remote data remains after disconnect.
-- If E2EE is selected, define device enrollment, key rotation, lost-device revocation, recovery, and multi-device key transfer before implementation.
+- Define device enrollment, key rotation, lost-device revocation, recovery, and multi-device key transfer before implementation.
 
-## 7. Remaining owner decisions
+## 7. Owner-approved decisions and remaining design
 
-1. **Hosting model:** should release 1 avoid a NamiShelf-operated service and rely on user/provider accounts, or is a NamiShelf-hosted service acceptable?
-2. **First adapter:** GitHub, WebDAV, or S3-compatible storage? This is independent of the provider-neutral protocol decision.
-3. **Self-hosting priority:** must a user be able to sync without a third-party cloud account in release 1?
-4. **E2EE:** mandatory for release 1, optional, or deferred? Transport TLS and secure credential storage remain mandatory regardless.
-5. **Sync data scope:** approve the candidate entity list as-is, or narrow release 1 to library entries, chapter read/progress state, categories, and followed authors?
+1. **Resolved — hosting:** no mandatory NamiShelf-hosted service in release 1; users use their own provider accounts/infrastructure.
+2. **Resolved — first adapter:** GitHub. Its API, repository layout, and Git object model remain behind the provider adapter.
+3. **Resolved — self-hosting:** required in release 1. GitHub alone cannot meet this; a second self-hosted adapter is necessary. Select its technology (WebDAV, S3-compatible, or self-hosted Git) before implementation.
+4. **Resolved — E2EE:** mandatory for all synced user payloads. Cryptographic construction, key lifecycle, recovery, and metadata leakage remain open.
+5. **Resolved — scope:** core only: library entries, chapter read/progress state, categories, and followed authors. History, tracking, preferences, downloads, and extension data are excluded from release 1.
 
-## 8. Explicit non-goals
+## 8. Architecture implications and explicit non-goals
+
+A GitHub-only first release would contradict the self-hosting requirement. The release architecture therefore needs two provider adapters: GitHub plus a separately deployable self-hosted backend. The provider-neutral protocol remains common to both. Do not silently reinterpret GitHub Enterprise or a GitHub account as satisfying self-hosting without a specific owner decision.
+
+
 
 - Do not assume upstream Mihon Android compatibility.
 - Do not expose provider tokens to extensions.
