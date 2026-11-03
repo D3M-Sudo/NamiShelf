@@ -23,7 +23,8 @@ This documentation records the conditional downstream-base assessment, approved 
 - `12-linux-credential-storage-assessment.md` — Secret Service integration and Linux test gaps.
 - `13-linux-native-dependency-and-architecture-matrix.md` — native dependencies, architecture coverage, and XDG gap.
 - `14-backup-format-and-restore-safety.md` — format evolution, resource limits, and partial restore semantics.
-- `19-mihon-backup-compatibility-architecture.md` — pinned Android v0.21.3 backup implementation, legacy wire contract, and NamiShelf adapter strategy.
+- `19-mihon-backup-compatibility-architecture.md` — pinned Android v0.21.3 backup implementation, legacy wire contract, and approved NamiShelf adapter strategy.
+- `20-backup-workflow-and-conformance-plan.md` — backup UX, download export separation, loss reporting, and format conformance plan.
 - `15-architecture-decisions-required.md` — remaining owner decisions.
 - `16-provider-neutral-sync-protocol.md` — sync domain/protocol, provider adapters, conflicts, and security.
 - `17-xdg-filesystem-and-migration-design.md` — Linux directory layout and safe migration.
@@ -37,6 +38,10 @@ This documentation records the conditional downstream-base assessment, approved 
 | Candidate technical base | `AltairCardinal/mihon-desktop`, conditional |
 | Upstream policy | Retain upstream reference and integrate selectively |
 | Sync architecture | Provider-neutral domain/protocol; provider-specific adapters |
+| Backup architecture | NamiShelf-native versioned format; Mihon formats are adapters |
+| Legacy Mihon backup | .tachibk import and export required in release 1 |
+| Downloads backup | Separate export/migration operation |
+| Portable settings | Selected by backup category; secrets/device-local state excluded |
 | Extension execution | One separate process per third-party extension |
 | Extension data access | Mediated by NamiShelf through versioned IPC/broker |
 | Android APK extensions | DEX-to-JVM plus declared Android/Mihon API compatibility required in first release |
