@@ -126,3 +126,10 @@ These are future requirements; none were run in this documentation phase.
 ## 9. Remaining engineering details
 
 Exact IPC technology/schema, sandbox mechanism, network broker policy, user-consent UX/capability catalogue, and the precise Android/Mihon API compatibility matrix remain open. Resolve these before implementing the extension subsystem. If any Android compatibility feature is disproportionately expensive, present it for a later owner decision rather than silently dropping it.
+
+
+## 12. Approved IPC transport
+
+The owner selected stdio pipes for extension runtime IPC (ADR-008, 2026-11-03). NamiShelf launches and supervises each extension process and communicates through a length-prefixed, versioned frame protocol. Standard output is protocol-only; standard error is bounded diagnostics. This transport choice does not replace capability checks, process separation, or optional OS-level sandboxing.
+
+Large content must use explicit brokered streaming with quotas, deadlines, cancellation, and backpressure. Native JVM and converted DEX-to-JVM extensions use the same broker and policy boundary.
