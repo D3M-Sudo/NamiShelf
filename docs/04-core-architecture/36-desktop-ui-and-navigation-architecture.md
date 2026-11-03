@@ -1,6 +1,6 @@
 # NamiShelf — Desktop UI and Navigation Architecture
 
-**Status:** Compose Multiplatform Desktop approved as the UI framework under ADR-014. UX architecture remains a proposal; visual design and detailed interaction approval remain open.  
+**Status:** Compose Multiplatform Desktop approved under ADR-014; hybrid desktop shell approved under ADR-015. Detailed responsive behavior and visual design remain open.  
 **Target:** Linux desktop, keyboard and pointer input, scalable window layouts.
 
 ## 1. Product UX direction
@@ -27,11 +27,13 @@ Backup and Sync are cross-cutting workflows surfaced from Settings and relevant 
 ## 3. Desktop shell layout
 
 Proposed shell:
-- Left navigation rail/sidebar with primary destinations.
+- Collapsible persistent left sidebar with primary destinations.
 - Main content region with responsive list/grid/detail layouts.
-- Optional contextual detail pane on sufficiently wide windows.
+- Optional contextual detail pane on sufficiently wide windows; collapse it into a navigable detail view at narrow widths.
 - Global command/search entry point.
 - Status surface for downloads, sync state, extension errors and background tasks.
+
+The hybrid shell and dedicated reader workspace are owner-approved under ADR-015. Reader entry/exit must preserve the prior navigation context; background operations continue independently.
 - Standard menus, dialogs and notifications.
 
 Avoid permanently visible dense toolbars that compete with reading content. The reader should offer a distraction-reduced mode and predictable escape/navigation behavior.
@@ -106,6 +108,6 @@ Use a shared design system for spacing, typography, semantic colors, icon sizing
 - Exact Compose Desktop navigation/state libraries and state-management approach (framework fixed; supporting libraries deferred).
 - Minimum window size and responsive breakpoints.
 
-These should be settled through low-cost wireframes/prototypes and owner review, not guessed as final visual decisions.
+These should be settled through low-cost wireframes/prototypes and owner review, not guessed as final visual decisions. The high-level layout choice itself is no longer open: sidebar collapse, conditional detail pane and dedicated reader workspace are approved.
 
 No UI implementation or visual prototype has been created. Framework adoption is conditional on passing the Linux M0 gates; failure requires evidence-based owner review.
