@@ -197,3 +197,30 @@ This ADR authorizes documentation and planning only, not implementation, builds,
 - GitHub authorization scopes, token lifecycle, and repository creation/selection UX.
 
 This ADR authorizes documentation and planning only, not implementation, builds, dependency installation, or operation of a hosted service.
+
+
+## ADR-007 — Self-hosted sync adapter and E2EE device lifecycle
+
+**Decision date:** 2026-11-03  
+**Status:** Owner-approved design direction; detailed protocol and cryptographic profile remain open
+
+### Decisions
+
+1. **Self-hosted provider:** WebDAV is the release-1 self-hosted adapter, alongside the GitHub adapter.
+2. **Recovery:** support both a user-held recovery key and authenticated transfer from an already-authorized device.
+3. **Device revocation:** revoking a device triggers key rotation for future synchronized data. A revoked device must not decrypt payloads created after the rotation boundary.
+
+### Consequences and required safeguards
+
+- WebDAV is not assumed to provide uniform conditional-write, locking, or atomic replacement semantics. The adapter must declare capabilities and only enable safe synchronization modes supported by the server.
+- Recovery-key generation, display, confirmation, secure storage guidance, and loss consequences must be designed without a NamiShelf-operated recovery service.
+- Device-to-device transfer must use an authenticated encrypted channel and explicit user authorization.
+- Recovery key and device transfer are complementary recovery paths; neither provider credentials nor GitHub/WebDAV account access may decrypt sync data.
+- Revocation requires a key-version boundary and a protocol for distributing the new key only to remaining trusted devices.
+- Historical ciphertext policy after revocation (retain under old keys, re-encrypt, or delete) remains open. Rotation does not retroactively erase data already decrypted or copied by a previously authorized device.
+
+### Open technical details
+
+WebDAV server compatibility profile and capability probes; conflict/conditional-write protocol; recovery-key encoding and entropy requirements; device transfer channel; key hierarchy and cryptographic suite; rotation propagation; stale-device behavior; treatment of historical ciphertext; and recovery after all trusted devices are lost.
+
+This ADR authorizes documentation and planning only, not implementation, builds, dependency installation, or provider deployment.
