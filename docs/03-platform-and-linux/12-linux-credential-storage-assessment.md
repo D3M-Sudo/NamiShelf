@@ -1,6 +1,6 @@
 # NamiShelf — Linux Credential Storage Assessment
 
-**Status:** Static source review; no credential commands executed  
+**Status:** Static source review; no credential commands executed. Owner policy is fixed by ADR-023.  
 **Reviewed candidate:** `AltairCardinal/mihon-desktop@701080c251c8fd8b35d0b57a481d93b9a9eb3701`  
 **Date:** 2026-11-03
 
@@ -49,18 +49,17 @@ The wrapping key identity is derived from the canonical secure-store directory p
 
 ## 5. NamiShelf requirements
 
-1. Keep fail-closed behavior; never fall back silently to plaintext preferences or an unprotected file.
-2. Define supported Secret Service providers and expected behavior when locked, unavailable, or absent.
-3. Validate real Linux Mint 22.3 sessions with GNOME Keyring and KWallet where in scope.
-4. Test Flatpak D-Bus access and DEB/AppImage behavior independently.
-5. Decide whether lack of Secret Service means sync is disabled, session-only credentials, or a documented hard prerequisite. Any session-only mode must be explicit and clearly communicated.
-6. Define wrapping-key migration when config paths or package formats change.
-7. Keep secrets out of backup files, extension IPC, logs, diagnostics, and process arguments.
-8. Add Linux native integration tests in a controlled environment; fake command tests are not a substitute.
+1. Secret Service is the only persistent credential backend; fail-closed with no fallback is owner-approved under ADR-023. No plaintext, file, app-encrypted, database, environment-variable or session-memory fallback is permitted.
+2. Credential-dependent operations remain unavailable when Secret Service is absent, locked or inaccessible; unrelated local features remain usable.
+3. Validate real Linux Mint 22.3 sessions with the supported Secret Service provider(s), including locked/unavailable/error states.
+4. Validate Flatpak D-Bus/portal access and DEB/AppImage behavior independently at their packaging gates.
+5. Define wrapping-key migration when config paths or package formats change without weakening the fail-closed policy.
+6. Keep secrets out of backup files, extension IPC, logs, diagnostics and process arguments.
+7. Add Linux native integration tests in a controlled environment; fake command tests are not a substitute.
 
 ## 6. Recommendation
 
-Retain Secret Service as the preferred Linux persistent credential backend, with no plaintext fallback. Treat provider availability and Flatpak access as release gates. Prefer a clear unavailable-state UX over weakening storage guarantees.
+Secret Service is the sole persistent credential backend under ADR-023, with fail-closed behavior and no fallback. Treat provider availability and Flatpak access as release gates. Prefer a clear unavailable-state UX over weakening storage guarantees.
 
 ## 7. Source references
 
