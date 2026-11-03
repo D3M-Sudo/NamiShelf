@@ -39,7 +39,12 @@ This documentation records the conditional downstream-base assessment, approved 
 | Candidate technical base | `AltairCardinal/mihon-desktop`, conditional |
 | Upstream policy | Retain upstream reference and integrate selectively |
 | Sync architecture | Provider-neutral domain/protocol; provider-specific adapters |
-| Sync release scope | Required in first public release; initial provider undecided |
+| Sync release scope | Required in release 1; core entities only |
+| Sync hosting | No mandatory NamiShelf-hosted service |
+| First sync provider | GitHub adapter |
+| Self-hosted sync | Required in release 1; second adapter needed |
+| Sync encryption | Mandatory E2EE |
+| Sync entity scope | Library, chapter read/progress, categories, followed authors |
 | Linux profile | Clean XDG profile; explicit opt-in migration |
 | CPU architecture | x86_64 first; aarch64 after validation |
 | Reader priority | Stability and bounded memory over aggressive prefetch |
