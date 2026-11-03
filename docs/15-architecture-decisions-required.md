@@ -1,6 +1,6 @@
 # NamiShelf — Architecture Decisions Required Before Implementation
 
-**Status:** Decision brief for owner review  
+**Status:** Consolidated decision register; remaining choices only  
 **Date:** 2026-11-03  
 **Scope:** Product/architecture choices only; no implementation authorized
 
@@ -20,7 +20,7 @@ This document consolidates decisions that cannot be settled safely by static ins
 
 **Recommendation:** define a provider-neutral NamiShelf sync domain/protocol and keep transport behind an adapter. GitHub may be the first provider, but do not make GitHub repository layout or Git object transport the public protocol contract. This preserves the option of self-hosting or another provider later, at additional initial design cost.
 
-**Owner decision:** **B — Provider-neutral**, confirmed on 2026-11-03. NamiShelf will define a provider-independent sync domain/protocol and isolate transports behind adapters. GitHub may be an initial adapter, but its repository layout and Git object model will not define the public protocol. This does not decide whether sync ships in the first release or select a concrete provider.
+**Owner decision:** **B — Provider-neutral**, confirmed on 2026-11-03. NamiShelf will define a provider-independent sync domain/protocol and isolate transports behind adapters. GitHub may be an initial adapter, but its repository layout and Git object model will not define the public protocol. Sync is included in the first public release, as confirmed 2026-11-03. The initial provider remains undecided.
 
 ## 3. Backup compatibility architecture
 
@@ -44,12 +44,7 @@ Mandatory safeguards: bounded streaming, compressed/decompressed limits, pre-res
 
 **Recommendation:** use XDG directories for new NamiShelf installations, with explicit migration from legacy Mihon Desktop paths. Separate config, data, cache, state, logs, downloads, extensions, and backups. Migration must treat secure credential material specially; do not copy ciphertext alone or silently generate a new wrapping key.
 
-**Owner decision required:** choose:
-- **A — Clean NamiShelf profile:** new XDG paths; import user data via backup/migration wizard.
-- **B — In-place migration:** migrate existing Mihon Desktop data automatically on first run.
-- **C — Compatibility mode:** preserve legacy paths initially, move to XDG in a later release.
-
-Suggested default: **A** for an independent product, with an explicit opt-in migration/import assistant.
+**Owner decision:** **A — Clean NamiShelf profile**, confirmed 2026-11-03. Use new XDG paths and an explicit opt-in import/migration assistant; never silently adopt or mutate an existing Mihon Desktop profile.
 
 ## 5. Linux architectures and packaging release policy
 
@@ -57,7 +52,7 @@ Suggested default: **A** for an independent product, with an explicit opt-in mig
 
 **Recommendation:** make Linux x86_64 the first release gate on Mint 22.3/Ubuntu base. Keep aarch64 as a planned target but do not promise it until all native dependencies and package formats are validated. Keep AppImage, Flatpak, and DEB as goals, but permit release-format staging if one cannot meet security/maintenance criteria.
 
-**Owner decision required:** is aarch64 required for the first public release or can it follow after x86_64? Suggested default: **x86_64 first; aarch64 after validation**.
+**Owner decision:** x86_64 first, aarch64 after validation, confirmed 2026-11-03. AppImage, Flatpak, and DEB remain packaging goals, subject to individual release gates.
 
 ## 6. Extension sandbox commitment
 
@@ -71,9 +66,9 @@ The owner already approved one process per extension, brokered data access, DEX-
 
 **Recommendation:** define acceptance budgets before optimization decisions: startup, first-page latency, decoded-image memory, cache memory, prefetch concurrency, and post-chapter memory release. Use the primary Linux Mint 22.3 environment as the reference profile; do not infer performance from code comments.
 
-**Owner input required:** whether first-release reader acceptance should prioritize low-memory stability over aggressive prefetch/performance. Suggested default: **stability and bounded memory first**.
+**Owner decision:** prioritize stability and bounded memory over aggressive prefetch, confirmed 2026-11-03. Numeric budgets must be measured on the Linux Mint 22.3 reference hardware before being fixed.
 
-## 8. Implementation readiness gates
+## 8. Remaining owner decisions and implementation readiness gates
 
 The candidate remains a conditional base. Before implementation freeze:
 1. Static security review of extension adapters and broker design.
