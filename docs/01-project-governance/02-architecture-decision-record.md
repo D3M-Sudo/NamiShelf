@@ -307,3 +307,39 @@ This ADR authorizes planning and documentation only; it does not authorize exten
 Exact source-origin declaration format and catalog trust model; DNS pinning/rebinding defense; proxy behavior; capability profile names/defaults and sensitive-capability taxonomy; consent and revocation UX; handle token format, storage, chunking, resume semantics, and quota defaults; and per-package network enforcement.
 
 This ADR authorizes documentation and planning only, not implementation, builds, dependency installation, extension downloads, or execution.
+
+
+## ADR-012 — Modular monolith as the application architecture
+
+**Decision date:** 2026-11-03  
+**Status:** Owner-approved architecture direction; physical Gradle module decomposition deferred until after M0.
+
+### Context
+
+NamiShelf needs clear domain boundaries and dependency control without introducing distributed-system complexity into a desktop application. The conditional Mihon Desktop candidate already has an existing code and build structure that must be inspected before deciding how to map logical boundaries to Gradle modules.
+
+### Decision
+
+Adopt a **modular monolith** as the reference architecture for the trusted NamiShelf application:
+
+- one primary NamiShelf host process for trusted application code;
+- explicit logical boundaries between presentation, application use cases, domain, and infrastructure adapters;
+- dependency direction from presentation to application contracts, application to domain/ports, and infrastructure implementing ports;
+- extension code remains outside this monolith, in one separately supervised process per extension, using the approved stdio IPC broker;
+- no microservice decomposition for release 1.
+
+The module table in document 34 is a logical decomposition, not a command to create one Gradle module per row. The physical Gradle module count, package split, build conventions and retained candidate modules are deferred until after M0 inspection and feasibility evidence.
+
+### Consequences
+
+- Internal module contracts and dependency rules become architecture acceptance criteria.
+- Cross-feature communication uses application contracts or typed events, not direct repository reach-through.
+- The application shell owns composition and lifecycle.
+- Build complexity and startup overhead remain lower than a distributed-services design.
+- M0 must map the candidate's current modules to the logical boundaries and identify the minimum safe refactoring plan.
+
+### Not decided
+
+Exact Gradle module count, DI framework, package names, database driver, event implementation and candidate refactoring scope.
+
+This ADR records an architecture decision only. It does not authorize M0, code changes, builds, dependency installation, tests, or repository changes outside the documentation work already authorized.

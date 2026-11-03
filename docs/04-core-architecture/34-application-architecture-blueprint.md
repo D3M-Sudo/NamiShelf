@@ -1,6 +1,6 @@
 # NamiShelf — Preliminary Application Architecture Blueprint
 
-**Status:** Proposed architecture baseline; owner approval required for decisions explicitly marked as such.  
+**Status:** Modular monolith approved by owner; logical boundaries are the reference baseline. Physical Gradle decomposition is deferred until after M0.  
 **Scope:** Release 1 architecture, before M0 and before application implementation.
 
 ## 1. Architectural objectives
@@ -18,7 +18,7 @@ Primary constraints:
 
 ## 2. Recommended top-level structure
 
-Use a layered modular monolith with explicit dependency direction:
+Use a layered modular monolith with explicit dependency direction (owner-approved under ADR-012):
 
     Desktop Application Shell
       ├── Presentation / Navigation
@@ -60,7 +60,7 @@ The desktop shell composes modules and owns application lifecycle. Feature modul
 | sync-provider-github | GitHub storage/auth adapter | sync domain rules |
 | sync-provider-webdav | WebDAV storage/auth adapter | sync domain rules |
 
-This is a logical decomposition, not a mandate to create one Gradle module per row immediately. Begin with a small number of build modules and preserve package/API boundaries; split into physical modules when dependency enforcement and build ownership justify it.
+This is a logical decomposition, not a mandate to create one Gradle module per row immediately. Physical Gradle module count and package mapping are explicitly deferred until after M0. Begin with a small number of build modules and preserve package/API boundaries; split into physical modules when dependency enforcement and build ownership justify it.
 
 ## 4. Dependency rules
 
