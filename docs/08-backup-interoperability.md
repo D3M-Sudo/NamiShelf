@@ -1,78 +1,63 @@
-# NamiShelf — Backup Interoperability and Recovery Assessment
+# NamiShelf — Backup Interoperability Assessment
 
-**Status:** Static assessment of the candidate; no import/export execution  
-**Reviewed candidate:** `AltairCardinal/mihon-desktop@701080c251c8fd8b35d0b57a481d93b9a9eb3701`  
-**Date:** 2026-11-03
+**Status:** Static assessment; no import/export execution  
+**Date:** 2026-11-03  
+**Detailed architecture:** [19-mihon-backup-compatibility-architecture.md](19-mihon-backup-compatibility-architecture.md)
 
-## 1. Executive assessment
+## 1. Executive conclusion
 
-The candidate contains a desktop backup implementation that explicitly uses the same gzip-compressed protobuf `.tachibk` wire format as its Android code. This is a strong reuse opportunity, but it is not yet evidence of complete compatibility with every Mihon release, every backup section, or every Android extension's data.
+Do not treat legacy `.tachibk` as NamiShelf's permanent native backup format. Mihon v0.21.3 is the last version documented to restore Tachiyomi-format `.tachibk`; the next Mihon version drops that legacy compatibility. The public announcement does not specify the replacement format. The inspected v0.21.3 Android source still writes gzip-compressed Protocol Buffers using the `.tachibk` extension.
 
-The code assembles backups from repositories and preferences and includes library works, chapters, categories, history, tracker records, application preferences, source preferences, extension repositories, and an optional author archive section. It filters app-state preferences. The exact supported fields must be checked against the pinned upstream version and fixture set.
+NamiShelf should therefore maintain a canonical, versioned, platform-neutral backup domain, with independent format adapters:
+- legacy Mihon/Tachiyomi `.tachibk` import/export;
+- future Mihon format adapter, only after official implementation/specification and fixtures are available;
+- NamiShelf-native full-fidelity backup.
 
-## 2. Observed implementation
+The NamiShelf-native format and default UX are not yet owner-approved.
 
-### Export
+## 2. Current Mihon Android v0.21.3 contract
 
-`DesktopBackupCreator`:
-- delegates encoding/decoding to the shared `BackupCodec`;
-- writes gzip/protobuf bytes with a `.tachibk` extension;
-- exports favorited works and their chapter metadata, reading/bookmark state, progress, URL identity/aliases, categories, history, tracking, and notes/memo fields;
-- exports app preferences except app-state keys;
-- exports per-source preferences for sources represented in the library;
-- exports extension repository configuration and optional author archive data.
+The pinned Android source uses Kotlin serialization ProtoBuf, gzip compression, and a streaming entry layout. Top-level repeated library entries are protobuf field 1; metadata fields follow. The reader supports streaming entry-by-entry processing, recognizes gzip by magic bytes, and accepts uncompressed protobuf. Restore processes entries in bounded batches and retries individual entries after a failed batch.
 
-### Restore
+The current data model includes library metadata, chapters, read/bookmark/progress state, categories, history, tracking metadata, source metadata, typed app preferences, source preferences, and extension repository records.
 
-`DesktopBackupRestorer` restores categories, works, chapters, history, tracking, preferences, source preferences, extension repositories, and optional author archive data. It supports a setting that excludes application preferences from restoration, reports progress, records partial errors, and wraps restore with a sync recovery observer/outcome.
+Important exclusions/limitations in the official guide:
+- installed extensions/binaries are not backed up;
+- downloaded chapter files, including local-source chapters, are not included;
+- custom covers are not included;
+- tracker authentication is sensitive and should not be included by default;
+- extension repository configuration is not equivalent to installed extension binaries.
 
-The desktop file boundary accepts local paths and `file:` URIs, requires a regular `.tachibk` file, and rejects unsupported URI schemes. This is desktop-specific file handling, not Android ContentResolver/Uri parity.
+The exact protobuf field numbers and compatibility aliases are documented in document 19 and must remain isolated inside the legacy adapter.
 
-## 3. Important boundaries and non-assumptions
+## 3. Compatibility boundaries
 
-- A shared wire format is not proof of semantic parity for every field.
-- Backup is not a full device image. It does not imply that installed extensions, downloaded chapter image bytes, caches, credentials, or all OS-specific state are included.
-- Extension repository configuration is not the same as exporting installed extension binaries.
-- Tracking metadata in a backup is not equivalent to transferring tracker authentication tokens.
-- Source preferences may refer to source IDs or source implementations unavailable on another installation.
-- A successful protobuf decode does not prove the restore is semantically safe or complete.
-- Restore may be partial; users need a preview and actionable per-item error report.
+A successful protobuf decode is not semantic compatibility. Source IDs may not map across installations; source preferences require compatible source implementations; category identity/order must be mapped; tracker metadata is not tracker authentication; and desktop-only settings may not exist on Android.
 
-## 4. NamiShelf requirements
+NamiShelf must expose separate capabilities:
+- legacy Mihon import;
+- legacy Mihon export, with explicit loss reporting;
+- future Mihon import/export, only after the new format is inspectable;
+- NamiShelf-native full-fidelity backup/restore.
 
-1. Maintain versioned compatibility fixtures produced by real Mihon Android releases and the candidate desktop implementation.
-2. Test import of legacy `.tachibk` fixtures and round-trip export/import without claiming byte-for-byte equality where ordering or timestamps legitimately differ.
-3. Document every included and excluded data category.
-4. Preview counts and conflicts before applying restore.
-5. Provide explicit control over restoring application settings and source settings.
-6. Make restore transactional where possible, or clearly report partial commits and provide recovery/rollback strategy.
-7. Test duplicate work identity, source ID remapping, chapter URL aliases, category mapping, history, tracking records, notes/memo, and malformed inputs.
-8. Never restore or export global credentials as ordinary backup preferences.
-9. Treat extension repositories and source preferences as untrusted configuration; revalidate endpoints, signatures, and policy before use.
-10. Provide a safe pre-restore backup or recovery checkpoint.
+Never claim generic "Mihon compatibility" without naming the format generation and direction.
 
-## 5. Required acceptance matrix
+## 4. Required safeguards
 
-| Area | Evidence required | Status |
-|---|---|---|
-| Mihon Android import | Real fixtures from supported releases | Open |
-| NamiShelf export → Mihon import | Cross-app fixture tests | Open |
-| Mihon export → NamiShelf import | Cross-app fixture tests | Open |
-| Categories/library/chapter state | Field-level semantic comparison | Open |
-| History and tracking | Field-level comparison | Open |
-| Source preferences/repos | Validation and unavailable-source behavior | Open |
-| Author archive extension section | Versioned optional-section handling | Open |
-| Corrupt/oversized input | Bounded parser and failure tests | Open |
-| Partial restore/recovery | Failure injection and recovery tests | Open |
-| Credentials/download bytes | Explicit exclusion proof | Open |
+1. Streaming parser with compressed/decompressed byte, per-entry, and count limits.
+2. Pre-restore validation and preview.
+3. Recovery checkpoint before mutation.
+4. Bounded batches, idempotent retry where possible, and explicit partial-restore reporting.
+5. Treat imported source preferences and repository endpoints as untrusted; do not auto-enable repositories or execute extensions during restore.
+6. Exclude OS credentials, cookies, passwords, sync tokens, signing secrets, and wrapping keys.
+7. Maintain real Mihon fixtures per supported release and semantic cross-app tests.
+8. Report fields omitted or approximated during legacy export.
 
-## 6. Recommendation
+## 5. Evidence baseline
 
-Retain Mihon-compatible `.tachibk` as the primary interoperability target, but define a NamiShelf backup compatibility policy and fixture corpus before declaring compatibility. Keep NamiShelf-specific data in versioned optional sections or a separately specified extension format; do not silently alter upstream protobuf semantics.
+- Mihon Android source: `mihonapp/mihon@e588e04359fe1058206a2cbac1b01018ad787359`
+- [Official backup guide](https://mihon.app/docs/guides/backups)
+- [Mihon v0.21.3 changelog](https://mihon.app/changelogs/v0.21.3)
+- [Detailed NamiShelf compatibility architecture](19-mihon-backup-compatibility-architecture.md)
 
-## 7. Source references
-
-- [DesktopBackupCreator.kt](https://github.com/AltairCardinal/mihon-desktop/blob/701080c251c8fd8b35d0b57a481d93b9a9eb3701/app-desktop/src/main/kotlin/mihon/desktop/backup/DesktopBackupCreator.kt)
-- [DesktopBackupRestorer.kt](https://github.com/AltairCardinal/mihon-desktop/blob/701080c251c8fd8b35d0b57a481d93b9a9eb3701/app-desktop/src/main/kotlin/mihon/desktop/backup/DesktopBackupRestorer.kt)
-- [Backup restore factory](https://github.com/AltairCardinal/mihon-desktop/blob/701080c251c8fd8b35d0b57a481d93b9a9eb3701/app-desktop/src/main/kotlin/mihon/desktop/backup/BackupRestoreScreenModelFactory.kt)
-- [Mihon backup guide](https://mihon.app/docs/guides/backups)
+No backup fixtures have been executed and no cross-app compatibility is yet demonstrated.
