@@ -466,3 +466,40 @@ NamiShelf uses a **single top-level application window** as its release-1 and re
 Exact window dimensions, minimum size, close-to-tray behavior, startup/window-state restoration, and whether a future release should add optional detached reader windows.
 
 This ADR records an architecture decision only. It does not authorize UI implementation, builds, dependency installation, or tests.
+
+
+## ADR-017 — MVVM with Unidirectional Data Flow for presentation state
+
+**Decision date:** 2026-11-03  
+**Status:** Owner-approved presentation architecture; supporting libraries deferred until M0.
+
+### Context
+
+NamiShelf uses Compose Multiplatform Desktop in a single-window modular monolith. Its screens must coordinate library state, reader state and long-running operations without duplicating durable domain data or coupling presentation to infrastructure.
+
+### Decision
+
+Adopt **MVVM combined with Unidirectional Data Flow (UDF)** as the reference presentation model.
+
+- Each screen or cohesive feature presentation scope exposes an immutable, observable UI state.
+- User interactions are represented as explicit typed events/intents.
+- ViewModels or equivalent presentation state holders process events and invoke application use cases.
+- State transitions are deterministic and testable; asynchronous work is represented explicitly through loading, success, partial, stale and failure states where applicable.
+- One-off effects (navigation requests, file-picker requests, notifications) are represented separately from durable screen state and are consumed predictably.
+- Domain entities and durable state remain authoritative in application/domain services and repositories; UI state is a projection, not a second mutable source of truth.
+- Long-running downloads, tracking and synchronization are owned by application services/job coordinators and survive screen disposal and navigation.
+- Compose rendering remains side-effect free: no network/database work is initiated merely by recomposition.
+
+### Deferred decisions
+
+Specific ViewModel/state libraries, coroutine/Flow conventions, navigation library, dependency injection framework, reducer implementation style and lifecycle integration are deferred until M0 candidate inspection. Do not add dependencies solely to conform to this ADR before evaluating the existing stack.
+
+### Consequences
+
+- Feature screens follow consistent state/event/effect contracts.
+- UI tests can exercise state transitions without launching the full desktop UI.
+- Durable business state is not duplicated in ViewModels.
+- Background work lifecycle is independent of screen composition.
+- M0 must map the candidate's existing presentation architecture to this model and identify reuse/adaptation cost.
+
+This ADR records an architecture decision only. It does not authorize UI implementation, builds, dependency installation, or tests.
