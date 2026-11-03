@@ -1,6 +1,6 @@
 # NamiShelf — Pre-M0 Feasibility Blueprint and Later Engineering Roadmap
 
-**Status:** Planning baseline; M0 not yet owner-authorized  
+**Status:** M0 owner-authorized on 2026-11-03; execution via GitHub Actions evidence workflow  
 **Target:** NamiShelf release 1, Linux-first x86_64  
 **Authority:** ADR-001 through ADR-027 and the consolidated Architecture Decision Register
 
@@ -8,7 +8,7 @@
 
 This document separates the bounded M0 feasibility assessment from subsequent product implementation. M0 determines whether the conditional Mihon Desktop candidate is a viable technical base. It is not a port, fork, product skeleton, feature implementation or release-preparation phase.
 
-The candidate remains conditional until evidence supports a go/no-go decision. No application code implementation, dependency installation, build, test, fork/import, extension execution, sync, backup restore, packaging, PR or merge is authorized by this planning document. M0 requires a separate explicit owner authorization.
+The candidate remains conditional until evidence supports a go/no-go decision. The owner explicitly authorized M0 on 2026-11-03, including isolated dependency installation, build and baseline tests of the unmodified candidate. This does not authorize application-code changes, fork/import, extension execution, sync, backup restore, production packaging, PR or merge.
 
 ## 2. Approved architecture baseline
 
@@ -46,7 +46,7 @@ This authorization does not include candidate code modifications or any producti
 |---:|---|---|
 | 1 | Pin exact Mihon upstream and Mihon Desktop commits | Commit IDs, tags, source provenance |
 | 2 | Inspect repository structure, build system, Linux support claims and build instructions | Source/build inventory and known constraints |
-| 3 | Establish isolated reproducible Linux x86_64 environment, using Mint 22.3 as reference | Environment manifest and reproducibility notes |
+| 3 | Establish isolated reproducible Linux x86_64 environment on a GitHub-hosted Ubuntu runner; retain Mint 22.3 as the eventual reference-machine acceptance target | Environment manifest and reproducibility notes |
 | 4 | Build and launch unmodified candidate, if possible | Commands, logs, exit status, screenshots/observations where useful |
 | 5 | Run existing baseline tests where safe | Test inventory, pass/fail/skip details |
 | 6 | Inventory JVM, native libraries, architecture-specific artifacts, graphics/image dependencies and desktop integration | Dependency/native compatibility matrix |
@@ -68,6 +68,12 @@ M0 does not:
 - change branches, commit, push, open PRs or merge.
 
 If a step requires candidate modification, destructive/privileged action, external account credential, or a scope expansion, stop and request separate authorization.
+
+### 3.5 Remote execution workflow
+
+The owner approved using GitHub Actions rather than a local Linux machine for the remaining build/test evidence. The dedicated workflow is `.github/workflows/m0-linux-feasibility.yml` and checks out the external candidate at the immutable SHA recorded in the M0 report. It uses a GitHub-hosted `ubuntu-24.04` runner, JDK 21, read-only repository permissions, and uploads logs/reports as a time-limited artifact. It must not receive application secrets or write access to the external candidate.
+
+The workflow currently covers toolchain preflight, desktop JVM compilation, `:app-desktop:jvmTest`, runtime dependency reporting and a non-gating Linux native-distribution probe. A workflow definition is not test evidence: M0 remains open until a completed run and artifacts are reviewed. Graphical X11 launch, Secret Service, URI integration, native-library closure, full SBOM/license validation and final GO/NO-GO still require separate evidence. A GitHub-hosted Ubuntu result also does not replace final compatibility validation on the approved Linux Mint 22.3 reference environment.
 
 ### 3.4 M0 exit criteria
 
