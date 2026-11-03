@@ -171,7 +171,6 @@ Only the following require owner choice or confirmation rather than ordinary eng
 
 1. **Authorize the first code phase:** permit a bounded Linux x86_64 feasibility spike on the conditional Mihon Desktop candidate, without authorizing a production fork/derivation or extension/sync release enablement. This is the next required authorization.
 3. **Capability UX:** approve or revise the proposed profile names/default grants in document 30.
-4. **Historical ciphertext after device revocation:** choose retention under old keys, re-encryption for remaining devices, or deletion where feasible. Engineering recommendation: re-encrypt for remaining devices, then request provider deletion of superseded objects where supported; document that provider versioning/backups may retain old ciphertext and a revoked device may already possess it.
 5. **Encrypted backup recovery:** confirm that loss of the backup password means the encrypted backup is unrecoverable; no hidden recovery escrow is proposed.
 6. **Platform release policy:** confirm minimum distro/JVM/Wayland/Flatpak/AppImage policy before packaging freeze.
 
