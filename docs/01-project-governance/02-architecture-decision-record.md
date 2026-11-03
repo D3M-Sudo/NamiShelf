@@ -424,3 +424,12 @@ Exact Compose Multiplatform and Kotlin versions, navigation/state libraries, UI 
 - No UI coding, framework upgrade or dependency installation is authorized by this ADR.
 
 This ADR records an architecture decision only. It does not authorize M0 execution, builds, tests, dependency installation, or code changes.
+
+
+## ADR-015 — Hybrid desktop navigation
+
+**Status:** Owner-approved direction; detailed responsive behavior remains open.
+
+NamiShelf adopts a hybrid desktop shell: a collapsible persistent sidebar for primary destinations, a central content workspace, an optional contextual detail pane on sufficiently wide windows, and a dedicated reader workspace that can hide or minimize global navigation. The reader is opened contextually from a library entry or chapter, not as a mandatory primary sidebar destination. Returning from the reader restores the previous navigation context. Background downloads and synchronization continue independently and remain visible through a compact status surface.
+
+Exact widths, responsive breakpoints, minimum window size, tab/multi-window behavior, and shortcut assignments remain open for prototype review. The detail pane must collapse to a navigable detail view on narrow windows; keyboard and accessibility support are mandatory. This decision does not authorize UI implementation, builds, dependency installation, or tests.
