@@ -839,3 +839,39 @@ Every encrypted backup must support **both the backup password and a separate re
 Recovery-key encoding/format, entropy and length, key derivation/wrapping construction, envelope slot serialization, regeneration UX and compatibility behavior across future backup versions require cryptographic design and independent review. This ADR does not authorize implementation or custom cryptography.
 
 This ADR records a backup recovery policy only. It does not authorize implementation, builds, dependency installation or tests.
+
+## ADR-027 — Linux-first release and runtime compatibility policy
+
+**Decision date:** 2026-11-03  
+**Status:** Owner-approved release policy baseline; exact distro/runtime versions remain subject to M0 evidence.
+
+### Context
+
+NamiShelf is a Linux-first desktop application. Release claims must be tied to a defined architecture, package ownership model and reproducible compatibility evidence. Depending on a user's system Java installation would introduce runtime drift and make behavior dependent on external JVM versions and configuration.
+
+### Decision
+
+Adopt the following release-1 policy:
+
+- **Platform priority:** Linux-first. The first release targets x86_64 only. Architecture and platform boundaries should avoid unnecessary x86_64 assumptions so future ARM64, Windows and macOS work remains possible, but those platforms are not release-1 commitments.
+- **Reference environment:** Linux Mint 22.3 x86_64 is the primary end-to-end validation environment. Debian/Ubuntu-family and Arch-based distributions are compatibility targets only where the exact release, dependencies and package behavior have been tested and documented. Do not claim universal compatibility with every derivative.
+- **JVM/runtime:** ship and control a dedicated application runtime rather than requiring the user's system Java installation. Runtime packaging mechanism, version, patch cadence and per-format layout are deferred to M0 inspection and security review. The application must not silently fall back to an arbitrary system JVM when its managed runtime is missing or incompatible.
+- **Display systems:** X11 is the mandatory baseline for the first release. Wayland is an explicit compatibility target and may be advertised only for compositor/session combinations that pass the release test matrix. Unsupported or unverified combinations must be documented; no blanket Wayland guarantee.
+- **Package formats:** retain the owner-approved native update ownership: DEB updates through APT/configured repositories; Flatpak updates through Flatpak remotes; AppImage updates through the dedicated per-user NamiShelf updater. Each format is an independent build, install, upgrade, rollback and uninstall release gate.
+- **Release channel:** stable only for the initial public release. Preview/testing channels require a later explicit product/release decision and must remain separate from stable metadata.
+- **Architecture and support claims:** x86_64 is the only release-1 architecture. Do not publish ARM64 or non-Linux compatibility claims until separate builds and end-to-end evidence exist.
+- **Release gating:** no package is considered supported merely because it builds. Require reproducible build and install/upgrade/uninstall evidence, runtime/native dependency validation, user-data preservation, signature/provenance verification where applicable, and end-to-end acceptance on its declared support matrix. A failing package format may be withheld independently without blocking a validated format, subject to release communication.
+- **Minimum distribution versions:** do not freeze a minimum Debian, Ubuntu or Arch release in advance of M0. Inspect candidate native dependencies and runtime requirements, then propose an evidence-backed minimum matrix for owner review before release packaging freeze.
+
+### Consequences
+
+- Users do not need to install or maintain a compatible system Java runtime for NamiShelf.
+- Packaging and CI must test each supported package independently and report exact distribution/session/architecture combinations.
+- Compatibility language must distinguish reference-tested, additionally tested and unverified environments.
+- Wayland and non-reference distributions cannot be represented as supported without test evidence.
+
+### Deferred technical details
+
+Exact JVM distribution/version, jlink or other runtime packaging approach, minimum distro releases, Flatpak runtime/application ID, AppImage updater technology/signing format, Wayland compositor matrix and release CI topology remain engineering decisions for M0 and release engineering. Any proposal must preserve this policy baseline.
+
+This ADR records release policy only. It does not authorize M0, implementation, builds, dependency installation, package creation or tests.
