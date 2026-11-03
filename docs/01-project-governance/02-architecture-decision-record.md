@@ -584,3 +584,43 @@ Exact directory layout, hash algorithm, manifest serialization format, page nami
 - Storage and decoded-image cache budgets remain separate.
 
 This ADR records an architecture decision only. It does not authorize implementation, builds, dependency installation or tests.
+
+
+## ADR-020 — XDG data separation and configurable permanent download location
+
+**Decision date:** 2026-11-03  
+**Status:** Owner-approved storage-location policy; exact platform path resolution remains subject to M0 validation.
+
+### Context
+
+NamiShelf must distinguish irreplaceable user content from disposable caches and configuration. Users may keep large offline libraries on a separate disk, while Linux desktop packaging requires predictable XDG behavior and Flatpak-compatible access.
+
+### Decision
+
+Adopt **XDG-aligned separation** on Linux, with a user-configurable alternate location for permanent downloaded content.
+
+- Application data (including the SQLite database, manifests and application-owned metadata) resides under the platform's XDG data location, conventionally `$XDG_DATA_HOME/NamiShelf/` (default `~/.local/share/NamiShelf/`).
+- Configuration resides under `$XDG_CONFIG_HOME/NamiShelf/` (default `~/.config/NamiShelf/`).
+- Disposable cache resides under `$XDG_CACHE_HOME/NamiShelf/` (default `~/.cache/NamiShelf/`).
+- Permanent chapter/page downloads may reside in the default application data location or in a separately selected user directory, including a different mounted disk.
+- Backup export destination is user-selected and distinct from automatic cache cleanup.
+- The application must clearly identify which paths contain permanent content and which are disposable.
+
+### Data safety requirements
+
+- Cache cleanup must never delete permanent downloaded chapters, manifests or the SQLite database.
+- Reader decoded-memory cache, optional disposable disk cache, download staging and permanent downloaded artifacts have separate retention and cleanup policies.
+- Permanent-download relocation must be an explicit, recoverable operation: validate destination, check available space and permissions, copy/verify content, update references safely, and only then offer removal of old data.
+- If an alternate disk is unavailable, NamiShelf must report the offline library as unavailable without silently treating it as empty or deleting metadata; restore access when the location returns.
+- The application must not silently fall back to writing permanent content into the disposable cache.
+- Flatpak document portals or explicitly granted filesystem access must be considered for user-selected external locations; packaging-specific permissions must be validated before release.
+
+### Platform considerations
+
+XDG paths are the Linux reference policy. AppImage and DEB must respect user XDG configuration. Flatpak must respect its sandbox and portal grants. Other operating systems, if later supported, require equivalent platform-native path mapping without changing the logical separation of data classes.
+
+### Deferred details
+
+Exact default path resolution, app ID/case convention, external-volume identity tracking, relocation UX and crash-recovery protocol, removable-volume behavior, free-space thresholds, symlink policy and Flatpak portal integration remain M0/design validation items.
+
+This ADR records an architecture decision only. It does not authorize implementation, builds, dependency installation or tests.
