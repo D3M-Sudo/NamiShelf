@@ -118,3 +118,15 @@ These are design and evidence gates; they do not authorize implementation or ext
 8. Per-extension CPU, memory, thread, descriptor, request and storage quotas.
 
 Do not treat proposed defaults in design documents as owner-approved product decisions until explicitly confirmed. No extension runtime work is authorized.
+
+## 11. Owner-approved broker policy (ADR-010)
+
+**Resolved:** network access is restricted to source-declared origins; capability grants use editable predefined profiles; large content uses temporary broker-issued handles.
+
+**Remaining technical specification work:**
+1. Define origin declaration format, catalog/source trust, DNS resolution and rebinding defense, redirect state machine, proxy rules and TLS behavior.
+2. Define profile names, default grants, sensitive capability list, upgrade prompts, user overrides, revocation and audit events.
+3. Define handle lifecycle, unguessability, binding, expiry, chunking, quotas, cancellation, backpressure, resume and cleanup.
+4. Specify how AppImage, Flatpak and DEB deployments enforce network/process boundaries and clearly document any controls that are application-level rather than OS-enforced.
+
+These choices are approved design constraints, not implementation authorization.
