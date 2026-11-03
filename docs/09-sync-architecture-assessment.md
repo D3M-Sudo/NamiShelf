@@ -32,13 +32,13 @@ The credential path is abstracted through `SyncSecureStore`; the actual desktop 
 ## 4. NamiShelf owner decisions and remaining design
 
 1. **Resolved:** NamiShelf uses a provider-neutral sync domain/protocol, with provider-specific adapters (ADR-002).
-2. Define account authorization, token scope, refresh/revocation, and logout semantics.
-3. Specify encryption-at-rest and end-to-end encryption threat model, key derivation/recovery, and device enrollment.
+2. **Resolved:** GitHub is the first provider adapter; define its authorization scopes, token refresh/revocation, and logout semantics.
+3. **Resolved:** E2EE is mandatory; specify the cryptographic profile, key derivation/recovery, and device enrollment.
 4. Define conflict semantics for read status, progress, favorites, author follows, and deletes.
 5. Specify multi-device concurrency, idempotency, causal ordering, retries, offline queueing, and recovery from interrupted uploads.
 6. Keep credentials outside ordinary backup files and outside extension capabilities.
 7. Ensure diagnostics never include tokens, private repository contents, or sensitive identifiers.
-8. **Resolved direction:** do not make GitHub a protocol requirement. The first provider is still to be selected; assess self-hosted and non-GitHub options.
+8. **Resolved:** GitHub is the first adapter, but self-hosting is also a release-1 requirement. A GitHub-only release is insufficient; select a second self-hosted adapter.
 9. Define what happens when the user loses the sync secret or private repository access.
 10. Document clearly that upstream Mihon does not speak the candidate's custom protocol.
 
@@ -53,7 +53,7 @@ The credential path is abstracted through `SyncSecureStore`; the actual desktop 
 
 ## 6. Owner-approved release scope
 
-Synchronization is required in the first public release. This is a product-scope decision, not evidence that the current candidate's GitHub sync is accepted unchanged. Provider selection, credential policy, encryption, conflict rules, and device recovery remain design work.
+Release 1 requires no mandatory NamiShelf-hosted service, GitHub as first adapter, a self-hosted adapter, mandatory E2EE, and core sync scope (library, chapter read/progress, categories, followed authors). GitHub alone cannot meet the self-hosting requirement. History, tracking, general preferences, downloads, and extension data are out of scope.
 
 ## 7. Assessment
 
