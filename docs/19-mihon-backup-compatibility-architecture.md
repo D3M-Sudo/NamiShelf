@@ -1,6 +1,6 @@
 # NamiShelf — Mihon Backup Compatibility Architecture
 
-**Status:** Evidence-based design proposal; backup format decision remains open  
+**Status:** Owner-approved architecture; format implementation details remain open  
 **Research date:** 2026-11-03  
 **Mihon reference:** `mihonapp/mihon@e588e04359fe1058206a2cbac1b01018ad787359` (v0.21.3 source baseline)
 
@@ -85,7 +85,7 @@ Keep format handling at the boundary:
 
 - **Mihon legacy adapter:** import and export the v0.21.3-compatible gzip/ProtoBuf `.tachibk` contract, with a clearly labeled compatibility mode and field-level loss report.
 - **Future Mihon adapter:** add only after the new Mihon release/source provides an inspectable, versioned format contract and fixtures.
-- **NamiShelf native adapter:** serialize the canonical domain in a NamiShelf-owned, explicitly versioned container. Its extension, manifest, schema evolution, integrity, and optional encryption are separate design choices still requiring owner approval.
+- **NamiShelf native adapter:** serialize the canonical domain in a NamiShelf-owned, explicitly versioned container. Its extension, manifest, schema evolution, integrity, and optional encryption remain detailed design tasks within the approved NamiShelf-native direction.
 
 Do not make the canonical NamiShelf data model equal to any one adapter DTO.
 
@@ -141,11 +141,13 @@ Pinned Android implementation paths:
 - [BackupChapter.kt](https://github.com/mihonapp/mihon/blob/e588e04359fe1058206a2cbac1b01018ad787359/app/src/main/java/eu/kanade/tachiyomi/data/backup/models/BackupChapter.kt)
 - [BackupTracking.kt](https://github.com/mihonapp/mihon/blob/e588e04359fe1058206a2cbac1b01018ad787359/app/src/main/java/eu/kanade/tachiyomi/data/backup/models/BackupTracking.kt)
 
-## 9. Remaining owner decisions
+## 9. Remaining design work (no longer owner-level format choice)
 
-1. Confirm NamiShelf native backup as the default, with Mihon legacy/new-format adapters as optional interoperability paths.
-2. Decide whether the first public release must include legacy `.tachibk` export as well as import, or whether import-only is sufficient initially.
-3. Decide whether NamiShelf-native backups should include downloads, or keep them in a separate migration/export operation.
-4. Decide whether portable settings should be included by default or selected through explicit categories.
+1. Select the native container encoding and file extension; specify manifest, schema versioning, integrity checks, and optional encryption.
+2. Define the precise portable-setting categories and device-local exclusions.
+3. Define a separate downloads export/migration archive, including source identity, checksums, partial-download handling, and re-linking semantics.
+4. Define loss-report format and UI for legacy .tachibk export.
+5. Obtain fixtures from Mihon v0.21.3 and representative compatible forks; test import and export against real Mihon restore behavior.
+6. Inspect the next Mihon release's replacement backup implementation before designing that adapter.
 
 No backup implementation, build, restore, or fixture execution has been performed.
