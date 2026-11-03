@@ -102,3 +102,19 @@ Remaining design work:
 6. Validate process launch, stdio, termination, and resource controls under AppImage, Flatpak, and DEB constraints.
 
 These are design and evidence gates; they do not authorize implementation or extension execution.
+
+## 10. Extension broker and compatibility decisions still open
+
+**Resolved:** stdio pipes are the extension IPC transport (ADR-008). Android APK DEX-to-JVM support and third-party extensions are release-1 requirements; compatibility must be explicitly versioned and fixture-backed (ADR-009).
+
+**Still open before implementation freeze:**
+1. Wire encoding/schema and exact handshake/version negotiation.
+2. Capability catalogue, user-consent model, grant/revoke UX, and per-source scoping.
+3. Network policy: origin allowlisting, redirects, cookies/session isolation, sensitive headers, private/LAN destinations, proxy behavior, TLS and DNS.
+4. Streaming protocol for large chapter/image payloads, quotas, cancellation and backpressure.
+5. Exact Mihon API baseline and supported method-level subset; see document 27.
+6. Android shim implementation strategy, preference UI mapping, bitmap semantics, browser-mediated authentication and native-library policy.
+7. OS sandbox feasibility and release posture for AppImage, Flatpak and DEB.
+8. Per-extension CPU, memory, thread, descriptor, request and storage quotas.
+
+Do not treat proposed defaults in design documents as owner-approved product decisions until explicitly confirmed. No extension runtime work is authorized.
