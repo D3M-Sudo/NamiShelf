@@ -62,7 +62,7 @@ Extension data access is mediated by NamiShelf. Extensions request narrowly scop
 
 Candidate capabilities include source catalogue/search/detail/chapter metadata requests, brokered source HTTP requests, extension-specific settings, and a dedicated extension cache. Do not expose tracking credentials, backup archives, arbitrary user files, full library database access, unrestricted download directories, application configuration/environment variables, or generic process execution by default.
 
-The final capability list and user-consent UX remain open.
+The release-1 capability profiles and default grants are owner-approved under ADR-025 and specified in document 30. Detailed UI presentation and implementation remain engineering work.
 
 ### 4.4 Network and credentials
 
@@ -125,7 +125,7 @@ These are future requirements; none were run in this documentation phase.
 
 ## 9. Remaining engineering details
 
-Exact IPC technology/schema, sandbox mechanism, network broker policy, user-consent UX/capability catalogue, and the precise Android/Mihon API compatibility matrix remain open. Resolve these before implementing the extension subsystem. If any Android compatibility feature is disproportionately expensive, present it for a later owner decision rather than silently dropping it.
+The transport, source-origin network policy, capability-profile model and default grants are owner-approved under ADR-008, ADR-010 and ADR-025. The exact IPC wire schema/limits, OS sandbox mechanism, detailed consent UX and Android/Mihon API compatibility matrix remain engineering/security gates to resolve before implementing the extension subsystem. If any Android compatibility feature is disproportionately expensive, present it for a later owner decision rather than silently dropping it.
 
 
 ## 12. Approved IPC transport
