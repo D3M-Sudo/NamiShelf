@@ -130,3 +130,10 @@ Do not treat proposed defaults in design documents as owner-approved product dec
 4. Specify how AppImage, Flatpak and DEB deployments enforce network/process boundaries and clearly document any controls that are application-level rather than OS-enforced.
 
 These choices are approved design constraints, not implementation authorization.
+
+
+## 12. Extension wire protocol proposal
+
+Document 28 proposes a 4-byte big-endian length prefix and UTF-8 JSON control envelope over the approved stdio transport. This is a recommendation only; the owner has not selected the encoding.
+
+The next owner decision should select JSON, CBOR, Protocol Buffers, or another encoding. The proposal also identifies unresolved frame limits, version negotiation, handshake fields, error taxonomy, and streaming-handle chunk/expiry semantics. Do not treat proposed values as approved defaults.
