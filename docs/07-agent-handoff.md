@@ -77,3 +77,18 @@ Every audit finding must include stable ID, severity/confidence, affected path/b
 - Capability UX: editable predefined profiles, per-capability overrides, and explicit extra consent for sensitive capabilities.
 - Streaming: temporary opaque broker handles scoped to extension process/session/request, with expiry, quotas, cancellation and backpressure.
 - Record these in ADR-010. Do not implement or execute extension code without separate authorization.
+
+
+## 9. Final pre-code specification baseline
+
+The following documents are the implementation-planning references and supersede older unresolved design notes where they conflict:
+
+- ADR-011 records UTF-8 JSON control frames plus binary stream frames over stdio.
+- Document 29 is the normative IPC v1 target.
+- Document 30 defines the proposed capability catalogue and profiles; exact profile names/defaults remain owner-review items.
+- Document 31 defines ordered implementation workstreams and the M0 Linux feasibility gate.
+- Document 32 defines the proposed native backup v1 profile; encryption primitive/KDF selection remains subject to independent review.
+- Document 33 defines the provider-neutral sync domain and adapter requirements; causal conflict model and cryptographic profile remain to be frozen after review.
+- Document 15 is the consolidated decision register and authoritative list of owner inputs.
+
+The next authorized development activity should be a bounded Linux x86_64 feasibility spike on the conditional Mihon Desktop candidate. It must not assume production-base acceptance, enable extension execution, or enable sync. Obtain explicit owner authorization before starting that code/build phase.
