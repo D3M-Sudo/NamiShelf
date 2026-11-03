@@ -1,11 +1,11 @@
 # NamiShelf — Desktop UI and Navigation Architecture
 
-**Status:** Proposed UX architecture; visual design and detailed interaction approval remain open.  
+**Status:** Compose Multiplatform Desktop approved as the UI framework under ADR-014. UX architecture remains a proposal; visual design and detailed interaction approval remain open.  
 **Target:** Linux desktop, keyboard and pointer input, scalable window layouts.
 
 ## 1. Product UX direction
 
-NamiShelf uses a desktop-first hybrid UX inspired by Mihon, not a literal Android screen port. The interface should support both focused reading and information-dense library management. Navigation, dialogs, menus, keyboard behavior and file workflows must follow desktop conventions.
+NamiShelf uses Compose Multiplatform Desktop and a desktop-first hybrid UX inspired by Mihon, not a literal Android screen port. Linux build/runtime, memory, rendering, accessibility and package compatibility are mandatory M0 validation gates under ADR-014. The interface should support both focused reading and information-dense library management. Navigation, dialogs, menus, keyboard behavior and file workflows must follow desktop conventions.
 
 ## 2. Primary information architecture
 
@@ -103,9 +103,9 @@ Use a shared design system for spacing, typography, semantic colors, icon sizing
 - Global search/command palette scope.
 - Reader full-window behavior and page-strip placement.
 - Settings information architecture.
-- Exact Compose Desktop navigation/state libraries.
+- Exact Compose Desktop navigation/state libraries and state-management approach (framework fixed; supporting libraries deferred).
 - Minimum window size and responsive breakpoints.
 
 These should be settled through low-cost wireframes/prototypes and owner review, not guessed as final visual decisions.
 
-No UI implementation or visual prototype has been created.
+No UI implementation or visual prototype has been created. Framework adoption is conditional on passing the Linux M0 gates; failure requires evidence-based owner review.
