@@ -49,7 +49,19 @@ Candidate enrollment flow:
 
 Do not transmit the account root secret through ordinary provider objects in plaintext, URLs, logs, or QR payloads without a separately reviewed secure protocol.
 
-## 5. Recovery choices to evaluate
+## 5. Owner-approved recovery model
+
+The owner selected **both** recovery paths: a user-held recovery key and authenticated transfer from an already-authorized device. They are complementary mechanisms. Provider credentials must never substitute for either path.
+
+### User-held recovery key
+
+The design must generate high-entropy recovery material locally, display it only through a deliberate enrollment/recovery flow, require confirmation that the user has retained it, and explain that losing it together with all trusted devices makes the encrypted remote data unrecoverable. Define a safe encoding and verification procedure; do not log or sync the recovery secret.
+
+### Authorized-device transfer
+
+Transfer must be explicitly approved on a trusted device and authenticated end-to-end to the new device. Use a short-lived, one-time enrollment authorization and a secure local/network channel. Provider storage must not relay plaintext key material.
+
+## 5A. Recovery choices considered
 
 | Model | Benefits | Risks / operational cost |
 |---|---|---|
@@ -60,7 +72,13 @@ Do not transmit the account root secret through ordinary provider objects in pla
 
 Recovery must not silently downgrade encryption or allow provider credentials alone to decrypt data. If all authorized devices and recovery material are lost, explain whether the remote ciphertext is permanently unrecoverable.
 
-## 6. Rotation and revocation
+## 6. Owner-approved revocation behavior
+
+Revoking a device triggers key rotation for future synchronized data. The revoked device must not receive the new key version. Rotation must be coordinated through authenticated account state and cannot rely solely on provider ETags or Git history.
+
+This does not retroactively erase plaintext or old ciphertext already copied by the revoked device. Historical ciphertext handling remains an explicit open decision: retain under old keys, re-encrypt for remaining devices, or delete where safe and feasible.
+
+## 7. Rotation and revocation engineering requirements
 
 - Support device revocation and define whether it triggers account-key rotation.
 - A revoked device must not decrypt future payloads after the rotation boundary.
@@ -69,13 +87,13 @@ Recovery must not silently downgrade encryption or allow provider credentials al
 - Prevent stale devices from overwriting newer key metadata or restoring revoked device state.
 - Keep an auditable local device list without exposing private key material.
 
-## 7. Envelope and anti-replay requirements
+## 8. Envelope and anti-replay requirements
 
 Each encrypted envelope should authenticate protocol version, payload type, account scope, schema version, key version, object identity, and relevant causal metadata as associated data. Nonces must follow the selected AEAD construction's uniqueness requirements.
 
 Use authenticated sequence/version metadata to detect replay and rollback. Provider ETags or Git commit ancestry may assist transport concurrency but must not be treated as cryptographic freshness proof or the canonical conflict model.
 
-## 8. Credential separation
+## 9. Credential separation
 
 - Provider access tokens authenticate storage operations only; they do not decrypt payloads.
 - E2EE root/key material is separate from provider credentials.
@@ -84,7 +102,7 @@ Use authenticated sequence/version metadata to detect replay and rollback. Provi
 - Ordinary backup files exclude sync keys and provider credentials.
 - Logs, crash reports, analytics, process arguments, environment variables, and diagnostics must redact secrets.
 
-## 9. Open security decisions
+## 10. Open security decisions
 
 1. Select the key hierarchy and cryptographic suite only after a dedicated threat-model and cryptographic review.
 2. Choose recovery: user-held recovery key, device-to-device transfer, or both.
@@ -93,7 +111,7 @@ Use authenticated sequence/version metadata to detect replay and rollback. Provi
 5. Define account identity and device enrollment without a NamiShelf-operated service.
 6. Define export/transfer procedure when changing self-hosted providers.
 
-## 10. Verification gates before implementation
+## 11. Verification gates before implementation
 
 - Independent review of the cryptographic design and protocol state machine.
 - Known-answer tests and test vectors for all selected primitives.
