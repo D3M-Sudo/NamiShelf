@@ -1,6 +1,6 @@
 # NamiShelf — Self-Hosted Sync Adapter Options
 
-**Status:** Comparative design; no second adapter selected
+**Status:** WebDAV selected by owner; server compatibility profile and conformance remain open
 **Date:** 2026-11-03
 **Decision basis:** ADR-006 — self-hosted sync required in release 1; GitHub is first adapter
 
@@ -46,11 +46,11 @@ Risks: this increases coupling to Git semantics and may duplicate substantial co
 
 Minimum acceptance: standard authenticated HTTPS or SSH; atomic ref update behavior; protected server-side repository access; safe handling of untrusted remote objects; no reliance on GitHub-specific APIs; and cross-provider conformance tests.
 
-## 6. Recommendation
+## 6. Owner decision and remaining validation
 
-Evaluate WebDAV as the default self-hosted adapter candidate because it offers the broadest user-managed infrastructure story without making Git a required storage primitive. Keep S3-compatible storage as a strong alternative for users who already operate object storage. Consider self-hosted Git only if reuse of the candidate Git transport materially reduces implementation risk and the user experience is acceptable.
+The owner selected **WebDAV** as the release-1 self-hosted adapter on 2026-11-03. S3-compatible storage and self-hosted Git are not selected for release 1.
 
-This is a recommendation, not an owner decision. Before selecting WebDAV, verify whether its conditional write and concurrency semantics can safely implement the protocol without server-specific workarounds. If not, S3-compatible storage may be the stronger first self-hosted adapter.
+This selection does not imply universal WebDAV interoperability. Before implementation, define a supported server compatibility profile and validate conditional writes, ETags, atomic replacement or immutable-object coordination, listing, TLS, size limits, and interrupted-transfer recovery. Servers without safe concurrency semantics must be rejected or restricted to a safe mode.
 
 ## 7. Required architecture shape
 
@@ -63,8 +63,8 @@ This is a recommendation, not an owner decision. Before selecting WebDAV, verify
 - Provider stores ciphertext only; key management is independent of provider authentication.
 - Switching provider must not require decrypting and reauthoring domain state through the old provider; define a secure client-side transfer path.
 
-## 8. Open owner decision
+## 8. Remaining technical decisions
 
-Choose the release-1 self-hosted adapter: WebDAV, S3-compatible object storage, or self-hosted Git. If choosing WebDAV or S3, decide whether a minimal supported server compatibility list is acceptable. If choosing self-hosted Git, confirm that the more technical setup experience is acceptable.
+Define the minimum supported WebDAV server capability profile, concurrency strategy, authentication methods, endpoint validation, and compatibility test matrix. Decide whether servers lacking conditional update semantics can use an immutable-object strategy or must be rejected.
 
 No server was contacted, no credentials were used, and no implementation or interoperability test was performed.
