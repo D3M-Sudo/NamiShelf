@@ -76,13 +76,13 @@ Every adapter must explicitly declare and test:
 
 1. **Resolved — hosting:** no mandatory NamiShelf-hosted service in release 1; users use their own provider accounts/infrastructure.
 2. **Resolved — first adapter:** GitHub. Its API, repository layout, and Git object model remain behind the provider adapter.
-3. **Resolved — self-hosting:** required in release 1. GitHub alone cannot meet this; a second self-hosted adapter is necessary. Select its technology (WebDAV, S3-compatible, or self-hosted Git) before implementation.
-4. **Resolved — E2EE:** mandatory for all synced user payloads. Cryptographic construction, key lifecycle, recovery, and metadata leakage remain open.
+3. **Resolved — self-hosting:** required in release 1. WebDAV is the approved second adapter alongside GitHub. Its server compatibility and conditional-write guarantees must be validated.
+4. **Resolved — E2EE:** mandatory for all synced user payloads. Recovery uses both a user-held recovery key and authenticated transfer from an authorized device. Device revocation triggers rotation for future data. Cryptographic construction, key lifecycle details, and metadata leakage remain open.
 5. **Resolved — scope:** core only: library entries, chapter read/progress state, categories, and followed authors. History, tracking, preferences, downloads, and extension data are excluded from release 1.
 
 ## 8. Architecture implications and explicit non-goals
 
-A GitHub-only first release would contradict the self-hosting requirement. The release architecture therefore needs two provider adapters: GitHub plus a separately deployable self-hosted backend. The provider-neutral protocol remains common to both. Do not silently reinterpret GitHub Enterprise or a GitHub account as satisfying self-hosting without a specific owner decision.
+A GitHub-only first release would contradict the self-hosting requirement. The release architecture therefore needs two provider adapters: GitHub plus WebDAV. The provider-neutral protocol remains common to both. Do not silently reinterpret GitHub Enterprise or a GitHub account as satisfying self-hosting. WebDAV servers must pass capability and concurrency conformance checks.
 
 
 
