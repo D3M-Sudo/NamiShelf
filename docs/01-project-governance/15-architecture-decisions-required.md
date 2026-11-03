@@ -113,23 +113,27 @@ Other platform policy details requiring owner input before release packaging fre
 
 These do not block writing implementation code for a Linux feasibility spike.
 
-## 7. Window model decision
+## 7. Presentation state model decision
+
+Owner-approved under ADR-017: MVVM combined with Unidirectional Data Flow. Screens expose immutable observable state; user interactions are typed events; presentation invokes application use cases; one-off effects are separate from durable state. Long-running work remains service-owned and survives navigation/screen disposal. Specific ViewModel/state, navigation, coroutine and DI libraries are deferred until M0.
+
+## 8. Window model decision
 
 Owner-approved under ADR-016: one top-level application window for release 1. Library, feature destinations, contextual detail and reader mode transition within that window. Native transient dialogs/file pickers are permitted. Long-running background operations remain independent of screen lifecycle. Detached reader windows and broader multi-window support are not release-1 requirements.
 
-## 8. Desktop navigation decision
+## 9. Desktop navigation decision
 
 Owner-approved under ADR-015: hybrid shell with collapsible persistent sidebar, central content workspace, optional contextual detail pane, and dedicated reader workspace. Reader entry/exit restores the previous navigation context; background operations continue independently. Exact responsive breakpoints, pane widths, minimum window size, tab/multi-window behavior and shortcut assignments remain prototype-level details.
 
-## 9. UI framework decision
+## 10. UI framework decision
 
 Owner-approved under ADR-014: Compose Multiplatform Desktop is the reference UI framework. The UX remains desktop-first rather than an Android UI port. Linux build/runtime, memory, sustained reader rendering, HiDPI/fractional scaling, accessibility, X11/Wayland policy and AppImage/Flatpak/DEB constraints are mandatory M0 gates. Kotlin/Compose versions and navigation/state libraries remain deferred. A failed critical gate requires evidence and owner review; do not silently replace the framework.
 
-## 10. Local persistence decision
+## 11. Local persistence decision
 
 Owner-approved under ADR-013: SQLite embedded is the reference technology for local structured persistence. Large page/download artifacts and caches remain in managed filesystem storage. Database driver, SQL access layer, ORM/query framework, concurrency configuration and physical schema are deferred until after M0 inspection. If the candidate's SQLite stack proves unsuitable, present evidence and alternatives for explicit owner review; do not silently switch databases.
 
-## 11. Preliminary application architecture baseline
+## 12. Preliminary application architecture baseline
 
 The five-area architecture baseline is now documented in:
 
@@ -141,7 +145,7 @@ The five-area architecture baseline is now documented in:
 
 These are preliminary engineering proposals, not implementation evidence. Physical module count, SQLite driver/SQL access layer, Compose versions/navigation-state libraries, JVM packaging, OS sandbox mechanism and cryptographic suite remain conditional on M0 inspection or later owner decisions.
 
-## 12. Explicitly unresolved owner decisions
+## 13. Explicitly unresolved owner decisions
 
 Only the following require owner choice or confirmation rather than ordinary engineering specification:
 
@@ -154,7 +158,7 @@ Only the following require owner choice or confirmation rather than ordinary eng
 
 Everything else in the approved scope can proceed as engineering specification with secure defaults, fixture validation, and documented evidence. The five-area preliminary architecture baseline is documented; it still requires owner review before architecture freeze.
 
-## 13. First code phase recommendation
+## 14. First code phase recommendation
 
 **M0 — Linux feasibility and baseline, not full product implementation**
 
@@ -168,7 +172,7 @@ Everything else in the approved scope can proceed as engineering specification w
 
 Do not enable third-party extension execution or synchronization in M0. Do not port or implement security-sensitive subsystems until their specifications and review gates are complete.
 
-## 14. Operational guardrails
+## 15. Operational guardrails
 
 - No changes to Mihon upstream or the external Mihon Desktop repository.
 - NamiShelf work remains in its own repository and branches.
