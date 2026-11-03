@@ -13,6 +13,7 @@ Prepare NamiShelf as an independent Linux desktop application inspired by Mihon,
 - Repository: `D3M-Sudo/NamiShelf`; documentation publication authorized on existing branch `feature`.
 - Candidate base: conditional adoption of `AltairCardinal/mihon-desktop`.
 - Upstream policy: retain upstream references and selectively integrate changes.
+- Synchronization architecture: provider-neutral domain/protocol with provider-specific adapters; GitHub is not the protocol contract (owner-approved 2026-11-03). First-release sync scope and initial provider remain undecided.
 - UI: desktop-first hybrid UX inspired by Mihon.
 - Scope: reader, sources, library, tracking, backup, extensions, downloads, history.
 - Packaging: AppImage, Flatpak, DEB.
