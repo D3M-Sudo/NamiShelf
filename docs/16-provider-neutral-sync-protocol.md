@@ -1,6 +1,6 @@
 # NamiShelf — Provider-Neutral Synchronization Protocol
 
-**Status:** Architecture proposal following ADR-002  
+**Status:** First-release requirement; provider-neutral architecture owner-approved  
 **Date:** 2026-11-03
 
 ## Goals
@@ -57,6 +57,6 @@ Adapters declare support for durable object storage, atomic replacement, conditi
 
 Handle offline devices, partial batches, duplicate delivery, rate limits, revoked credentials, corrupted objects, schema mismatch, clock skew, account deletion, and lost keys. Sync failure must not block local reading or corrupt local state. Tests must cover idempotent replay, duplicate/out-of-order operations, concurrent edits, tombstone retention, stale-device reconnect, conditional-write races, partial retry, schema migration, corrupt payloads, credential revocation, and secret-leak checks.
 
-## Still undecided
+## Release scope and remaining decisions
 
-Whether sync ships in release 1, first provider, E2EE requirement, exact entity scope, account/device enrollment, recovery model, and final conflict rules.
+Synchronization is required in the first public release (owner-approved 2026-11-03). The initial provider remains undecided. Also open: E2EE requirement, exact entity scope, account/device enrollment, recovery model, and final conflict rules. The entity list and conflict semantics above are proposals, not yet a finalized product contract.
