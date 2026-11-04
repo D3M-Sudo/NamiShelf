@@ -43,3 +43,39 @@ Verify redistribution rights for inherited assets, separate font/icon notices, c
 ## 6. Gate
 
 Do not distribute public packages until an SBOM and license report have been reviewed and packaged notices verified.
+
+
+---
+
+## 7. M0 evidence update — 2026-11-04
+
+The pinned candidate is `AltairCardinal/mihon-desktop@701080c251c8fd8b35d0b57a481d93b9a9eb3701`.
+
+### Static evidence confirmed
+
+- The candidate declares Apache-2.0 at repository level.
+- The desktop build applies an AboutLibraries Gradle plugin and the repository's `mihon.desktop.licenses` convention plugin.
+- The convention plugin exports JVM library metadata to `META-INF/mihon/dependencies.json` and wires the export into JVM resource processing.
+- The desktop test suite includes a dependency-notice contract; the earlier static report records an expectation of 203 notices.
+- The desktop resources include Material Symbols NOTICE and Apache-2.0 license material.
+- The Gradle version catalog declares Compose Multiplatform 1.10.2, SQLDelight 2.2.1, SQLite 2.6.2 and JNA 5.19.1. These are declarations, not proof that every component enters the packaged runtime.
+
+### Execution evidence
+
+The NamiShelf Linux CI run #8 completed the desktop JVM compile and reached the JVM tests, but the test task failed. The workflow's evidence collection attempts to export AboutLibraries definitions and resolve `jvmRuntimeClasspath` even when an earlier step fails. A subsequent workflow run is now executing with the GUI smoke test decoupled from the JVM test outcome.
+
+No complete resolved runtime dependency inventory, SPDX/CycloneDX SBOM, native ELF inventory, package-level license report or clean-package notice verification is yet accepted as complete. Those gates require the current CI evidence to be inspected and checked against actual packaged files.
+
+### Legal/dependency disposition
+
+**Static source/license baseline: provisionally acceptable for further evaluation, not approved for redistribution.**
+
+Before any public NamiShelf binary:
+1. Capture and retain the complete resolved desktop runtime dependency graph and its repository coordinates.
+2. Generate an SPDX or CycloneDX SBOM from resolved artifacts, not from the version catalog alone.
+3. Include native binaries and embedded payloads in the inventory.
+4. Verify every shipped license and NOTICE entry against the actual DEB, Flatpak and AppImage payloads independently.
+5. Check fonts, icons, images, trademarks, inherited names and product branding separately from source-code licensing.
+6. Define vulnerability monitoring, dependency update ownership and a reproducible provenance/checksum process.
+
+The CI evidence step is an evidence collector, not a legal approval gate. Do not describe the project as fully license-audited until the generated reports and final package payloads have been reviewed.
