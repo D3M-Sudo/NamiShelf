@@ -213,3 +213,72 @@ The official packaging entrypoint already exits on Linux and the Gradle distribu
 - **Wayland:** unassessed.
 
 No fork/import/porting decision is made by this report. No code changes, candidate modifications, PRs, merges or releases were made. The final M0 GO/NO-GO decision is deferred until the executable gates above are satisfied.
+
+
+---
+
+## 10. M0 execution update — 2026-11-04
+
+**Execution reference:** NamiShelf workflow run [#8](https://github.com/D3M-Sudo/NamiShelf/actions/runs/41740543063), candidate SHA unchanged at `701080c251c8fd8b35d0b57a481d93b9a9eb3701`.
+
+### 10.1 Linux CI result
+
+The M0 workflow completed in 8m54s and ended with `failure`, not success. JDK setup, Android SDK baseline, desktop JVM compilation and the isolated Secret Service probe succeeded. The `:app-desktop:jvmTest` task failed. The HTML report extracted from the run artifact recorded 109 tests: 107 passed, 1 failed and 1 skipped.
+
+The single failing test was:
+
+`DesktopBackupRestorerTest.restore persists tracking preferences source preferences and extension repositories field by field()`
+
+The report showed an `AssertionError` with a nested `TransformerException` / `SAXException`. Source inspection of the pinned candidate establishes this path:
+
+- `DesktopPreferenceStore.getStringSet` joins values with U+001F (Unit Separator).
+- `DesktopPreference.set` writes the value and immediately calls `Preferences.flush()`.
+- Java Preferences XML export uses XML 1.0 character constraints; U+001F is not a legal XML 1.0 character.
+
+This is a strongly supported defect hypothesis and likely explains the observed exception. It is **not yet marked independently reproduced** in this report. The full artifact inspection remains a separate pending activity; until that is completed, preserve the exact failure stack and XML report as outstanding evidence.
+
+The X11 smoke step was skipped in run #8 because it was conditional on JVM tests succeeding. The workflow has since been adjusted so the X11 smoke step runs independently of the JVM test outcome. That change is a NamiShelf CI-only change and does not modify the pinned candidate.
+
+### 10.2 Packaging assessment
+
+The candidate's pinned `app-desktop/build.gradle.kts` declares only `TargetFormat.Dmg` and `TargetFormat.Msi`. The Linux build entrypoint explicitly rejects Linux packaging. Therefore the successful exit code of `:app-desktop:createDistributable` in run #8 is not proof of a Linux installer or Linux release artifact.
+
+| Format | Candidate evidence | M0 disposition |
+|---|---|---|
+| DEB | No Linux DEB target or packaging pipeline in the pinned candidate | Not supported as-is |
+| Flatpak | No Flatpak manifest/build pipeline in the pinned candidate | Not supported as-is |
+| AppImage | No AppImage packaging/update pipeline in the pinned candidate | Not supported as-is |
+
+All three remain valid NamiShelf downstream delivery goals, but require separate implementation and clean-install/update/uninstall validation. No candidate package was produced or installed by this assessment.
+
+### 10.3 Dependency and licensing evidence
+
+Static review confirms Apache-2.0 at repository level, an AboutLibraries JVM export task writing `META-INF/mihon/dependencies.json`, a desktop dependency-notice test, and explicit NOTICE/license resources for Material Symbols. The version catalog includes (among others) Compose Multiplatform 1.10.2, SQLDelight 2.2.1, SQLite 2.6.2 and JNA 5.19.1. These are declared versions, not a resolved runtime SBOM.
+
+The current M0 workflow attempts to export the JVM library definitions and resolve `jvmRuntimeClasspath` into evidence files even after earlier failures. The actual report and resolved dependency tree must be checked before declaring the legal/dependency gate complete. Repository-level Apache-2.0 does not substitute for a shipped-artifact license audit.
+
+### 10.4 Architecture decisions closed or retained as gates
+
+| Area | M0 outcome |
+|---|---|
+| Local database | Keep embedded SQLite, already owner-approved. SQLDelight with its JVM SQLite/JDBC driver is the leading candidate-compatible implementation because the pinned build declares the driver and desktop tests use `JdbcSqliteDriver`; final adoption remains contingent on successful runtime/native validation and migration review. |
+| SQL layer / ORM | Prefer SQLDelight-generated typed queries and explicit migrations over introducing a second ORM, subject to the preceding runtime gate. |
+| UI framework | Compose Multiplatform remains conditional: compile and test evidence is positive, but the independent X11 smoke result is still required. |
+| UI state | Retain MVVM with unidirectional state/event flow; avoid framework-specific state libraries until Compose runtime validation. |
+| Gradle topology | Retain Modular Monolith as the logical architecture. Physical Gradle module splitting is not an M0 prerequisite and remains deferred until dependency boundaries are proven. |
+| Reader pipeline | Retain lazy visible-page loading, bounded directional prefetch and byte-budgeted LRU decoded-image cache. Numeric budgets/concurrency remain profiling outputs, not arbitrary M0 choices. |
+| Chapter storage | Retain filesystem-backed content-addressed objects and per-chapter manifests; use a standard cryptographic digest (SHA-256 baseline) unless measured requirements justify another algorithm. Keep metadata in SQLite, stage downloads atomically, verify content before reference publication, and make garbage collection reachability-based and recoverable. |
+| Credentials | Retain Secret Service and fail-closed behavior. The CI probe verifies a temporary keyring command path, not the complete application integration or Flatpak portal behavior. |
+| Linux paths | Candidate default `~/.mihon` is incompatible with the approved NamiShelf XDG/profile isolation. A downstream adapter must own the NamiShelf identity and XDG paths before any normal-user launch. |
+| Packaging/update | No candidate Linux installer support. NamiShelf's approved DEB/Flatpak native update paths and dedicated AppImage updater remain downstream requirements. |
+
+### 10.5 Phase status
+
+1. **Failure diagnosis:** source-level mechanism identified; full artifact inspection and independent reproduction remain pending.
+2. **Linux GUI smoke:** CI changed to run independently of JVM test outcome; result pending a new run.
+3. **Linux packaging:** candidate does not provide DEB, Flatpak or AppImage packaging as-is; downstream work required.
+4. **Dependencies and licenses:** static review completed; resolved runtime inventory, generated notices and SBOM verification remain pending CI evidence review.
+5. **Architecture decisions:** baseline choices and conditional gates recorded above; performance-derived reader parameters remain deferred to profiling.
+6. **Final M0 report:** preliminary report updated; final GO/NO-GO is intentionally withheld until the outstanding execution evidence is available.
+
+**Current M0 disposition remains: NO-GO for drop-in Linux reuse; CONDITIONAL GO for a separately scoped downstream port, pending the outstanding test, GUI, dependency and artifact evidence.** No product code was changed, and no porting, PR, merge or release was started.
