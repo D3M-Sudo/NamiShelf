@@ -129,7 +129,7 @@ jobs:
           exit "$result"
 
       - name: Launch unmodified desktop app in isolated X11 session
-        if: steps.desktop_tests.outcome == 'success'
+        if: always()
         working-directory: candidate
         shell: bash
         run: |
