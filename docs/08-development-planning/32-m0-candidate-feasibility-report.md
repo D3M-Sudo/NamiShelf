@@ -282,3 +282,34 @@ The current M0 workflow attempts to export the JVM library definitions and resol
 6. **Final M0 report:** preliminary report updated; final GO/NO-GO is intentionally withheld until the outstanding execution evidence is available.
 
 **Current M0 disposition remains: NO-GO for drop-in Linux reuse; CONDITIONAL GO for a separately scoped downstream port, pending the outstanding test, GUI, dependency and artifact evidence.** No product code was changed, and no porting, PR, merge or release was started.
+
+
+## 11. M0 execution update — 2026-11-05 (workflow run #9)
+
+**Execution reference:** NamiShelf workflow run [#9](https://github.com/D3M-Sudo/NamiShelf/actions/runs/41747974947), branch `feature`, workflow commit `50a7ce9`; candidate SHA remains `701080c251c8fd8b35d0b57a481d93b9a9eb3701`.
+
+### 11.1 Confirmed job results
+
+- JDK 21 setup, Gradle setup, exact candidate checkout, Android SDK baseline and `:app-desktop:compileKotlinJvm`: succeeded.
+- Isolated Secret Service command probe: succeeded. This remains a probe, not end-to-end application credential validation.
+- `:app-desktop:jvmTest`: failed again with exit code 1 after approximately four minutes. The visible job log ends with Gradle's `MarkedVerificationException` and points to the HTML test report; it does not include the individual failing test's assertion/stack trace.
+- Independent X11 smoke: succeeded. The application process remained alive for the full 60-second smoke window under `dbus-run-session` and `xvfb-run`. This closes the CI X11 launch-smoke gate for this runner configuration, but does not establish Wayland support, interactive usability, Linux Mint behavior or full Secret Service integration.
+- Dependency/license evidence collection and packaging probe steps completed at the workflow-step level. Their commands deliberately use `|| true` for report generation, and the packaging step is non-gating; green step status is not proof that reports were generated successfully or that a Linux package exists.
+- Evidence artifact: [nami-shelf-m0-linux-41747974947-1](https://github.com/D3M-Sudo/NamiShelf/actions/runs/41747974947/artifacts/13284233790), SHA-256 `b5984572b39b52f9644ee895b5f7a64969f5f413b50201984f258b67f98388bc`, retention through 2026-12-04.
+
+### 11.2 Test-failure diagnosis status
+
+The run #9 job log confirms that the JVM test task still fails, but the visible log does not expose the underlying test case. The artifact was retrieved by the GitHub integration, but its ZIP/report contents could not be inspected in the current session because the data-analysis runtime refused execution. No alternate executor or extraction path was used as a workaround.
+
+The run #8 finding remains the leading hypothesis: the backup restore test writes a string-set value joined with U+001F into Java Preferences, whose XML serialization cannot represent that XML 1.0 control character. This remains a strongly supported hypothesis, **not an independently reproduced root cause**, and run #9 must not be described as proving that the same test is still the sole failure until its report is inspected.
+
+### 11.3 Updated phase status
+
+1. **Failure diagnosis:** still open; run #9 confirms another JVM test failure, but its individual failing test/report is not yet inspected. The U+001F / XML 1.0 mechanism remains a hypothesis.
+2. **Linux GUI smoke:** CI X11 launch smoke passed for 60 seconds; Wayland and primary Linux Mint session validation remain open.
+3. **Linux packaging:** candidate remains unsupported as-is for DEB, Flatpak and AppImage; the successful non-gating probe step does not change this source-level conclusion.
+4. **Dependencies and licenses:** still partial; generated report files and resolved dependency tree have not been reviewed. A green evidence-collection step is insufficient because generation commands are allowed to fail without failing the step.
+5. **Architecture decisions:** recommendations and conditional gates remain as recorded in section 10.4.
+6. **Final M0 report:** not ready; retain the conditional disposition below until test and dependency evidence are reviewed.
+
+**Current disposition:** NO-GO for drop-in Linux reuse; CONDITIONAL GO for a separately scoped downstream port. The X11 smoke result improves the Compose Desktop compatibility evidence, but does not close the JVM test, dependency/license, packaging or Wayland gates. No candidate source was modified and no porting, PR, merge or release was started.
