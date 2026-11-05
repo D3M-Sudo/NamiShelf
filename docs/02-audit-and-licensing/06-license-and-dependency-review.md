@@ -79,3 +79,15 @@ Before any public NamiShelf binary:
 6. Define vulnerability monitoring, dependency update ownership and a reproducible provenance/checksum process.
 
 The CI evidence step is an evidence collector, not a legal approval gate. Do not describe the project as fully license-audited until the generated reports and final package payloads have been reviewed.
+
+
+## 8. Workflow run #9 update — 2026-11-05
+
+The NamiShelf M0 Linux workflow [run #9](https://github.com/D3M-Sudo/NamiShelf/actions/runs/41747974947) completed its dependency/license evidence-collection step, but this is not a completed audit result:
+
+- The AboutLibraries export command is followed by `|| true`; a green workflow step does not prove the export succeeded.
+- The `jvmRuntimeClasspath` dependency report command is also followed by `|| true`; its output must be inspected and checked for a complete resolution.
+- No reviewed SPDX/CycloneDX SBOM, native payload inventory or package-level license report has been accepted.
+- The workflow artifact [13284233790](https://github.com/D3M-Sudo/NamiShelf/actions/runs/41747974947/artifacts/13284233790) was retrieved, but its contents have not yet been inspected in this session.
+
+**Disposition unchanged:** static source/license baseline is provisionally acceptable for further evaluation only. The dependency/legal gate remains open; no redistribution approval is implied.
