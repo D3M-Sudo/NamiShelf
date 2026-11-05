@@ -163,18 +163,63 @@ jobs:
         shell: bash
         run: |
           mkdir -p "$RUNNER_TEMP/m0-evidence"
+          set +e
           timeout --signal=TERM --kill-after=10s 5m ./gradlew --no-daemon --console=plain :app-desktop:exportLibraryDefinitionsJvm \
-            > "$RUNNER_TEMP/m0-evidence/aboutlibraries-export.log" 2>&1 || true
+            > "$RUNNER_TEMP/m0-evidence/aboutlibraries-export.log" 2>&1
+          export_result=$?
+          echo "$export_result" > "$RUNNER_TEMP/m0-evidence/aboutlibraries-export.exit-code"
           timeout --signal=TERM --kill-after=10s 5m ./gradlew --no-daemon --console=plain :app-desktop:dependencies --configuration jvmRuntimeClasspath \
-            > "$RUNNER_TEMP/m0-evidence/desktop-runtime-dependencies.txt" 2>&1 || true
+            > "$RUNNER_TEMP/m0-evidence/desktop-runtime-dependencies.txt" 2>&1
+          dependencies_result=$?
+          echo "$dependencies_result" > "$RUNNER_TEMP/m0-evidence/desktop-runtime-dependencies.exit-code"
+          set -e
+
+          mkdir -p "$RUNNER_TEMP/m0-evidence/test-results-jvmTest"
           cp -f app-desktop/build/reports/tests/jvmTest/index.html \
             "$RUNNER_TEMP/m0-evidence/desktop-jvm-test-report.html" 2>/dev/null || true
+          cp -f app-desktop/build/test-results/jvmTest/*.xml \
+            "$RUNNER_TEMP/m0-evidence/test-results-jvmTest/" 2>/dev/null || true
           cp -f "$RUNNER_TEMP/m0-jvm-tests.log" "$RUNNER_TEMP/m0-evidence/" 2>/dev/null || true
           cp -f "$RUNNER_TEMP/m0-fail-fast.init.gradle" "$RUNNER_TEMP/m0-evidence/" 2>/dev/null || true
           cp -f "$RUNNER_TEMP/m0-environment.txt" "$RUNNER_TEMP/m0-evidence/" 2>/dev/null || true
           cp -f "$RUNNER_TEMP/android-toolchain-check.json" "$RUNNER_TEMP/m0-evidence/" 2>/dev/null || true
           cp -f "$RUNNER_TEMP/m0-x11-launch.log" "$RUNNER_TEMP/m0-evidence/" 2>/dev/null || true
           cp -f "$RUNNER_TEMP/m0-x11-launch.exit-code" "$RUNNER_TEMP/m0-evidence/" 2>/dev/null || true
+
+          echo "=== JVM test XML summary ==="
+          python3 - "$RUNNER_TEMP/m0-evidence/test-results-jvmTest" <<'PY'
+          import pathlib
+          import sys
+          import xml.etree.ElementTree as ET
+
+          root = pathlib.Path(sys.argv[1])
+          reports = sorted(root.glob("*.xml"))
+          if not reports:
+              print("No JUnit XML reports were copied.")
+          for report in reports:
+              try:
+                  tree = ET.parse(report)
+                  suite = tree.getroot()
+                  cases = suite.findall(".//testcase")
+                  print(f"{report.name}: tests={len(cases)} failures={len(suite.findall('.//failure'))} errors={len(suite.findall('.//error'))} skipped={len(suite.findall('.//skipped'))}")
+                  for case in cases:
+                      failure = case.find("failure")
+                      error = case.find("error")
+                      detail = failure if failure is not None else error
+                      if detail is not None:
+                          print(f"FAILED: {case.get('classname', '')}.{case.get('name', '')}")
+                          print(f"  type={detail.get('type', '')}")
+                          print(f"  message={detail.get('message', '')}")
+                          print((detail.text or '')[:5000])
+              except ET.ParseError as exc:
+                  print(f"Could not parse {report.name}: {exc}")
+          PY
+          echo "AboutLibraries export exit code: $export_result"
+          echo "Runtime dependency report exit code: $dependencies_result"
+          echo "=== AboutLibraries export log (last 80 lines) ==="
+          tail -n 80 "$RUNNER_TEMP/m0-evidence/aboutlibraries-export.log" || true
+          echo "=== Runtime dependency report (last 80 lines) ==="
+          tail -n 80 "$RUNNER_TEMP/m0-evidence/desktop-runtime-dependencies.txt" || true
 
       - name: Probe Linux native distribution task
         if: always()
